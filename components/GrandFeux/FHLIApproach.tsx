@@ -201,7 +201,7 @@ function FHLIApproach() {
       <Text style={styles.label}>Durée entretien tapis de mousse (en min)</Text>
       <TextInput style={styles.input} value={maintDur} onChangeText={setMaintDur} keyboardType="numeric" placeholder="10" />
       <View style={styles.buttons}>
-        <TouchableOpacity style={styles.resetButton} onPress={handleResetFoam}>
+        <TouchableOpacity style={[styles.resetButton, { marginRight: 8 }]} onPress={handleResetFoam}>
           <Text style={styles.resetText}>Réinitialiser</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.calculateButton} onPress={handleCalculateFoam}>
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   selectedButtonText: { color: '#fff', fontWeight: 'bold' },
   label: { fontWeight: 'bold', marginBottom: 4 },
   input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 8, marginBottom: 12 },
-  buttons: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  buttons: { flexDirection: 'row', justifyContent: 'center', marginBottom: 12 },
   resetButton: { borderWidth: 2, borderColor: '#D32F2F', backgroundColor: '#fff', borderRadius: 18, paddingVertical: 8, paddingHorizontal: 22 },
   calculateButton: { backgroundColor: '#D32F2F', borderRadius: 18, paddingVertical: 8, paddingHorizontal: 22 },
   resetText: { color: '#D32F2F', fontWeight: 'bold', fontSize: 16 },
