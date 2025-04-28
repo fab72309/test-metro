@@ -11,7 +11,7 @@ import { useMemoSegments } from '../../context/MemoSegmentsContext';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeContext';
 
-export default function HomeScreen() {
+export default function CalculPertesDeCharge(props: { key?: string }) {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
   const styles = getStyles(palette);
@@ -143,7 +143,7 @@ export default function HomeScreen() {
       )}
     </ScrollView>
   </SafeAreaView>
-);
+  );
 }
 
 const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
@@ -179,71 +179,70 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     backgroundColor: palette.inputBackground,
     borderRadius: 20,
     paddingHorizontal: 18,
-    paddingVertical: 9,
-    marginRight: 8,
+    paddingVertical: 10,
+    marginRight: 10,
     marginBottom: 8,
-    minWidth: 64,
-    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: palette.primary,
+  },
+  paramBtnTxt: {
+    color: palette.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   paramBtnSelected: {
     backgroundColor: palette.primary,
-  },
-  paramBtnTxt: {
-    color: palette.text,
-    fontWeight: 'bold',
-    fontSize: 15,
+    borderColor: palette.primary,
   },
   paramBtnSelectedTxt: {
-    color: palette.buttonText,
+    color: '#fff',
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 16,
   },
   calcBtn: {
     backgroundColor: palette.primary,
-    borderRadius: 16,
-    marginTop: 18,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingVertical: 12,
+    marginTop: 14,
     alignItems: 'center',
-    shadowColor: palette.primary,
-    shadowOpacity: 0.10,
-    shadowRadius: 8,
-    elevation: 2,
   },
   calcBtnTxt: {
-    color: palette.buttonText,
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 18,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   resultCard: {
     backgroundColor: palette.background,
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 18,
-    marginBottom: 18,
+    marginTop: 10,
     shadowColor: palette.accent,
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.07,
     shadowRadius: 8,
     elevation: 2,
   },
   resultLabel: {
+    color: palette.text,
+    fontWeight: 'bold',
     fontSize: 15,
-    color: '#888',
     marginBottom: 2,
   },
   resultValue: {
-    color: palette.primary,
     fontWeight: 'bold',
-    fontSize: 32,
-    marginBottom: 0,
+    color: palette.text,
+    fontSize: 18,
+    marginBottom: 4,
   },
   saveBtn: {
+    backgroundColor: palette.background,
     borderColor: palette.primary,
     borderWidth: 1.5,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 10,
-    alignSelf: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    marginTop: 4,
+    marginRight: 8,
   },
   saveBtnTxt: {
     color: palette.primary,
@@ -252,34 +251,32 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
   },
   savedSection: {
     backgroundColor: palette.background,
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 18,
     shadowColor: palette.accent,
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.07,
     shadowRadius: 8,
     elevation: 2,
   },
   savedTitle: {
     fontWeight: 'bold',
-    fontSize: 17,
-    color: palette.primary,
+    fontSize: 18,
+    color: palette.title,
     marginBottom: 10,
+    alignSelf:'center',
   },
   savedRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomColor: '#eee',
+    paddingVertical: 6,
     borderBottomWidth: 1,
-    paddingVertical: 8,
-    gap: 10,
+    borderBottomColor: palette.inputBackground,
   },
   savedDesc: {
     color: palette.text,
-    fontWeight: 'bold',
-    fontSize: 15,
-    flex: 1,
+    fontSize: 14,
   },
   savedVal: {
     color: palette.primary,
