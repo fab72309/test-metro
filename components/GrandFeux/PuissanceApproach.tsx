@@ -12,7 +12,10 @@ function PuissanceApproach() {
   const [surfaceVertical, setSurfaceVertical] = useState('');
   const [tauxApplication, setTauxApplication] = useState(6);
   const [resultPropagation, setResultPropagation] = useState<string|null>(null);
+  const [resultPropLmin, setResultPropLmin] = useState<string|null>(null);
+  const [resultPropM3h, setResultPropM3h] = useState<string|null>(null);
   const [calcDetailsPropagation, setCalcDetailsPropagation] = useState<string|null>(null);
+  const [showDetailsPropagation, setShowDetailsPropagation] = useState(false);
   // Offensive states
   const [rendement, setRendement] = useState(0.2);
   const [resultOffensive, setResultOffensive] = useState<string|null>(null);
@@ -38,6 +41,22 @@ Q = P_max × 106 (pour 20 % de rendement des lances)
 Q(m³/h) = Q (L/min) × 0,06
 
 Si Q dépasse 12 000 L/min (720 m³/h), la limite réglementaire ou opérationnelle est atteinte.`;
+
+  // Texte info pour propagation
+  const infoTextPropagation = `• Calcul du débit total :
+Q = Surface à protéger (m²) x Taux d'application (L/min/m²).
+Ex. 120 m² × 6 L/min/m² = 720 L/min (43,2 m³/h).
+
+• Ajustement du taux
+• 1–3 L/min/m² pour des risques légers ou très ventilés.
+• 10–20 L/min/m² pour des parois très exposées ou proches de liquides inflammables.
+• Sélectionnez un taux adapté à votre situation opérationnelle.
+
+• Objectif
+Gagner du temps pour :
+1. Stabiliser la façade / le mur coupe-feu,
+2. Prévenir la propagation vers d’autres cellules ou bâtiments,
+3. Attendre le renfort ou l’arrivée de moyens d’attaque offensifs.`;
 
   const handleCalculate = useCallback(() => {
     // Attaque offensive calculation
@@ -77,6 +96,9 @@ Si Q dépasse 12 000 L/min (720 m³/h), la limite réglementaire ou opérationne
     setTauxApplication(6);
     setResultPropagation(null);
     setCalcDetailsPropagation(null);
+    setResultPropLmin(null);
+    setResultPropM3h(null);
+    setShowDetailsPropagation(false);
   }, []);
 
   const handlePropCalculate = useCallback(() => {
@@ -85,6 +107,10 @@ Si Q dépasse 12 000 L/min (720 m³/h), la limite réglementaire ou opérationne
     if (isNaN(surf) || isNaN(taux)) return;
     const debit = surf * taux;
     const res = debit.toFixed(2);
+    const m3h = (debit / 16.67).toFixed(2);
+    setResultPropLmin(res);
+    setResultPropM3h(m3h);
+    setShowDetailsPropagation(false);
     setResultPropagation(res);
     setCalcDetailsPropagation(`${surf} m² × ${taux} L/min/m² = ${res} L/min`);
   }, [surfaceVertical, tauxApplication]);
@@ -144,9 +170,8 @@ Si Q dépasse 12 000 L/min (720 m³/h), la limite réglementaire ou opérationne
               </TouchableOpacity>
             ))}
           </View>
-          <View style={{flexDirection:'row', justifyContent:'space-between', marginTop:16}}>
-            <TouchableOpacity style={styles.button} onPress={handleAttackReset}><Text style={styles.buttonText}>Réinitialiser</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.buttonPrimary]} onPress={handleCalculate}><Text style={[styles.buttonText, styles.buttonPrimaryText]}>Calculer</Text></TouchableOpacity>
+          <View style={{alignItems:'center', marginTop:14}}>
+            <PropagationButtons onReset={handleAttackReset} onCalculate={handleCalculate} />
           </View>
           {resultOffensive && (
             <View style={styles.resultBlock}>
@@ -180,11 +205,21 @@ Si Q dépasse 12 000 L/min (720 m³/h), la limite réglementaire ou opérationne
           <View style={{alignItems:'center', marginTop:12}}>
             <PropagationButtons onReset={handlePropReset} onCalculate={handlePropCalculate} />
           </View>
-          {resultPropagation && (
+          {resultPropLmin && (
             <View style={styles.resultBlock}>
-              <Text style={styles.resultTitle}>Résultat</Text>
-              <Text style={styles.resultText}>{resultPropagation} L/min</Text>
-              {calcDetailsPropagation && <Text style={styles.resultDetail}>{calcDetailsPropagation}</Text>}
+              <View style={styles.resultHeader}>
+                <Text style={[styles.resultTitle, styles.fireRedCenter]}>Résultat</Text>
+                <TouchableOpacity onPress={() => Alert.alert('Détails propagation', infoTextPropagation)} style={styles.infoIconContainer}>
+                  <Text style={styles.infoIcon}>i</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.resultSubtitle}><Text style={{fontWeight:'bold'}}>Débit requis : </Text>{resultPropLmin} L/min ({resultPropM3h} m³/h)</Text>
+              <TouchableOpacity onPress={() => setShowDetailsPropagation(!showDetailsPropagation)}>
+                <Text style={styles.detailsToggle}>{showDetailsPropagation ? 'Masquer détails' : 'Voir détails'}</Text>
+              </TouchableOpacity>
+              {showDetailsPropagation && calcDetailsPropagation && (
+                <Text style={styles.resultDetail}>{calcDetailsPropagation}</Text>
+              )}
             </View>
           )}
         </View>
