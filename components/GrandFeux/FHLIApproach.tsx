@@ -1,20 +1,24 @@
 import React, { useState, useCallback, memo } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import Slider from '@react-native-community/slider';
 
 function FHLIApproach() {
   const [tab, setTab] = useState<'foam'|'structure'>('foam');
   const [surface, setSurface] = useState('');
-  const [rateType, setRateType] = useState<'Hydrocarbures'|'Liquides polaires'|'Taux du POI'>('Hydrocarbures');
+  const [rateType, setRateType] = useState<'Hydrocarbures'|'Liquides polaires'|'Taux POI'>('Hydrocarbures');
   const [customRate, setCustomRate] = useState('');
-  const [conc, setConc] = useState('');
-  const [tempDur, setTempDur] = useState('');
-  const [extDur, setExtDur] = useState('');
-  const [maintDur, setMaintDur] = useState('');
+  const [conc, setConc] = useState('3');
+  const [tempDur, setTempDur] = useState('20');
+  const [extDur, setExtDur] = useState('40');
   const [foamDebit, setFoamDebit] = useState<string|null>(null);
+  const [tempVolume, setTempVolume] = useState<string|null>(null);
+  const [extVolume, setExtVolume] = useState<string|null>(null);
+  const [maintVolume, setMaintVolume] = useState<string|null>(null);
+  const [totalVolume, setTotalVolume] = useState<string|null>(null);
 
   const getTauxReflexe = useCallback(() => {
-    if (rateType === 'Hydrocarbures') return 10;
-    if (rateType === 'Liquides polaires') return 20;
+    if (rateType === 'Hydrocarbures') return 5;
+    if (rateType === 'Liquides polaires') return 10;
     const val = parseFloat(customRate);
     return isNaN(val) ? 0 : val;
   }, [rateType, customRate]);
@@ -22,20 +26,34 @@ function FHLIApproach() {
   const handleCalculateFoam = useCallback(() => {
     const surf = parseFloat(surface);
     const taux = getTauxReflexe();
-    if (isNaN(surf) || taux <= 0) return;
+    const concentration = parseFloat(conc);
+    const dureeTemp = parseFloat(tempDur);
+    const dureeExt = parseFloat(extDur);
+    if (isNaN(surf) || taux <= 0 || isNaN(concentration) || isNaN(dureeTemp) || isNaN(dureeExt)) return;
     const debit = surf * taux;
+    const tempVolCalc = (debit / 2) * dureeTemp * (concentration / 100) / 100;
+    const extVolCalc = debit * dureeExt * (concentration / 100) / 100;
+    const maintVolCalc = debit * 10 * (concentration / 100) / 100;
+    const total = tempVolCalc + extVolCalc + maintVolCalc;
     setFoamDebit(debit.toFixed(2));
-  }, [surface, getTauxReflexe]);
+    setTempVolume(tempVolCalc.toFixed(3));
+    setExtVolume(extVolCalc.toFixed(3));
+    setMaintVolume(maintVolCalc.toFixed(3));
+    setTotalVolume(total.toFixed(3));
+  }, [surface, getTauxReflexe, conc, tempDur, extDur]);
 
   const handleResetFoam = useCallback(() => {
     setSurface('');
     setRateType('Hydrocarbures');
     setCustomRate('');
-    setConc('');
-    setTempDur('');
-    setExtDur('');
-    setMaintDur('');
+    setConc('3');
+    setTempDur('20');
+    setExtDur('40');
     setFoamDebit(null);
+    setTempVolume(null);
+    setExtVolume(null);
+    setMaintVolume(null);
+    setTotalVolume(null);
   }, []);
 
   const renderTabs = () => (
@@ -51,11 +69,11 @@ function FHLIApproach() {
 
   const renderFoam = () => (
     <View>
-      <Text style={styles.label}>Surface (m²)</Text>
-      <TextInput style={styles.input} value={surface} onChangeText={setSurface} keyboardType="numeric" placeholder="Surface" />
-      <Text style={styles.label}>Type de liquide</Text>
+      <Text style={styles.label}>Surface de la cuvette (m2)</Text>
+      <TextInput style={styles.input} value={surface} onChangeText={setSurface} keyboardType="numeric" placeholder="Surface de la cuvette" />
+      <Text style={styles.label}>Taux d'application</Text>
       <View style={styles.selectRow}>
-        {['Hydrocarbures', 'Liquides polaires', 'Taux du POI'].map(opt => (
+        {['Hydrocarbures', 'Liquides polaires', 'Taux POI'].map(opt => (
           <TouchableOpacity
             key={opt}
             style={[styles.button, rateType === opt && styles.selectedButton]}
@@ -65,17 +83,38 @@ function FHLIApproach() {
           </TouchableOpacity>
         ))}
       </View>
-      {rateType === 'Taux du POI' && (
-        <TextInput style={styles.input} value={customRate} onChangeText={setCustomRate} keyboardType="numeric" placeholder="Taux perso (L/min/m²)" />
-      )}
-      <Text style={styles.label}>Concentration (%)</Text>
-      <TextInput style={styles.input} value={conc} onChangeText={setConc} keyboardType="numeric" placeholder="Concentration (%)" />
-      <Text style={styles.label}>Durée temporisation (min)</Text>
+      {/* Slider Taux d'application toujours visible */}
+      <Text style={styles.label}>Taux d'application (L/min/m2) : {getTauxReflexe()}</Text>
+      <Slider
+        style={{ width: '100%', height: 40, marginBottom: 12 }}
+        minimumValue={0}
+        maximumValue={20}
+        step={0.1}
+        value={getTauxReflexe()}
+        minimumTrackTintColor="#D32F2F"
+        maximumTrackTintColor="#ccc"
+        thumbTintColor="#D32F2F"
+        onValueChange={value => {
+          setRateType('Taux POI');
+          setCustomRate(value.toString());
+        }}
+      />
+      <Text style={styles.label}>Concentration (%) : {conc}</Text>
+      <Slider
+        style={{ width: '100%', height: 40, marginBottom: 12 }}
+        minimumValue={0}
+        maximumValue={6}
+        step={0.1}
+        value={parseFloat(conc)}
+        minimumTrackTintColor="#D32F2F"
+        maximumTrackTintColor="#ccc"
+        thumbTintColor="#D32F2F"
+        onValueChange={value => setConc(value.toString())}
+      />
+      <Text style={styles.label}>Durée temporisation (en min)</Text>
       <TextInput style={styles.input} value={tempDur} onChangeText={setTempDur} keyboardType="numeric" placeholder="20" />
-      <Text style={styles.label}>Durée extinction (min)</Text>
+      <Text style={styles.label}>Durée extinction (en min)</Text>
       <TextInput style={styles.input} value={extDur} onChangeText={setExtDur} keyboardType="numeric" placeholder="40" />
-      <Text style={styles.label}>Durée maintien (min)</Text>
-      <TextInput style={styles.input} value={maintDur} onChangeText={setMaintDur} keyboardType="numeric" placeholder="10" />
       <View style={styles.buttons}>
         <TouchableOpacity style={styles.button} onPress={handleResetFoam}>
           <Text style={styles.buttonText}>Réinit.</Text>
@@ -84,7 +123,14 @@ function FHLIApproach() {
           <Text style={[styles.buttonText, styles.buttonPrimaryText]}>Calculer mousse</Text>
         </TouchableOpacity>
       </View>
-      {foamDebit && <Text style={styles.resultText}>Débit instantané: {foamDebit} L/min</Text>}
+      {foamDebit && (
+        <View>
+          <Text style={styles.resultText}>Temporisation (m3) : {tempVolume}</Text>
+          <Text style={styles.resultText}>Extinction (m3) : {extVolume}</Text>
+          <Text style={styles.resultText}>Entretien tapis de mousse (m3) : {maintVolume}</Text>
+          <Text style={styles.resultText}>Besoin total en émulseur (m3) : {totalVolume}</Text>
+        </View>
+      )}
     </View>
   );
 
