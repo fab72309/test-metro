@@ -1,18 +1,31 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '@/components/ui/Header';
 import { useThemeContext } from '../../context/ThemeContext';
 import { Colors } from '../../constants/Colors';
 
 export default function Accueil() {
+  const [modalVisible, setModalVisible] = React.useState(false);
   const { theme } = useThemeContext();
   const navigation = useNavigation();
   const palette = Colors[theme];
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: palette.background}]}> 
-      <View style={styles.logoContainer}>
+      {/* Info Icon flottant en haut à droite */}
+      <TouchableOpacity
+        style={styles.infoIconFloating}
+        onPress={() => setModalVisible(true)}
+        accessibilityLabel="Informations"
+      >
+        <View style={styles.infoIconCircle}>
+          <Text style={styles.infoIconText}>i</Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Logo et titres centrés */}
+      <View style={styles.logoContainerCentered}>
         <Image
           source={require('../../assets/images/firefighter_logo.png')}
           style={styles.logo}
@@ -40,6 +53,29 @@ export default function Accueil() {
         </TouchableOpacity>
       </View>
       <Text style={[styles.versionText, { color: palette.text, marginVertical: 12 }]}>v0.1.0-alpha</Text>
+
+      {/* Modal d'avertissement */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>🛑 Avertissement – Usage pédagogique uniquement</Text>
+            <Text style={styles.modalText}>
+L'application Hydraulique Opérationnelle est conçue à des fins pédagogiques et de formation.{"\n"}
+Elle ne doit en aucun cas être utilisée dans un contexte opérationnel réel.{"\n\n"}
+Les résultats fournis sont basés sur des formules standards et ne remplacent ni l’analyse de terrain, ni l’expertise des intervenants.{"\n"}
+Le créateur de l'application décline toute responsabilité en cas d'usage inapproprié, notamment en situation d'urgence ou lors d'une opération de secours.
+            </Text>
+            <Pressable style={styles.modalButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalButtonText}>J'ai compris !</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -60,7 +96,14 @@ const styles = StyleSheet.create({
   },
 
   logoContainer: {
+    // Ancien style, non utilisé
+  },
+  logoContainerCentered: {
     alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 30,
+    marginBottom: 0,
   },
   logo: {
     width: 200,
@@ -99,5 +142,71 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.6,
     fontStyle: 'italic',
+  },
+  infoIconFloating: {
+    position: 'absolute',
+    top: 75,
+    right: 18,
+    zIndex: 10,
+  },
+  infoIconContainer: {
+    // Ancien style, non utilisé
+  },
+  infoIconCircle: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  infoIconText: {
+    color: '#444',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 24,
+    alignItems: 'center',
+    elevation: 5,
+    maxWidth: 380,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#c0392b',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 15,
+    color: '#222',
+    marginBottom: 22,
+    textAlign: 'center',
+  },
+  modalButton: {
+    backgroundColor: '#D32F2F',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 26,
+    alignSelf: 'center',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
