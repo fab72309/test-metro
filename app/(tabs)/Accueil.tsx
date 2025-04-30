@@ -23,7 +23,7 @@ export default function Accueil() {
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('index' as never)}>
+        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('CalculPertesDeCharge' as never)}>
           <Text style={[styles.buttonText, {color: palette.buttonText}]}>Pertes de charge</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
@@ -39,6 +39,7 @@ export default function Accueil() {
           <Text style={[styles.buttonText, {color: palette.buttonText}]}>Paramètres</Text>
         </TouchableOpacity>
       </View>
+      <Text style={[styles.versionText, { color: palette.text, marginVertical: 12 }]}>v0.1.0-alpha</Text>
     </SafeAreaView>
   );
 }
@@ -92,5 +93,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     letterSpacing: 1,
+  },
+  versionText: {
+    fontSize: 14,
+    textAlign: 'center',
+    opacity: 0.6,
+    fontStyle: 'italic',
   },
 });
