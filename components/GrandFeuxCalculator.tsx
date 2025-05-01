@@ -51,8 +51,14 @@ function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }) {
     setCalcDetailsOffensive(null);
   }, []);
   // États
-  const [mode, setMode] = useState<'combustible'|'surface'|'fhli'>('combustible');
-  const [strategie, setStrategie] = useState<'offensive'|'propagation'>('offensive');
+  const [mode, setMode] = useState<'combustible'|'surface'|'fhli'>(() => 'combustible');
+  const [strategie, setStrategie] = useState<'offensive'|'propagation'>(() => 'offensive');
+
+  // Toujours forcer le mode et la stratégie par défaut à l'arrivée sur la page
+  React.useEffect(() => {
+    setMode('combustible');
+    setStrategie('offensive');
+  }, []);
   const [surface, setSurface] = useState(''); // Pour l'approche Puissance
   const [surfaceApprocheSurface, setSurfaceApprocheSurface] = useState(''); // Pour l'approche Surface
   const [hauteur, setHauteur] = useState('');

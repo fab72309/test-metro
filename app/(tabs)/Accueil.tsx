@@ -165,9 +165,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
   },
   infoIconText: {
-    color: '#444',
+    color: '#D32F2F',
     fontWeight: 'bold',
     fontSize: 18,
+    fontStyle: 'italic',
   },
   modalOverlay: {
     flex: 1,

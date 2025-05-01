@@ -16,11 +16,19 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     backgroundColor: palette.background,
     padding: 16,
   },
+  title: {
+    color: palette.primary,
+    fontSize: 23,
+    fontWeight: 'bold',
+    marginVertical: 0,
+    textAlign: 'left',
+    letterSpacing: 0.2,
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    marginTop: 8,
+    marginBottom: 18,
+    marginTop: 10,
   },
 
   savedSection: {
@@ -173,8 +181,7 @@ export default function CalculEtablissement(props: { key?: string }) {
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: palette.background}]}> 
-      {/* Header */}
-      <Header title="Établissement" iconName="construct" iconFamily="Ionicons" iconColor="#D32F2F" titleColor="#D32F2F" iconSize={32} style={{marginBottom: 10, marginTop: 0, paddingLeft: 0}} />
+
       <ScrollView contentContainerStyle={{padding:16, paddingTop:0}} keyboardShouldPersistTaps="handled">
         {/* Section Tronçons mémorisés */}
         <View style={styles.savedSection}>

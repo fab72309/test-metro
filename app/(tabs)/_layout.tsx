@@ -12,7 +12,7 @@ import GrandsFeux from './GrandsFeux';
 import DebitMaxPEI from './DebitMaxPEI';
 import CalculEtablissement from './CalculEtablissement';
 import CalculPertesDeCharge from './CalculPertesDeCharge';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 
 const Tabs = createBottomTabNavigator();
 
@@ -52,7 +52,17 @@ export default function TabLayout() {
             name="CalculEtablissement"
             component={CalculEtablissement}
             options={{
-              title: 'Établissement',
+              headerTitle: () => (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 10 }}>
+                  <Ionicons name="construct" size={26} color="#D32F2F" style={{ marginRight: 6 }} />
+                  <Text style={{ fontWeight: 'bold', fontSize: 23, color: '#D32F2F' }}>Établissement</Text>
+                </View>
+              ),
+              headerShown: true,
+              headerTitleAlign: 'center',
+              headerStyle: { backgroundColor: '#fff', elevation: 0, shadowOpacity: 0 },
+              headerTintColor: '#D32F2F',
+              headerTitleStyle: { fontWeight: 'bold', fontSize: 23, color: '#D32F2F' },
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="construct" size={size ?? 26} color={color} />
               ),
@@ -72,18 +82,21 @@ export default function TabLayout() {
             name="GrandsFeux"
             component={GrandsFeux}
             options={{
-              title: 'Grands feux',
+              headerTitle: () => (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                  <MaterialCommunityIcons name="fire" size={26} color="#D32F2F" style={{ marginRight: 6 }} />
+                  <Text style={{ fontWeight: 'bold', fontSize: 23, color: '#D32F2F' }}>Grands feux</Text>
+                </View>
+              ),
               tabBarIcon: ({ color, size }) => (
                 <MaterialCommunityIcons name="fire" size={size ?? 26} color={color} />
               ),
               headerShown: true,
-              headerTitleAlign: 'left',
+              headerTitleAlign: 'center',
               headerStyle: { backgroundColor: '#fff', elevation: 0, shadowOpacity: 0 },
               headerTintColor: '#D32F2F',
-              headerTitleStyle: { fontWeight: 'bold', fontSize: 20 },
-              headerLeft: () => (
-                <MaterialCommunityIcons name="fire" size={26} color="#D32F2F" style={{ marginLeft: 16, marginRight: 8 }} />
-              ),
+              headerTitleStyle: { fontWeight: 'bold', fontSize: 23 },
+              
             }}
           />
           <Tabs.Screen
