@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import 'react-native-reanimated';
 
 import { ThemeProviderCustom, useThemeContext } from '../context/ThemeContext';
+import { PertesDeChargeTableProvider } from '../context/PertesDeChargeTableContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,11 +28,13 @@ function InnerRootLayout() {
 
   return (
     <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="ValeursPerso" options={{ title: 'Valeurs personnalisées' }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <PertesDeChargeTableProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="ValeursPerso" options={{ title: 'Valeurs personnalisées' }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </PertesDeChargeTableProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

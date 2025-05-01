@@ -1,5 +1,6 @@
 // constants/calculPerteDeCharge.ts
 import { pertesDeChargeTable, diametreToTypeTuyau, longueurStandard, Debit, Diametre } from './pertesDeChargeTable';
+import type { TypeTuyau } from './pertesDeChargeTable';
 
 export type CalculResult = {
   perteDeCharge: number | null;
@@ -11,15 +12,18 @@ export type CalculResult = {
  * @param longueur Longueur de l'établissement (en m)
  * @param debit Débit sélectionné (L/min)
  * @param diametre Diamètre sélectionné (mm)
+ * @param tableOverride Tableau de pertes de charge à utiliser à la place du tableau statique
  * @returns Résultat du calcul ou message d'erreur
  */
 export function calculerPerteDeCharge(
   longueur: number,
   debit: Debit,
-  diametre: Diametre
+  diametre: Diametre,
+  tableOverride?: Record<TypeTuyau, Partial<Record<Debit, number | null>>>
 ): CalculResult {
   const typeTuyau = diametreToTypeTuyau[diametre];
-  const table = pertesDeChargeTable[typeTuyau];
+  const sourceTable = tableOverride ?? pertesDeChargeTable;
+  const table = sourceTable[typeTuyau];
   if (!table) {
     return {
       perteDeCharge: null,

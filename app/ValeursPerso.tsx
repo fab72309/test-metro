@@ -1,23 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '@react-navigation/native';
-
-type DebitTable = {
-  [diam: string]: {
-    [debit: string]: string;
-  };
-};
-
-const DEFAULT_VALUES: DebitTable = {
-  "45": { "250": "0.3", "500": "1.3", "1000": "Impossible" },
-  "70": { "250": "0.05", "500": "0.2", "1000": "0.5", "1500": "1.5", "2000": "2" },
-  "110": { "250": "Impossible", "500": "Impossible", "1000": "0.05", "1500": "0.1", "2000": "0.3" }
-};
-
-const STORAGE_KEY = 'valeursPerso.table';
-
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { useTheme, useNavigation } from '@react-navigation/native';
+import { usePertesDeChargeTable } from '../context/PertesDeChargeTableContext';
+import type { TypeTuyau, Debit } from '../constants/pertesDeChargeTable';
 
 export default function ValeursPerso() {
   const { colors, dark } = useTheme();
@@ -25,11 +10,46 @@ export default function ValeursPerso() {
   React.useLayoutEffect(() => {
     navigation.setOptions({ headerBackTitle: 'Retour' });
   }, [navigation]);
-  const [values, setValues] = useState<DebitTable>(DEFAULT_VALUES);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { table: values, setTable: setValues, resetTable, loading } = usePertesDeChargeTable();
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const keyboardTypeDec = Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'decimal-pad';
 
-  // Styles dynamiques selon le thème
+  useEffect(() => {
+    if (!loading) {
+      const flat: Record<string, string> = {};
+      Object.entries(values).forEach(([type, debits]) => {
+        Object.entries(debits).forEach(([debit, val]) => {
+          const key = `${type}-${debit}`;
+          flat[key] = val === null ? '' : val.toString();
+        });
+      });
+      setEditValues(flat);
+    }
+  }, [loading, values]);
+
+  const handleChange = (diam: string, debit: string, val: string) => {
+    const diameterKey = diam as TypeTuyau;
+    const debitKey = parseInt(debit, 10) as Debit;
+    const valNormalized = val.replace(/,/g, '.');
+    const numericVal = valNormalized === '' || isNaN(Number(valNormalized)) ? null : Number(valNormalized);
+    const updatedTable = {
+      ...values,
+      [diameterKey]: {
+        ...values[diameterKey],
+        [debitKey]: numericVal,
+      },
+    };
+    setValues(updatedTable);
+  };
+
+  const resetDefaults = () => {
+    resetTable();
+    navigation.goBack();
+    Alert.alert('Réinitialisé', 'Les valeurs par défaut ont été restaurées.');
+  };
+
+  if (loading) return <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor:colors.background}}><Text style={{color:colors.text}}>Chargement...</Text></View>;
+
   const themedStyles = StyleSheet.create({
     headerTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: colors.text, alignSelf:'center' },
     subtitle: { color: colors.text + '99', marginBottom: 18, textAlign:'center' },
@@ -43,82 +63,46 @@ export default function ValeursPerso() {
     resetBtnTxt: { color:'#fff', fontWeight:'bold', fontSize:16, textAlign:'center' },
   });
 
-  // Chargement initial
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          setValues(JSON.parse(stored));
-        }
-      } catch (e) {
-        Alert.alert('Erreur', 'Impossible de charger les valeurs personnalisées.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
-
-  // Sauvegarde automatique à chaque modification
-  useEffect(() => {
-    if (!loading) {
-      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(values));
-    }
-  }, [values, loading]);
-
-  const handleChange: (diam: string, debit: string, val: string) => void = (diam, debit, val) => {
-    setValues((prev: typeof DEFAULT_VALUES) => ({
-      ...prev,
-      [diam]: { ...prev[diam], [debit]: val }
-    }));
-  };
-
-  const resetDefaults = async () => {
-    setSaving(true);
-    try {
-      setValues(DEFAULT_VALUES);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_VALUES));
-      Alert.alert('Réinitialisé', 'Les valeurs par défaut ont été restaurées.');
-    } catch (e) {
-      Alert.alert('Erreur', 'Impossible de réinitialiser.');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (loading) return <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor:colors.background}}><Text style={{color:colors.text}}>Chargement...</Text></View>;
-
   return (
-    <ScrollView style={{flex:1, backgroundColor:colors.background}} contentContainerStyle={{padding:16}}>
+    <ScrollView
+      style={{flex:1, backgroundColor:colors.background}}
+      contentContainerStyle={{padding:16}}
+      keyboardShouldPersistTaps="always"
+    >
       <Text style={themedStyles.headerTitle}>Valeurs personnalisées</Text>
       <Text style={themedStyles.subtitle}>Personnalisez les valeurs de pertes de charge pour les tuyaux de 20m. Les valeurs sont en bars.</Text>
       {Object.entries(values)
-        .filter(([diam]) => diam !== '22')
-        .map(([diam, debits]) => (
-        <View key={diam} style={themedStyles.block}>
-          <Text style={themedStyles.diamTitle}>Diamètre {diam}mm</Text>
-          {Object.entries(debits as Record<string, string>).map(([debit, val]) => (
-            <View key={debit} style={themedStyles.row}>
-              <Text style={themedStyles.label}>{debit} L/min</Text>
-              {val === 'Impossible' ? (
-                <Text style={themedStyles.impossible}>Impossible</Text>
-              ) : (
-                <TextInput
-                  style={themedStyles.input}
-                  keyboardType="numeric"
-                  value={val}
-                  onChangeText={v => handleChange(diam as string, debit as string, v)}
-                  placeholder="-"
-                  placeholderTextColor={dark ? '#888' : '#aaa'}
-                />
-              )}
-            </View>
-          ))}
-        </View>
-      ))}
-      <TouchableOpacity style={themedStyles.resetBtn} onPress={resetDefaults} disabled={saving}>
-        <Text style={[themedStyles.resetBtnTxt, saving && {opacity:0.6}]}>Réinitialiser les valeurs par défaut</Text>
+        .filter(([type]) => type.endsWith('x20'))
+        .map(([type, debits]) => (
+          <View key={type} style={themedStyles.block}>
+            <Text style={themedStyles.diamTitle}>
+              Diamètre {type.replace('x20','')} mm
+            </Text>
+            {Object.entries(debits).map(([debit, val]) => {
+              const key = `${type}-${debit}`;
+              return (
+                <View key={debit} style={themedStyles.row}>
+                  <Text style={themedStyles.label}>{debit} L/min</Text>
+                  <TextInput
+                    keyboardType={keyboardTypeDec}
+                    style={themedStyles.input}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    placeholder={val === null ? 'Impossible' : ''}
+                    placeholderTextColor={dark ? '#888' : '#aaa'}
+                    value={editValues[key] ?? ''}
+                    onChangeText={(text) => setEditValues(prev => ({ ...prev, [key]: text }))}
+                    onBlur={() => handleChange(type, debit, editValues[key] ?? '')}
+                    onSubmitEditing={() => handleChange(type, debit, editValues[key] ?? '')}
+                    selectTextOnFocus={true}
+                  />
+                </View>
+              );
+            })}
+          </View>
+        ))}
+      <TouchableOpacity style={themedStyles.resetBtn} onPress={resetDefaults}>
+        <Text style={themedStyles.resetBtnTxt}>Réinitialiser les valeurs par défaut</Text>
       </TouchableOpacity>
     </ScrollView>
   );
