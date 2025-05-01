@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'reac
 import Slider from '@react-native-community/slider';
 import PropagationButtons from '../GrandFeuxCalculator_buttons_propagation';
 
-function PuissanceApproach() {
+function PuissanceApproach({ strategie, setStrategie }: { strategie: 'offensive' | 'propagation', setStrategie: (s: 'offensive' | 'propagation') => void }) {
   const [surface, setSurface] = useState('');
   const [hauteur, setHauteur] = useState('');
   const [fraction, setFraction] = useState(0);
@@ -24,8 +24,7 @@ function PuissanceApproach() {
   const [resultFlowM3h, setResultFlowM3h] = useState<string|null>(null);
   const [calcDetailsOffensive, setCalcDetailsOffensive] = useState<string|null>(null);
   const [showDetailsOffensive, setShowDetailsOffensive] = useState(false);
-  // Strategy
-  const [strategie, setStrategie] = useState<'offensive'|'propagation'>('propagation');
+  
 
   // Texte pour l'info bulle
   const infoText = `Comment ce débit est-il calculé ?

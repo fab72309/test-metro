@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo, useMemo } from 'react';
+import React, { useState, useCallback, memo, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Platform, TouchableOpacity, ScrollView, KeyboardAvoidingView, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import PropagationButtons from './GrandFeuxCalculator_buttons_propagation';
@@ -32,7 +32,7 @@ const FHLI_STRUCT_OPTIONS = [
   { label: 'Rideau d’eau 40 m (1000 L/min)', length: 40, flow: 1000 },
 ];
 
-function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }) {
+function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }, ref: any) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [showInfoPopupPropagation, setShowInfoPopupPropagation] = useState(false);
   const [showInfoPopupSurface, setShowInfoPopupSurface] = useState(false); // Pour l'approche Surface
@@ -59,6 +59,14 @@ function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }) {
     setMode('combustible');
     setStrategie('offensive');
   }, []);
+
+  // Permet au parent de forcer le mode et la stratégie
+  useImperativeHandle(ref, () => ({
+    forceDefaultMode: () => {
+      setMode('combustible');
+      setStrategie('offensive');
+    }
+  }), []);
   const [surface, setSurface] = useState(''); // Pour l'approche Puissance
   const [surfaceApprocheSurface, setSurfaceApprocheSurface] = useState(''); // Pour l'approche Surface
   const [hauteur, setHauteur] = useState('');
@@ -283,7 +291,9 @@ function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }) {
 
         <View>
           {/* Combustible */}
-          {mode === 'combustible' && <PuissanceApproach />}
+          {mode === 'combustible' && (
+  <PuissanceApproach strategie={strategie} setStrategie={setStrategie} />
+)}
           {false && (
             <View>
               <Text style={styles.strategieTitle}>Stratégie</Text>
@@ -740,4 +750,5 @@ OC pour les entrepôts non sprinklés (risque important). Ajustez-le taux d'appl
   );
 }
 
-export default memo(GrandFeuxCalculator);
+export default React.memo(React.forwardRef(GrandFeuxCalculator));
+

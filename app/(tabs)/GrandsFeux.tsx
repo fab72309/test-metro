@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
 import { Header } from '../../components/ui/Header';
 import GrandFeuxCalculator from '../../components/GrandFeuxCalculator';
 import { useThemeContext } from '../../context/ThemeContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function GrandsFeux() {
   const { theme } = useThemeContext();
   const isDark = theme === 'dark';
+  const calculatorRef = useRef<any>(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (calculatorRef.current && typeof calculatorRef.current.forceDefaultMode === 'function') {
+        calculatorRef.current.forceDefaultMode();
+      }
+    }, [])
+  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#181A20' : '#fff' }]}>  
@@ -15,7 +25,7 @@ export default function GrandsFeux() {
           <Text style={{color: isDark ? '#FF7043' : '#D32F2F', fontSize: 17, fontWeight: 'bold', marginVertical: 0, textAlign: 'center', letterSpacing: 0.2}}>Dimensionnement moyens hydrauliques</Text>
         </View>
       </View>
-      <GrandFeuxCalculator key="grands-feux" hideTitle />
+      <GrandFeuxCalculator ref={calculatorRef} key="grands-feux" hideTitle />
     </SafeAreaView>
   );
 }
