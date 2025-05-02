@@ -1,6 +1,7 @@
 import React, { useState, useCallback, memo } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { Ionicons } from '@expo/vector-icons';
 
 function FHLIApproach() {
   const [tab, setTab] = useState<'foam'|'structure'>('foam');
@@ -31,6 +32,10 @@ function FHLIApproach() {
   const [wExtFlow, setWExtFlow] = useState<string|null>(null);
   const [wMaintFlow, setWMaintFlow] = useState<string|null>(null);
   const [wTotalFlow, setWTotalFlow] = useState<string|null>(null);
+  const [showEmDetails, setShowEmDetails] = useState(false);
+  const [showWDetails, setShowWDetails] = useState(false);
+  const [showEmFullDetails, setShowEmFullDetails] = useState(false);
+  const [showWFullDetails, setShowWFullDetails] = useState(false);
 
   const getTauxReflexe = useCallback(() => {
     if (rateType === 'Hydrocarbures') return 5;
@@ -213,37 +218,82 @@ function FHLIApproach() {
           <Text style={styles.resultsHeader}>Résultats</Text>
           {/* Émulseur */}
           <View style={[styles.resultSection, styles.emSection]}>
+            <TouchableOpacity style={styles.row} onPress={() => setShowEmDetails(v => !v)}>
+              <Text style={styles.resultTitle}>Émulseur</Text>
+              <Ionicons name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#D32F2F" />
+            </TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.column}>
                 <Text style={styles.resultLabel}>{`Total émulseur (${(parseFloat(tempDur)+parseFloat(extDur)+parseFloat(maintDur)).toFixed(0)} min) :`}</Text>
                 <Text style={styles.resultValue}>{emTotalFlow}</Text>
               </View>
-              <View style={styles.column}>
-                <Text style={styles.resultLabel}>{`Temporisation émulseur (${tempDur} min) :`}</Text>
-                <Text style={styles.resultValue}>{emTempFlow}</Text>
-                <Text style={styles.resultLabel}>{`Extinction émulseur (${extDur} min) :`}</Text>
-                <Text style={styles.resultValue}>{emExtFlow}</Text>
-                <Text style={styles.resultLabel}>{`Entretien émulseur (${maintDur} min) :`}</Text>
-                <Text style={styles.resultValue}>{emMaintFlow}</Text>
-              </View>
             </View>
+            {showEmDetails && (
+              <>
+                <View style={styles.row}>
+                  <View style={styles.column}>
+                    <Text style={styles.resultLabel}>{`Temporisation émulseur (${tempDur} min) :`}</Text>
+                    <Text style={styles.resultValue}>{emTempFlow}</Text>
+                    <Text style={styles.resultLabel}>{`Extinction émulseur (${extDur} min) :`}</Text>
+                    <Text style={styles.resultValue}>{emExtFlow}</Text>
+                    <Text style={styles.resultLabel}>{`Entretien émulseur (${maintDur} min) :`}</Text>
+                    <Text style={styles.resultValue}>{emMaintFlow}</Text>
+                  </View>
+                </View>
+                <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowEmFullDetails(v => !v)}>
+                  <Text style={styles.resultLabel}>Voir calculs</Text>
+                  <Ionicons name={showEmFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#D32F2F" />
+                </TouchableOpacity>
+                {showEmFullDetails && (
+                  <View style={{ backgroundColor: '#FFF9C4', padding: 8, borderRadius: 8, marginTop: 4 }}>
+                    <Text style={styles.resultLabel}>{`Débit instantané = ${(parseFloat(surface) * getTauxReflexe()).toFixed(2)} L/min`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume temporisation = (debit/2) × ${tempDur} × (${conc}/100)/100 = ${tempVolume}`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume extinction = debit × ${extDur} × (${conc}/100)/100 = ${extVolume}`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume entretien = debit × ${maintDur} × (${conc}/100)/100 = ${maintVolume}`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume total mousse = ${totalVolume}`}</Text>
+                  </View>
+                )}
+              </>
+            )}
           </View>
           {/* Eau */}
           <View style={[styles.resultSection, styles.wSection]}>
+            <TouchableOpacity style={styles.row} onPress={() => setShowWDetails(v => !v)}>
+              <Text style={styles.resultTitle}>Eau</Text>
+              <Ionicons name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#1976D2" />
+            </TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.column}>
                 <Text style={styles.resultLabel}>{`Total eau (${(parseFloat(tempDur)+parseFloat(extDur)+parseFloat(maintDur)).toFixed(0)} min) :`}</Text>
                 <Text style={styles.resultValue}>{wTotalFlow}</Text>
               </View>
-              <View style={styles.column}>
-                <Text style={styles.resultLabel}>{`Temporisation eau (${tempDur} min) :`}</Text>
-                <Text style={styles.resultValue}>{wTempFlow}</Text>
-                <Text style={styles.resultLabel}>{`Extinction eau (${extDur} min) :`}</Text>
-                <Text style={styles.resultValue}>{wExtFlow}</Text>
-                <Text style={styles.resultLabel}>{`Entretien eau (${maintDur} min) :`}</Text>
-                <Text style={styles.resultValue}>{wMaintFlow}</Text>
-              </View>
             </View>
+            {showWDetails && (
+              <>
+                <View style={styles.row}>
+                  <View style={styles.column}>
+                    <Text style={styles.resultLabel}>{`Temporisation eau (${tempDur} min) :`}</Text>
+                    <Text style={styles.resultValue}>{wTempFlow}</Text>
+                    <Text style={styles.resultLabel}>{`Extinction eau (${extDur} min) :`}</Text>
+                    <Text style={styles.resultValue}>{wExtFlow}</Text>
+                    <Text style={styles.resultLabel}>{`Entretien eau (${maintDur} min) :`}</Text>
+                    <Text style={styles.resultValue}>{wMaintFlow}</Text>
+                  </View>
+                </View>
+                <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowWFullDetails(v => !v)}>
+                  <Text style={styles.resultLabel}>Voir calculs</Text>
+                  <Ionicons name={showWFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#1976D2" />
+                </TouchableOpacity>
+                {showWFullDetails && (
+                  <View style={{ backgroundColor: '#E1F5FE', padding: 8, borderRadius: 8, marginTop: 4 }}>
+                    <Text style={styles.resultLabel}>{`Volume temporisation eau = ${waterTempVolume}`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume extinction eau = ${waterExtVolume}`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume entretien eau = ${waterMaintVolume}`}</Text>
+                    <Text style={styles.resultLabel}>{`Volume total eau = ${waterTotalVolume}`}</Text>
+                  </View>
+                )}
+              </>
+            )}
           </View>
         </View>
       )}
