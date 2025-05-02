@@ -4,11 +4,11 @@ import { Header } from '@/components/ui/Header';
 import { useThemeContext } from '../../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useMemoSegments } from '../../context/MemoSegmentsContext';
+import { usePertesDeChargeTable } from '../../context/PertesDeChargeTableContext';
 
 import { Colors } from '../../constants/Colors';
 
 const deniveaux = [-30, -20, -10, 0, 10, 20, 30]; // boutons rapides, puis affinement par pas de 0.5
-const pressions = [5, 6, 7, 8];
 
 const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
   container: {
@@ -139,7 +139,7 @@ export default function CalculEtablissement(props: { key?: string }) {
   const isDark = theme === 'dark';
   const { segments, updateSegment, removeSegment } = useMemoSegments();
   const [denivele, setDenivele] = useState(0);
-  const [pressionLance, setPressionLance] = useState(6);
+  const { pressionLance, customPressions, setPressionLance } = usePertesDeChargeTable();
   const [pressionActive, setPressionActive] = useState(true);
 
   // Calculs
@@ -178,6 +178,9 @@ export default function CalculEtablissement(props: { key?: string }) {
     updateSegment(segments[editIdx!].id, edit);
     setModalVisible(false);
   };
+
+  // Quick selection : remplacer le bouton "6b" par la valeur personnalisée
+  const pressions = customPressions;
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: palette.background}]}> 
@@ -220,28 +223,11 @@ export default function CalculEtablissement(props: { key?: string }) {
 
         {/* Section Pression à la lance */}
         <View style={styles.section}>
-          <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-            <Text style={styles.labelSection}>Pression à la lance</Text>
-            <TouchableOpacity
-              onPress={()=>setPressionActive(a=>!a)}
-              style={{
-                marginLeft:8,
-                backgroundColor: pressionActive ? palette.primary : '#eee',
-                borderRadius: 16,
-                paddingVertical: 4,
-                paddingHorizontal: 14,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Ionicons name={pressionActive ? 'checkmark-circle' : 'close-circle'} size={18} color={pressionActive ? '#fff' : '#aaa'} style={{marginRight:4}}/>
-              <Text style={{color: pressionActive ? '#fff' : '#888', fontWeight:'bold'}}>{pressionActive ? 'Activé' : 'Désactivé'}</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={{fontSize:18,fontWeight:'bold',color:palette.primary,marginBottom:10}}>{pressionLance.toFixed(1)} bars</Text>
+          <Text style={styles.labelSection}>Pression à la lance</Text>
           <View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>
             {pressions.map(val => (
-              <TouchableOpacity key={val} style={[styles.paramBtn, pressionLance===val && styles.paramBtnSelected]} onPress={()=>setPressionLance(val)}>
-                <Text style={pressionLance===val?styles.paramBtnSelectedTxt:styles.paramBtnTxt}>{val} bars</Text>
+              <TouchableOpacity key={val} style={[styles.paramBtn, pressionLance === val && styles.paramBtnSelected]} onPress={() => setPressionLance(val)}>
+                <Text style={pressionLance === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} b</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -259,4 +245,3 @@ export default function CalculEtablissement(props: { key?: string }) {
     </SafeAreaView>
   );
 }
-
