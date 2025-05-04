@@ -106,7 +106,7 @@ Gagner du temps pour :
     if (isNaN(surf) || isNaN(taux)) return;
     const debit = surf * taux;
     const res = debit.toFixed(2);
-    const m3h = (debit / 16.67).toFixed(2);
+    const m3h = (debit * 0.06).toFixed(2);
     setResultPropLmin(res);
     setResultPropM3h(m3h);
     setShowDetailsPropagation(false);

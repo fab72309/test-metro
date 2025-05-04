@@ -25,7 +25,7 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
     if (isNaN(surf) || isNaN(taux)) return;
     const debit = surf * taux;
     const res = debit.toFixed(2);
-    const m3h = (debit / 16.67).toFixed(2);
+    const m3h = (debit * 0.06).toFixed(2);
     setResultLmin(res);
     setResultM3h(m3h);
     setShowDetails(false);
