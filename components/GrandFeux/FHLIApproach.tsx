@@ -62,39 +62,34 @@ function FHLIApproach() {
 };
 
 const handleCalculateFoam = useCallback(() => {
-  const surf = parseFloat(surface);
-  const taux = getTauxReflexe();
   const concentration = parseFloat(conc);
   const dureeTemp = parseFloat(tempDur);
   const dureeExt = parseFloat(extDur);
   const dureeMaint = parseFloat(maintDur);
-  if (isNaN(surf) || taux <= 0 || isNaN(concentration) || isNaN(dureeTemp) || isNaN(dureeExt) || isNaN(dureeMaint)) return;
-  // Débit de solution moussante (L/min)
-  const debit = surf * taux;
-  setFoamDebit(formatNumber(debit));
-  // Quantité émulseur nécessaire (m3) pour chaque phase
-  const emTemp = debit * concentration / 100 * dureeTemp / 1000; // en m3
-  const emExt = debit * concentration / 100 * dureeExt / 1000;
-  const emMaint = debit * concentration / 100 * dureeMaint / 1000;
+  if (isNaN(concentration) || isNaN(dureeTemp) || isNaN(dureeExt) || isNaN(dureeMaint) || canonDebit <= 0) return;
+  // Besoins en émulseur calqués sur la logique "eau" mais × (concentration/100)
+  const emTemp = (canonDebit / 2) * dureeTemp * concentration / 100; // en L
+  const emExt = canonDebit * dureeExt * concentration / 100; // en L
+  const emMaint = canonDebit * dureeMaint * concentration / 100; // en L
   const emTotal = emTemp + emExt + emMaint;
-  setTempVolume(formatNumber(emTemp));
-  setExtVolume(formatNumber(emExt));
-  setMaintVolume(formatNumber(emMaint));
-  setTotalVolume(formatNumber(emTotal));
-  // Eau (inchangé pour l'instant)
+  setTempVolume(emTemp.toString());
+  setExtVolume(emExt.toString());
+  setMaintVolume(emMaint.toString());
+  setTotalVolume(emTotal.toString());
+  setEmTempFlow(formatNumber(emTemp/1000)); // en m³
+  setEmExtFlow(formatNumber(emExt/1000)); // en m³
+  setEmMaintFlow(formatNumber(emMaint/1000)); // en m³
+  setEmTotalFlow(formatNumber(emTotal/1000)); // en m³
+  setFoamDebit(null); // On ne montre plus le débit mousse ici
   setWaterTempVolume(null);
   setWaterExtVolume(null);
   setWaterMaintVolume(null);
   setWaterTotalVolume(null);
-  setEmTempFlow(formatNumber(emTemp));
-  setEmExtFlow(formatNumber(emExt));
-  setEmMaintFlow(formatNumber(emMaint));
-  setEmTotalFlow(formatNumber(emTotal));
   setWTempFlow(null);
   setWExtFlow(null);
   setWMaintFlow(null);
   setWTotalFlow(null);
-}, [surface, getTauxReflexe, conc, tempDur, extDur, maintDur]);
+}, [conc, tempDur, extDur, maintDur, canonDebit]);
 
   const handleResetFoam = useCallback(() => {
     setSurface('');
@@ -297,7 +292,7 @@ const handleCalculateFoam = useCallback(() => {
           <Text style={styles.calculateText}>Calculer</Text>
         </TouchableOpacity>
       </View>
-      {foamDebit && (
+      {(emTotalFlow || waterTotalVolume) && (
         <View>
           <Text style={styles.resultsHeader}>Résultats</Text>
           {/* Eau */}
@@ -369,25 +364,25 @@ const handleCalculateFoam = useCallback(() => {
           {/* Émulseur */}
           <View style={[styles.resultSection, styles.emSection]}>
             <TouchableOpacity style={styles.row} onPress={() => setShowEmDetails(v => !v)}>
-              <Text style={styles.resultTitle}>Besoins en émulseurs</Text>
+              <Text style={styles.resultTitle}>Besoins en émulseur</Text>
               <Ionicons name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#D32F2F" />
             </TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.resultLabel}>Quantité totale d'émulseur nécessaire :</Text>
-<Text style={styles.resultValue}>{emTotalFlow} m³</Text>
+                <Text style={styles.resultLabel}>Quantité totale d'émulseur :</Text>
+<Text style={styles.resultValue}>{formatNumber(totalVolume ? parseFloat(totalVolume) : 0)} L ({formatNumber(totalVolume ? parseFloat(totalVolume)/1000 : 0)} m³)</Text>
               </View>
             </View>
             {showEmDetails && (
               <>
                 <View style={styles.row}>
                   <View style={styles.column}>
-                    <Text style={styles.resultLabel}>Phase de temporisation ({tempDur} min) :</Text>
-<Text style={styles.resultValue}>{emTempFlow} m³</Text>
-<Text style={styles.resultLabel}>Phase d'extinction ({extDur} min) :</Text>
-<Text style={styles.resultValue}>{emExtFlow} m³</Text>
-<Text style={styles.resultLabel}>Phase d'entretien tapis de mousse ({maintDur} min) :</Text>
-<Text style={styles.resultValue}>{emMaintFlow} m³</Text>
+                    <Text style={styles.resultLabel}>Temporisation :</Text>
+<Text style={styles.resultValue}>{formatNumber(tempVolume ? parseFloat(tempVolume) : 0)} L ({formatNumber(tempVolume ? parseFloat(tempVolume)/1000 : 0)} m³)</Text>
+<Text style={styles.resultLabel}>Extinction :</Text>
+<Text style={styles.resultValue}>{formatNumber(extVolume ? parseFloat(extVolume) : 0)} L ({formatNumber(extVolume ? parseFloat(extVolume)/1000 : 0)} m³)</Text>
+<Text style={styles.resultLabel}>Entretien :</Text>
+<Text style={styles.resultValue}>{formatNumber(maintVolume ? parseFloat(maintVolume) : 0)} L ({formatNumber(maintVolume ? parseFloat(maintVolume)/1000 : 0)} m³)</Text>
                   </View>
                 </View>
                 <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowEmFullDetails(v => !v)}>
@@ -396,11 +391,10 @@ const handleCalculateFoam = useCallback(() => {
                 </TouchableOpacity>
                 {showEmFullDetails && (
   <View style={{ backgroundColor: '#FFF9C4', padding: 8, borderRadius: 8, marginTop: 4 }}>
-    <Text style={styles.resultLabel}>{`Débit de solution moussante = Surface × Taux d'application = ${formatNumber(surface)} × ${formatNumber(getTauxReflexe())} = ${foamDebit} L/min`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité émulseur (temporisation) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${tempDur} / 1000 = ${tempVolume} m³`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité émulseur (extinction) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${extDur} / 1000 = ${extVolume} m³`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité émulseur (entretien) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${maintDur} / 1000 = ${maintVolume} m³`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité totale émulseur = ${totalVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (temporisation) = (Capacité des canons/2) × Durée temporisation × Concentration = (${formatNumber(canonDebit)}/2) × ${tempDur} × ${conc}% = ${formatNumber((canonDebit/2)*parseFloat(tempDur)*parseFloat(conc)/100)} L (${formatNumber((canonDebit/2)*parseFloat(tempDur)*parseFloat(conc)/100/1000)} m³)`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (extinction) = Capacité des canons × Durée extinction × Concentration = ${formatNumber(canonDebit)} × ${extDur} × ${conc}% = ${formatNumber(canonDebit*parseFloat(extDur)*parseFloat(conc)/100)} L (${formatNumber(canonDebit*parseFloat(extDur)*parseFloat(conc)/100/1000)} m³)`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (entretien) = Capacité des canons × Durée entretien × Concentration = ${formatNumber(canonDebit)} × ${maintDur} × ${conc}% = ${formatNumber(canonDebit*parseFloat(maintDur)*parseFloat(conc)/100)} L (${formatNumber(canonDebit*parseFloat(maintDur)*parseFloat(conc)/100/1000)} m³)`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité totale émulseur = ${formatNumber((canonDebit/2)*parseFloat(tempDur)*parseFloat(conc)/100 + canonDebit*parseFloat(extDur)*parseFloat(conc)/100 + canonDebit*parseFloat(maintDur)*parseFloat(conc)/100)} L (${formatNumber((canonDebit/2)*parseFloat(tempDur)*parseFloat(conc)/100/1000 + canonDebit*parseFloat(extDur)*parseFloat(conc)/100/1000 + canonDebit*parseFloat(maintDur)*parseFloat(conc)/100/1000)} m³)`}</Text>
   </View>
 )}
               </>
