@@ -4,6 +4,11 @@ import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 
 function FHLIApproach() {
+  const [nbCanon4000, setNbCanon4000] = useState('0');
+  const [nbCanon2000, setNbCanon2000] = useState('0');
+  const [nbCanon1000, setNbCanon1000] = useState('0');
+  const [canonResult, setCanonResult] = useState<number|null>(null);
+  const [showCanonDetails, setShowCanonDetails] = useState(false);
   const [tab, setTab] = useState<'foam'|'structure'>('foam');
   const [surface, setSurface] = useState('');
   const [rateType, setRateType] = useState<'Hydrocarbures'|'Liquide polaire'|'Taux POI'>('Hydrocarbures');
@@ -44,61 +49,46 @@ function FHLIApproach() {
     return isNaN(val) ? 0 : val;
   }, [rateType, customRate]);
 
-  const handleCalculateFoam = useCallback(() => {
-    const surf = parseFloat(surface);
-    const taux = getTauxReflexe();
-    const concentration = parseFloat(conc);
-    const dureeTemp = parseFloat(tempDur);
-    const dureeExt = parseFloat(extDur);
-    const dureeMaint = parseFloat(maintDur);
-    if (isNaN(surf) || taux <= 0 || isNaN(concentration) || isNaN(dureeTemp) || isNaN(dureeExt) || isNaN(dureeMaint)) return;
-    const debit = surf * taux;
-    const tempVolCalc = (debit / 2) * dureeTemp * (concentration / 100) / 100;
-    const extVolCalc = debit * dureeExt * (concentration / 100) / 100;
-    const maintVolCalc = debit * dureeMaint * (concentration / 100) / 100;
-    const total = tempVolCalc + extVolCalc + maintVolCalc;
-    // Calcul eau
-    const waterTemp = (debit / 2) * dureeTemp / 100;
-    const waterExt = debit * dureeExt / 100;
-    const waterMaint = debit * dureeMaint / 100;
-    const waterTot = waterTemp + waterExt + waterMaint;
-    setFoamDebit(debit.toFixed(2));
-    setTempVolume(tempVolCalc.toFixed(2));
-    setExtVolume(extVolCalc.toFixed(2));
-    setMaintVolume(maintVolCalc.toFixed(2));
-    setTotalVolume(total.toFixed(2));
-    setWaterTempVolume(waterTemp.toFixed(2));
-    setWaterExtVolume(waterExt.toFixed(2));
-    setWaterMaintVolume(waterMaint.toFixed(2));
-    setWaterTotalVolume(waterTot.toFixed(2));
-    // Calcul flux émulseur
-    const emTempCalc = tempVolCalc / dureeTemp * 60;
-    const emExtCalc = extVolCalc / dureeExt * 60;
-    const emMaintCalc = maintVolCalc / dureeMaint * 60;
-    const emTotalCalc = emTempCalc + emExtCalc + emMaintCalc;
-    // Conversion L/min (60 m³/h = 1000 L/min)
-    const emTempLpm = emTempCalc * 1000 / 60;
-    const emExtLpm = emExtCalc * 1000 / 60;
-    const emMaintLpm = emMaintCalc * 1000 / 60;
-    const emTotalLpm = emTotalCalc * 1000 / 60;
-    setEmTempFlow(`${emTempCalc.toFixed(2)} m³/h (${emTempLpm.toFixed(2)} L/min)`);
-    setEmExtFlow(`${emExtCalc.toFixed(2)} m³/h (${emExtLpm.toFixed(2)} L/min)`);
-    setEmMaintFlow(`${emMaintCalc.toFixed(2)} m³/h (${emMaintLpm.toFixed(2)} L/min)`);
-    setEmTotalFlow(`${emTotalCalc.toFixed(2)} m³/h (${emTotalLpm.toFixed(2)} L/min)`);
-    // Calcul flux eau
-    const wTempCalc = waterTemp / dureeTemp * 60;
-    const wExtCalc = waterExt / dureeExt * 60;
-    const wMaintCalc = waterMaint / dureeMaint * 60;
-    const wTotalCalc = wTempCalc + wExtCalc + wMaintCalc;
-    const wTempLpm = wTempCalc * 1000 / 60;
-    const wExtLpm = wExtCalc * 1000 / 60;
-    const wMaintLpm = wMaintCalc * 1000 / 60;
-    const wTotalLpm = wTotalCalc * 1000 / 60;
-    setWTempFlow(`${wTempCalc.toFixed(2)} m³/h (${wTempLpm.toFixed(2)} L/min)`);
-    setWExtFlow(`${wExtCalc.toFixed(2)} m³/h (${wExtLpm.toFixed(2)} L/min)`);
-    setWMaintFlow(`${wMaintCalc.toFixed(2)} m³/h (${wMaintLpm.toFixed(2)} L/min)`);
-    setWTotalFlow(`${wTotalCalc.toFixed(2)} m³/h (${wTotalLpm.toFixed(2)} L/min)`);
-  }, [surface, getTauxReflexe, conc, tempDur, extDur, maintDur]);
+  const formatNumber = (num: number | string) => {
+  if (typeof num === 'string') num = parseFloat(num);
+  if (isNaN(num)) return '';
+  return num.toLocaleString('fr-FR');
+};
+
+const handleCalculateFoam = useCallback(() => {
+  const surf = parseFloat(surface);
+  const taux = getTauxReflexe();
+  const concentration = parseFloat(conc);
+  const dureeTemp = parseFloat(tempDur);
+  const dureeExt = parseFloat(extDur);
+  const dureeMaint = parseFloat(maintDur);
+  if (isNaN(surf) || taux <= 0 || isNaN(concentration) || isNaN(dureeTemp) || isNaN(dureeExt) || isNaN(dureeMaint)) return;
+  // Débit de solution moussante (L/min)
+  const debit = surf * taux;
+  setFoamDebit(formatNumber(debit));
+  // Quantité émulseur nécessaire (m3) pour chaque phase
+  const emTemp = debit * concentration / 100 * dureeTemp / 1000; // en m3
+  const emExt = debit * concentration / 100 * dureeExt / 1000;
+  const emMaint = debit * concentration / 100 * dureeMaint / 1000;
+  const emTotal = emTemp + emExt + emMaint;
+  setTempVolume(formatNumber(emTemp));
+  setExtVolume(formatNumber(emExt));
+  setMaintVolume(formatNumber(emMaint));
+  setTotalVolume(formatNumber(emTotal));
+  // Eau (inchangé pour l'instant)
+  setWaterTempVolume(null);
+  setWaterExtVolume(null);
+  setWaterMaintVolume(null);
+  setWaterTotalVolume(null);
+  setEmTempFlow(formatNumber(emTemp));
+  setEmExtFlow(formatNumber(emExt));
+  setEmMaintFlow(formatNumber(emMaint));
+  setEmTotalFlow(formatNumber(emTotal));
+  setWTempFlow(null);
+  setWExtFlow(null);
+  setWMaintFlow(null);
+  setWTotalFlow(null);
+}, [surface, getTauxReflexe, conc, tempDur, extDur, maintDur]);
 
   const handleResetFoam = useCallback(() => {
     setSurface('');
@@ -199,6 +189,94 @@ function FHLIApproach() {
           <Text style={styles.markText}>6%</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Champs Nombre de canons */}
+      {/* Boutons Réinitialiser et Calculer pour le calcul canon */}
+<View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 8 }}>
+  <TouchableOpacity style={[styles.resetButton, { marginRight: 8 }]} onPress={() => {
+    setCanonResult(null);
+    setShowCanonDetails(false);
+    setSurface('');
+    setRateType('Hydrocarbures');
+    setCustomRate('');
+  }}>
+    <Text style={styles.resetText}>Réinitialiser</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.calculateButton} onPress={() => {
+    const surf = parseFloat(surface);
+    const taux = getTauxReflexe();
+    if (isNaN(surf) || isNaN(taux)) return;
+    setCanonResult(surf * taux);
+    setShowCanonDetails(false);
+  }}>
+    <Text style={styles.calculateText}>Calculer</Text>
+  </TouchableOpacity>
+</View>
+
+{/* Carte résultat canon */}
+{canonResult !== null && (
+  <View style={[styles.resultSection, { backgroundColor: '#F1F8E9', borderRadius: 8, marginBottom: 12 }]}> 
+    <TouchableOpacity style={[styles.row, { alignItems: 'flex-start' }]} onPress={() => setShowCanonDetails(v => !v)}>
+  <View style={{ flex: 1 }}>
+    <Text style={[styles.resultTitle, { textAlign: 'center' }]}>Débit d'extinction nécessaire</Text>
+    <Text style={{ fontSize: 13, fontWeight: 'normal', color: '#388E3C', marginTop: -4, marginBottom: 0, textAlign: 'center' }}>(débit de solution moussante)</Text>
+  </View>
+  <Ionicons name={showCanonDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#388E3C" style={{ marginLeft: 8, marginTop: 2 }} />
+</TouchableOpacity>
+    <Text style={styles.resultValue}>
+  {formatNumber(canonResult)} L/min ({formatNumber((canonResult/1000)*60)} m³/h)
+</Text>
+    {showCanonDetails && (
+      <View style={{ marginTop: 8 }}>
+        <Text style={styles.resultLabel}>{`Débit d'extinction nécessaire = Surface × Taux d'application`}</Text>
+        <Text style={styles.resultLabel}>{`= ${formatNumber(surface)} × ${formatNumber(getTauxReflexe())} = ${formatNumber(canonResult)} L/min`}</Text>
+      </View>
+    )}
+  </View>
+)}
+
+<Text style={styles.label}>Nombre de canons :</Text>
+<View style={{ flexDirection: 'row', marginBottom: 12 }}>
+  <View style={{ flex: 1, marginHorizontal: 3, alignItems: 'center' }}>
+  <Text style={[styles.label, { textAlign: 'center' }]}>4 000L/min</Text>
+  <TextInput
+      style={[styles.input, { color: '#1976D2', fontWeight: 'bold' }]}
+      value={typeof nbCanon4000 === 'undefined' ? '0' : nbCanon4000}
+      onChangeText={setNbCanon4000}
+      keyboardType="numeric"
+      placeholder="0"
+    />
+</View>
+  <View style={{ flex: 1, marginHorizontal: 3, alignItems: 'center' }}>
+  <Text style={[styles.label, { textAlign: 'center' }]}>2 000L/min</Text>
+  <TextInput
+      style={[styles.input, { color: '#1976D2', fontWeight: 'bold' }]}
+      value={typeof nbCanon2000 === 'undefined' ? '0' : nbCanon2000}
+      onChangeText={setNbCanon2000}
+      keyboardType="numeric"
+      placeholder="0"
+    />
+</View>
+  <View style={{ flex: 1, marginHorizontal: 3, alignItems: 'center' }}>
+  <Text style={[styles.label, { textAlign: 'center' }]}>1 000L/min</Text>
+  <TextInput
+      style={[styles.input, { color: '#1976D2', fontWeight: 'bold' }]}
+      value={typeof nbCanon1000 === 'undefined' ? '0' : nbCanon1000}
+      onChangeText={setNbCanon1000}
+      keyboardType="numeric"
+      placeholder="0"
+    />
+</View>
+</View>
+
+{/* Capacité des canons */}
+<View style={{ marginBottom: 12 }}>
+  <Text style={styles.label}>Capacité des canons :</Text>
+  <Text style={[styles.resultValue, { fontSize: 18 }]}> 
+    {formatNumber((parseInt(nbCanon4000||'0')*4000 + parseInt(nbCanon2000||'0')*2000 + parseInt(nbCanon1000||'0')*1000))} L/min ({formatNumber(((parseInt(nbCanon4000||'0')*4000 + parseInt(nbCanon2000||'0')*2000 + parseInt(nbCanon1000||'0')*1000)/1000)*60)} m³/h)
+  </Text>
+</View>
+
       <Text style={styles.label}>Durée temporisation (en min)</Text>
       <TextInput style={styles.input} value={tempDur} onChangeText={setTempDur} keyboardType="numeric" placeholder="20" />
       <Text style={styles.label}>Durée extinction (en min)</Text>
@@ -224,20 +302,20 @@ function FHLIApproach() {
             </TouchableOpacity>
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.resultLabel}>{`Total émulseur (${(parseFloat(tempDur)+parseFloat(extDur)+parseFloat(maintDur)).toFixed(0)} min) :`}</Text>
-                <Text style={styles.resultValue}>{emTotalFlow}</Text>
+                <Text style={styles.resultLabel}>Quantité totale d'émulseur nécessaire :</Text>
+<Text style={styles.resultValue}>{emTotalFlow} m³</Text>
               </View>
             </View>
             {showEmDetails && (
               <>
                 <View style={styles.row}>
                   <View style={styles.column}>
-                    <Text style={styles.resultLabel}>{`Temporisation émulseur (${tempDur} min) :`}</Text>
-                    <Text style={styles.resultValue}>{emTempFlow}</Text>
-                    <Text style={styles.resultLabel}>{`Extinction émulseur (${extDur} min) :`}</Text>
-                    <Text style={styles.resultValue}>{emExtFlow}</Text>
-                    <Text style={styles.resultLabel}>{`Entretien émulseur (${maintDur} min) :`}</Text>
-                    <Text style={styles.resultValue}>{emMaintFlow}</Text>
+                    <Text style={styles.resultLabel}>Phase de temporisation ({tempDur} min) :</Text>
+<Text style={styles.resultValue}>{emTempFlow} m³</Text>
+<Text style={styles.resultLabel}>Phase d'extinction ({extDur} min) :</Text>
+<Text style={styles.resultValue}>{emExtFlow} m³</Text>
+<Text style={styles.resultLabel}>Phase d'entretien tapis de mousse ({maintDur} min) :</Text>
+<Text style={styles.resultValue}>{emMaintFlow} m³</Text>
                   </View>
                 </View>
                 <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowEmFullDetails(v => !v)}>
@@ -245,14 +323,14 @@ function FHLIApproach() {
                   <Ionicons name={showEmFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#D32F2F" />
                 </TouchableOpacity>
                 {showEmFullDetails && (
-                  <View style={{ backgroundColor: '#FFF9C4', padding: 8, borderRadius: 8, marginTop: 4 }}>
-                    <Text style={styles.resultLabel}>{`Débit instantané = ${(parseFloat(surface) * getTauxReflexe()).toFixed(2)} L/min`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume temporisation = (debit/2) × ${tempDur} × (${conc}/100)/100 = ${tempVolume}`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume extinction = debit × ${extDur} × (${conc}/100)/100 = ${extVolume}`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume entretien = debit × ${maintDur} × (${conc}/100)/100 = ${maintVolume}`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume total mousse = ${totalVolume}`}</Text>
-                  </View>
-                )}
+  <View style={{ backgroundColor: '#FFF9C4', padding: 8, borderRadius: 8, marginTop: 4 }}>
+    <Text style={styles.resultLabel}>{`Débit de solution moussante = Surface × Taux d'application = ${formatNumber(surface)} × ${formatNumber(getTauxReflexe())} = ${foamDebit} L/min`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (temporisation) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${tempDur} / 1000 = ${tempVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (extinction) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${extDur} / 1000 = ${extVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (entretien) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${maintDur} / 1000 = ${maintVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité totale émulseur = ${totalVolume} m³`}</Text>
+  </View>
+)}
               </>
             )}
           </View>
@@ -285,13 +363,14 @@ function FHLIApproach() {
                   <Ionicons name={showWFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#1976D2" />
                 </TouchableOpacity>
                 {showWFullDetails && (
-                  <View style={{ backgroundColor: '#E1F5FE', padding: 8, borderRadius: 8, marginTop: 4 }}>
-                    <Text style={styles.resultLabel}>{`Volume temporisation eau = ${waterTempVolume}`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume extinction eau = ${waterExtVolume}`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume entretien eau = ${waterMaintVolume}`}</Text>
-                    <Text style={styles.resultLabel}>{`Volume total eau = ${waterTotalVolume}`}</Text>
-                  </View>
-                )}
+  <View style={{ backgroundColor: '#E1F5FE', padding: 8, borderRadius: 8, marginTop: 4 }}>
+    <Text style={styles.resultLabel}>{`Débit instantané = ${(parseFloat(surface) * getTauxReflexe()).toFixed(2)} L/min`}</Text>
+    <Text style={styles.resultLabel}>{`Volume temporisation eau = (debit/2) × ${tempDur} = ${waterTempVolume}`}</Text>
+    <Text style={styles.resultLabel}>{`Volume extinction eau = debit × ${extDur} = ${waterExtVolume}`}</Text>
+    <Text style={styles.resultLabel}>{`Volume entretien eau = debit × ${maintDur} = ${waterMaintVolume}`}</Text>
+    <Text style={styles.resultLabel}>{`Volume total eau = ${waterTotalVolume}`}</Text>
+  </View>
+)}
               </>
             )}
           </View>
