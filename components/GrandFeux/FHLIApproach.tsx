@@ -66,11 +66,11 @@ const handleCalculateFoam = useCallback(() => {
   const dureeTemp = parseFloat(tempDur);
   const dureeExt = parseFloat(extDur);
   const dureeMaint = parseFloat(maintDur);
-  if (isNaN(concentration) || isNaN(dureeTemp) || isNaN(dureeExt) || isNaN(dureeMaint) || canonDebit <= 0) return;
-  // Besoins en émulseur calqués sur la logique "eau" mais × (concentration/100)
-  const emTemp = (canonDebit / 2) * dureeTemp * concentration / 100; // en L
-  const emExt = canonDebit * dureeExt * concentration / 100; // en L
-  const emMaint = canonDebit * dureeMaint * concentration / 100; // en L
+  if (isNaN(concentration) || canonDebit <= 0) return;
+  // Si la durée n'est pas renseignée ou invalide, on met 0 pour la phase
+  const emTemp = !isNaN(dureeTemp) && tempDur !== '' ? (canonDebit / 2) * dureeTemp * concentration / 100 : 0; // en L
+  const emExt = !isNaN(dureeExt) && extDur !== '' ? canonDebit * dureeExt * concentration / 100 : 0; // en L
+  const emMaint = !isNaN(dureeMaint) && maintDur !== '' ? canonDebit * dureeMaint * concentration / 100 : 0; // en L
   const emTotal = emTemp + emExt + emMaint;
   setTempVolume(emTemp.toString());
   setExtVolume(emExt.toString());
