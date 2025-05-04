@@ -322,16 +322,8 @@ const handleCalculateFoam = useCallback(() => {
 </View>
             {showWDetails && (
               <>
-                <View style={styles.row}>
-                  <View style={styles.column}>
-                    <Text style={styles.resultLabel}>{`Temporisation eau (${tempDur} min) :`}</Text>
-                    <Text style={styles.resultValue}>{wTempFlow}</Text>
-                    <Text style={styles.resultLabel}>{`Extinction eau (${extDur} min) :`}</Text>
-                    <Text style={styles.resultValue}>{wExtFlow}</Text>
-                    <Text style={styles.resultLabel}>{`Entretien eau (${maintDur} min) :`}</Text>
-                    <Text style={styles.resultValue}>{wMaintFlow}</Text>
-                  </View>
-                </View>
+                {/* Rien ici, les résultats détaillés sont déjà dans le bloc principal */}
+
                 <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowWFullDetails(v => !v)}>
                   <Text style={styles.resultLabel}>Voir calculs</Text>
                   <Ionicons name={showWFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#1976D2" />
