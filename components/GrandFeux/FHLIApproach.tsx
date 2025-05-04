@@ -99,6 +99,9 @@ const handleCalculateFoam = useCallback(() => {
     setTempDur('20');
     setExtDur('40');
     setMaintDur('10');
+    setNbCanon4000('0');
+    setNbCanon2000('0');
+    setNbCanon1000('0');
     setFoamDebit(null);
     setTempVolume(null);
     setExtVolume(null);
