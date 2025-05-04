@@ -330,11 +330,16 @@ const handleCalculateFoam = useCallback(() => {
                 </TouchableOpacity>
                 {showWFullDetails && (
   <View style={{ backgroundColor: '#E1F5FE', padding: 8, borderRadius: 8, marginTop: 4 }}>
-    <Text style={styles.resultLabel}>{`Besoin en eau total = ${formatNumber(canonDebit)} L/min (${formatNumber((canonDebit/1000)*60)} m³/h)`}</Text>
-    <Text style={styles.resultLabel}>{`Volume temporisation eau = (débit/2) × ${tempDur} = ${formatNumber((canonDebit/2)*parseFloat(tempDur))} L`}</Text>
-    <Text style={styles.resultLabel}>{`Volume extinction eau = débit × ${extDur} = ${formatNumber(canonDebit*parseFloat(extDur))} L`}</Text>
-    <Text style={styles.resultLabel}>{`Volume entretien eau = débit × ${maintDur} = ${formatNumber(canonDebit*parseFloat(maintDur))} L`}</Text>
-    <Text style={styles.resultLabel}>{`Volume total eau = ${formatNumber((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))} L`}</Text>
+    <Text style={[styles.resultLabel, {fontWeight:'bold'}]}>Besoin en eau total :</Text>
+<Text style={styles.resultValue}>{formatNumber(canonDebit)} L/min ({formatNumber((canonDebit/1000)*60)} m³/h)</Text>
+<Text style={[styles.resultLabel, {fontWeight:'bold'}]}>Volume temporisation :</Text>
+<Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur))} L ({formatNumber((canonDebit/2)*parseFloat(tempDur)/1000)} m³)</Text>
+<Text style={[styles.resultLabel, {fontWeight:'bold'}]}>Volume extinction :</Text>
+<Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(extDur))} L ({formatNumber(canonDebit*parseFloat(extDur)/1000)} m³)</Text>
+<Text style={[styles.resultLabel, {fontWeight:'bold'}]}>Volume entretien :</Text>
+<Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(maintDur))} L ({formatNumber(canonDebit*parseFloat(maintDur)/1000)} m³)</Text>
+<Text style={[styles.resultLabel, {fontWeight:'bold'}]}>Volume total eau :</Text>
+<Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))} L ({formatNumber(((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))/1000)} m³)</Text>
   </View>
 )}
               </>
