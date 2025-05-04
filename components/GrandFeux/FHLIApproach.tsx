@@ -294,46 +294,6 @@ const handleCalculateFoam = useCallback(() => {
       {foamDebit && (
         <View>
           <Text style={styles.resultsHeader}>Résultats</Text>
-          {/* Émulseur */}
-          <View style={[styles.resultSection, styles.emSection]}>
-            <TouchableOpacity style={styles.row} onPress={() => setShowEmDetails(v => !v)}>
-              <Text style={styles.resultTitle}>Émulseur</Text>
-              <Ionicons name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#D32F2F" />
-            </TouchableOpacity>
-            <View style={styles.row}>
-              <View style={styles.column}>
-                <Text style={styles.resultLabel}>Quantité totale d'émulseur nécessaire :</Text>
-<Text style={styles.resultValue}>{emTotalFlow} m³</Text>
-              </View>
-            </View>
-            {showEmDetails && (
-              <>
-                <View style={styles.row}>
-                  <View style={styles.column}>
-                    <Text style={styles.resultLabel}>Phase de temporisation ({tempDur} min) :</Text>
-<Text style={styles.resultValue}>{emTempFlow} m³</Text>
-<Text style={styles.resultLabel}>Phase d'extinction ({extDur} min) :</Text>
-<Text style={styles.resultValue}>{emExtFlow} m³</Text>
-<Text style={styles.resultLabel}>Phase d'entretien tapis de mousse ({maintDur} min) :</Text>
-<Text style={styles.resultValue}>{emMaintFlow} m³</Text>
-                  </View>
-                </View>
-                <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowEmFullDetails(v => !v)}>
-                  <Text style={styles.resultLabel}>Voir calculs</Text>
-                  <Ionicons name={showEmFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#D32F2F" />
-                </TouchableOpacity>
-                {showEmFullDetails && (
-  <View style={{ backgroundColor: '#FFF9C4', padding: 8, borderRadius: 8, marginTop: 4 }}>
-    <Text style={styles.resultLabel}>{`Débit de solution moussante = Surface × Taux d'application = ${formatNumber(surface)} × ${formatNumber(getTauxReflexe())} = ${foamDebit} L/min`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité émulseur (temporisation) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${tempDur} / 1000 = ${tempVolume} m³`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité émulseur (extinction) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${extDur} / 1000 = ${extVolume} m³`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité émulseur (entretien) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${maintDur} / 1000 = ${maintVolume} m³`}</Text>
-    <Text style={styles.resultLabel}>{`Quantité totale émulseur = ${totalVolume} m³`}</Text>
-  </View>
-)}
-              </>
-            )}
-          </View>
           {/* Eau */}
           <View style={[styles.resultSection, styles.wSection]}>
             <TouchableOpacity style={styles.row} onPress={() => setShowWDetails(v => !v)}>
@@ -369,6 +329,46 @@ const handleCalculateFoam = useCallback(() => {
     <Text style={styles.resultLabel}>{`Volume extinction eau = debit × ${extDur} = ${waterExtVolume}`}</Text>
     <Text style={styles.resultLabel}>{`Volume entretien eau = debit × ${maintDur} = ${waterMaintVolume}`}</Text>
     <Text style={styles.resultLabel}>{`Volume total eau = ${waterTotalVolume}`}</Text>
+  </View>
+)}
+              </>
+            )}
+          </View>
+          {/* Émulseur */}
+          <View style={[styles.resultSection, styles.emSection]}>
+            <TouchableOpacity style={styles.row} onPress={() => setShowEmDetails(v => !v)}>
+              <Text style={styles.resultTitle}>Émulseur</Text>
+              <Ionicons name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#D32F2F" />
+            </TouchableOpacity>
+            <View style={styles.row}>
+              <View style={styles.column}>
+                <Text style={styles.resultLabel}>Quantité totale d'émulseur nécessaire :</Text>
+<Text style={styles.resultValue}>{emTotalFlow} m³</Text>
+              </View>
+            </View>
+            {showEmDetails && (
+              <>
+                <View style={styles.row}>
+                  <View style={styles.column}>
+                    <Text style={styles.resultLabel}>Phase de temporisation ({tempDur} min) :</Text>
+<Text style={styles.resultValue}>{emTempFlow} m³</Text>
+<Text style={styles.resultLabel}>Phase d'extinction ({extDur} min) :</Text>
+<Text style={styles.resultValue}>{emExtFlow} m³</Text>
+<Text style={styles.resultLabel}>Phase d'entretien tapis de mousse ({maintDur} min) :</Text>
+<Text style={styles.resultValue}>{emMaintFlow} m³</Text>
+                  </View>
+                </View>
+                <TouchableOpacity style={[styles.row, { marginTop: 8 }]} onPress={() => setShowEmFullDetails(v => !v)}>
+                  <Text style={styles.resultLabel}>Voir calculs</Text>
+                  <Ionicons name={showEmFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#D32F2F" />
+                </TouchableOpacity>
+                {showEmFullDetails && (
+  <View style={{ backgroundColor: '#FFF9C4', padding: 8, borderRadius: 8, marginTop: 4 }}>
+    <Text style={styles.resultLabel}>{`Débit de solution moussante = Surface × Taux d'application = ${formatNumber(surface)} × ${formatNumber(getTauxReflexe())} = ${foamDebit} L/min`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (temporisation) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${tempDur} / 1000 = ${tempVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (extinction) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${extDur} / 1000 = ${extVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité émulseur (entretien) = Débit × Concentration × Durée / 1000 = ${foamDebit} × ${conc}% × ${maintDur} / 1000 = ${maintVolume} m³`}</Text>
+    <Text style={styles.resultLabel}>{`Quantité totale émulseur = ${totalVolume} m³`}</Text>
   </View>
 )}
               </>
