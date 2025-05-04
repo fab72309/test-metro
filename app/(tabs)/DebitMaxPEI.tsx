@@ -183,7 +183,7 @@ export default function DebitMaxPEI() {
     const qMax = qUtil * Math.sqrt(ps / pUtil);
     const qDispo = qMax - qUtil;
     const qDispoArrondi = Math.round(qDispo);
-    const qDispoM3h = (qDispoArrondi * 0.06).toFixed(2); // 1 L/min = 0.06 m3/h
+    const qDispoM3h = (qDispoArrondi * 0.06).toFixed(2); // Conversion officielle 1 L/min = 0,06 m³/h
     setResultat(qDispo.toFixed(2));
     setResultatArrondi(qDispoArrondi.toString());
     setResultatM3h(qDispoM3h);

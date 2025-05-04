@@ -66,13 +66,13 @@ Gagner du temps pour :
     const multiplier = rendement === 0.5 ? 42.5 : 106;
     const qLmin = pmax * multiplier;
     const resLmin = qLmin.toFixed(0);
-    const resM3h = (qLmin / 16.67).toFixed(2);
+    const resM3h = (qLmin * 0.06).toFixed(2); // Conversion officielle 1 L/min = 0,06 m³/h
     // Set individual result states
     setResultPmax(pmax.toFixed(2));
     setResultFlowLmin(resLmin);
     setResultFlowM3h(resM3h);
     setResultOffensive(`${resLmin} L/min (${resM3h} m³/h)`);
-    setCalcDetailsOffensive(`Pmax = ${surf} m² × ${haut} m × ${combustible} MW/m³ × (${fraction}/100) = ${pmax.toFixed(2)} MW\nDébit requis : ${pmax.toFixed(2)} MW × ${multiplier} L/min/MW = ${resLmin} L/min\nSoit ${resM3h} m³/h`);
+    setCalcDetailsOffensive(`Pmax = ${surf} m² × ${haut} m × ${combustible} MW/m³ × (${fraction}/100) = ${pmax.toFixed(2)} MW\nDébit requis : ${pmax.toFixed(2)} MW × ${multiplier} L/min/MW = ${resLmin} L/min`); // Suppression du détail m³/h
   }, [surface, hauteur, fraction, combustible, rendement]);
 
   const handleAttackReset = useCallback(() => {
@@ -111,7 +111,7 @@ Gagner du temps pour :
     setResultPropM3h(m3h);
     setShowDetailsPropagation(false);
     setResultPropagation(res);
-    setCalcDetailsPropagation(`${surf} m² × ${taux} L/min/m² = ${res} L/min`);
+    setCalcDetailsPropagation(`${surf} m² × ${taux} L/min/m² = ${res} L/min`); // Pas d'affichage m³/h dans les détails
   }, [surfaceVertical, tauxApplication]);
 
   return (
@@ -217,8 +217,8 @@ Gagner du temps pour :
                 <Text style={styles.detailsToggle}>{showDetailsPropagation ? 'Masquer détails' : 'Voir détails'}</Text>
               </TouchableOpacity>
               {showDetailsPropagation && calcDetailsPropagation && (
-                <Text style={styles.resultDetail}>{calcDetailsPropagation}</Text>
-              )}
+                <Text style={styles.resultDetail}>{calcDetailsPropagation.replace(/\nSoit [^\n]+ m³\/h/, '')}</Text>
+              )} // Suppression de la ligne m³/h dans les détails
             </View>
           )}
         </View>
