@@ -297,7 +297,7 @@ const handleCalculateFoam = useCallback(() => {
           {/* Eau */}
           <View style={[styles.resultSection, styles.wSection]}>
             <TouchableOpacity style={styles.row} onPress={() => setShowWDetails(v => !v)}>
-              <Text style={styles.resultTitle}>Eau</Text>
+              <Text style={styles.resultTitle}>Besoins en eau</Text>
               <Ionicons name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#1976D2" />
             </TouchableOpacity>
             <View style={styles.row}>
@@ -337,7 +337,7 @@ const handleCalculateFoam = useCallback(() => {
           {/* Émulseur */}
           <View style={[styles.resultSection, styles.emSection]}>
             <TouchableOpacity style={styles.row} onPress={() => setShowEmDetails(v => !v)}>
-              <Text style={styles.resultTitle}>Émulseur</Text>
+              <Text style={styles.resultTitle}>Besoins en émulseurs</Text>
               <Ionicons name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#D32F2F" />
             </TouchableOpacity>
             <View style={styles.row}>
