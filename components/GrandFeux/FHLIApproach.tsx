@@ -307,11 +307,19 @@ const handleCalculateFoam = useCallback(() => {
               <Ionicons name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#1976D2" />
             </TouchableOpacity>
             <View style={styles.row}>
-              <View style={styles.column}>
-                <Text style={styles.resultLabel}>{`Total eau (${(parseFloat(tempDur)+parseFloat(extDur)+parseFloat(maintDur)).toFixed(0)} min) :`}</Text>
-                <Text style={styles.resultValue}>{wTotalFlow}</Text>
-              </View>
-            </View>
+  <View style={styles.column}>
+    <Text style={styles.resultLabel}>Besoin en eau total :</Text>
+    <Text style={styles.resultValue}>{formatNumber(canonDebit)} L/min ({formatNumber((canonDebit/1000)*60)} m³/h)</Text>
+    <Text style={styles.resultLabel}>{`Volume temporisation (${tempDur} min) :`}</Text>
+    <Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur))} L</Text>
+    <Text style={styles.resultLabel}>{`Volume extinction (${extDur} min) :`}</Text>
+    <Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(extDur))} L</Text>
+    <Text style={styles.resultLabel}>{`Volume entretien (${maintDur} min) :`}</Text>
+    <Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(maintDur))} L</Text>
+    <Text style={styles.resultLabel}>Volume total eau :</Text>
+    <Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))} L</Text>
+  </View>
+</View>
             {showWDetails && (
               <>
                 <View style={styles.row}>
