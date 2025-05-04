@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, SafeAreaView, Switch } from 'react-native';
 import { Header } from '@/components/ui/Header';
 import { useThemeContext } from '../../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -140,7 +140,13 @@ export default function CalculEtablissement(props: { key?: string }) {
   const { segments, updateSegment, removeSegment } = useMemoSegments();
   const [denivele, setDenivele] = useState(0);
   const { pressionLance, customPressions, setPressionLance } = usePertesDeChargeTable();
+  // Sélectionne par défaut la seconde valeur personnalisée si elle existe
   const [pressionActive, setPressionActive] = useState(true);
+  React.useEffect(() => {
+    if (customPressions && customPressions.length > 1) {
+      setPressionLance(customPressions[1]);
+    }
+  }, [customPressions, setPressionLance]);
 
   // Calculs
   const perteDeCharge = segments.reduce((acc: number, t) => acc + t.perte, 0);
@@ -205,7 +211,7 @@ export default function CalculEtablissement(props: { key?: string }) {
         </View>
 
         {/* Section Dénivelé */}
-        <View style={[styles.section,{backgroundColor:palette.background, borderWidth:0}]}>
+        <View style={[styles.section,{backgroundColor:palette.background, borderWidth:0, alignItems:'center'}]}>
           <Text style={styles.labelSection}>Dénivelé</Text>
           <View style={{flexDirection:'row',flexWrap:'wrap',justifyContent:'center',gap:8, marginBottom:8}}>
             {deniveaux.map(val => (
@@ -222,11 +228,18 @@ export default function CalculEtablissement(props: { key?: string }) {
         </View>
 
         {/* Section Pression à la lance */}
-        <View style={styles.section}>
-          <Text style={styles.labelSection}>Pression à la lance</Text>
-          <View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>
+        <View style={[styles.section, {alignItems:'center'}]}>
+          <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center', marginBottom: 8}}>
+            <Text style={styles.labelSection}>Pression à la lance</Text>
+            <Switch
+              style={{ marginLeft: 12 }}
+              value={pressionActive}
+              onValueChange={setPressionActive}
+            />
+          </View>
+          <View style={{flexDirection:'row',flexWrap:'wrap',gap:8, justifyContent:'center'}}>
             {pressions.map(val => (
-              <TouchableOpacity key={val} style={[styles.paramBtn, pressionLance === val && styles.paramBtnSelected]} onPress={() => setPressionLance(val)}>
+              <TouchableOpacity key={val} style={[styles.paramBtn, pressionLance === val && styles.paramBtnSelected]} onPress={() => setPressionLance(val)} disabled={!pressionActive}>
                 <Text style={pressionLance === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} b</Text>
               </TouchableOpacity>
             ))}
@@ -234,7 +247,7 @@ export default function CalculEtablissement(props: { key?: string }) {
         </View>
 
         {/* Section Résumé */}
-        <View style={styles.section}>
+        <View style={[styles.section, {alignItems:'center'}]}>
           <Text style={styles.labelSection}>Résumé</Text>
           <Text style={{color:palette.primary,fontWeight:'bold',fontSize:16}}>Perte de charge : {perteDeCharge.toFixed(2)} bars</Text>
           <Text style={{color:palette.primary,fontWeight:'bold',fontSize:16}}>Perte dénivelé : {perteDenivele >= 0 ? '+' : ''}{perteDenivele.toFixed(2)} bars</Text>
