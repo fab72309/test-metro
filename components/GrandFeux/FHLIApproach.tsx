@@ -311,13 +311,13 @@ const handleCalculateFoam = useCallback(() => {
     <Text style={styles.resultLabel}>Besoin en eau total :</Text>
     <Text style={styles.resultValue}>{formatNumber(canonDebit)} L/min ({formatNumber((canonDebit/1000)*60)} m³/h)</Text>
     <Text style={styles.resultLabel}>{`Volume temporisation (${tempDur} min) :`}</Text>
-    <Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur))} L</Text>
+    <Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur))} L ({formatNumber((canonDebit/2)*parseFloat(tempDur)/1000)} m³)</Text>
     <Text style={styles.resultLabel}>{`Volume extinction (${extDur} min) :`}</Text>
-    <Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(extDur))} L</Text>
+    <Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(extDur))} L ({formatNumber(canonDebit*parseFloat(extDur)/1000)} m³)</Text>
     <Text style={styles.resultLabel}>{`Volume entretien (${maintDur} min) :`}</Text>
-    <Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(maintDur))} L</Text>
+    <Text style={styles.resultValue}>{formatNumber(canonDebit*parseFloat(maintDur))} L ({formatNumber(canonDebit*parseFloat(maintDur)/1000)} m³)</Text>
     <Text style={styles.resultLabel}>Volume total eau :</Text>
-    <Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))} L</Text>
+    <Text style={styles.resultValue}>{formatNumber((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))} L ({formatNumber(((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))/1000)} m³)</Text>
   </View>
 </View>
             {showWDetails && (
