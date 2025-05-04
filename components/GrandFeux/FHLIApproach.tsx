@@ -7,6 +7,12 @@ function FHLIApproach() {
   const [nbCanon4000, setNbCanon4000] = useState('0');
   const [nbCanon2000, setNbCanon2000] = useState('0');
   const [nbCanon1000, setNbCanon1000] = useState('0');
+  // Capacité totale des canons en L/min
+  const canonDebit =
+    parseInt(nbCanon4000 || '0') * 4000 +
+    parseInt(nbCanon2000 || '0') * 2000 +
+    parseInt(nbCanon1000 || '0') * 1000;
+
   const [canonResult, setCanonResult] = useState<number|null>(null);
   const [showCanonDetails, setShowCanonDetails] = useState(false);
   const [tab, setTab] = useState<'foam'|'structure'>('foam');
@@ -324,11 +330,11 @@ const handleCalculateFoam = useCallback(() => {
                 </TouchableOpacity>
                 {showWFullDetails && (
   <View style={{ backgroundColor: '#E1F5FE', padding: 8, borderRadius: 8, marginTop: 4 }}>
-    <Text style={styles.resultLabel}>{`Débit instantané = ${(parseFloat(surface) * getTauxReflexe()).toFixed(2)} L/min`}</Text>
-    <Text style={styles.resultLabel}>{`Volume temporisation eau = (debit/2) × ${tempDur} = ${waterTempVolume}`}</Text>
-    <Text style={styles.resultLabel}>{`Volume extinction eau = debit × ${extDur} = ${waterExtVolume}`}</Text>
-    <Text style={styles.resultLabel}>{`Volume entretien eau = debit × ${maintDur} = ${waterMaintVolume}`}</Text>
-    <Text style={styles.resultLabel}>{`Volume total eau = ${waterTotalVolume}`}</Text>
+    <Text style={styles.resultLabel}>{`Besoin en eau total = ${formatNumber(canonDebit)} L/min (${formatNumber((canonDebit/1000)*60)} m³/h)`}</Text>
+    <Text style={styles.resultLabel}>{`Volume temporisation eau = (débit/2) × ${tempDur} = ${formatNumber((canonDebit/2)*parseFloat(tempDur))} L`}</Text>
+    <Text style={styles.resultLabel}>{`Volume extinction eau = débit × ${extDur} = ${formatNumber(canonDebit*parseFloat(extDur))} L`}</Text>
+    <Text style={styles.resultLabel}>{`Volume entretien eau = débit × ${maintDur} = ${formatNumber(canonDebit*parseFloat(maintDur))} L`}</Text>
+    <Text style={styles.resultLabel}>{`Volume total eau = ${formatNumber((canonDebit/2)*parseFloat(tempDur) + canonDebit*parseFloat(extDur) + canonDebit*parseFloat(maintDur))} L`}</Text>
   </View>
 )}
               </>
