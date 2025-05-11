@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput } from 'react-native';
 import { pertesDeChargeTable as pertesDeChargeTableDefault, diametreToTypeTuyau, longueursDisponibles, debitsDisponibles, diametresDisponibles, Debit, Diametre } from '../../constants/pertesDeChargeTable';
 import { usePertesDeChargeTable } from '../../context/PertesDeChargeTableContext';
 import { calculerPerteDeCharge } from '../../constants/calculPerteDeCharge';
@@ -23,6 +23,11 @@ export default function CalculPertesDeCharge(props: { key?: string }) {
   const [resultat, setResultat] = useState<number | null>(null);
   const [canConserve, setCanConserve] = useState(false);
   const { segments, addSegment, removeSegment, clearSegments } = useMemoSegments();
+
+  // Pour la saisie personnalisée de longueur
+  const [longueurPerso, setLongueurPerso] = useState('');
+  const [longueurPersoActive, setLongueurPersoActive] = useState(false);
+  const [erreurLongueur, setErreurLongueur] = useState('');
 
   // Calcul et affichage du résultat
   const handleCalcul = () => {
@@ -82,17 +87,84 @@ export default function CalculPertesDeCharge(props: { key?: string }) {
             </TouchableOpacity>
           ))}
         </View>
-        <Text style={styles.labelSection}>Longueur du tuyau (m) :</Text>
+        <Text style={styles.labelSection}>
+          Longueur du tuyau (m) :
+          {longueurPersoActive && longueur ? (
+            <Text style={{color: palette.primary, fontWeight: 'bold'}}> {longueur}</Text>
+          ) : null}
+        </Text>
         <View style={styles.rowWrap}>
           {[20, 40, 60, 80, 100].map(val => (
             <TouchableOpacity
               key={val}
-              style={[styles.paramBtn, longueur === val && styles.paramBtnSelected]}
-              onPress={() => setLongueur(val)}>
-              <Text style={longueur === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} m</Text>
+              style={[styles.paramBtn, longueur === val && !longueurPersoActive && styles.paramBtnSelected]}
+              onPress={() => {
+                setLongueur(val);
+                setLongueurPerso('');
+                setErreurLongueur('');
+                setLongueurPersoActive(false);
+              }}>
+              <Text style={longueur === val && !longueurPersoActive ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} m</Text>
             </TouchableOpacity>
           ))}
         </View>
+        <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center', marginTop:10, marginBottom:2}}>
+          <TextInput
+            style={[
+              styles.paramBtn,
+              {
+                width: 120,
+                textAlign: 'center',
+                marginRight: 8,
+                borderColor: palette.primary,
+                backgroundColor: '#fff',
+                fontWeight:'bold',
+                fontSize:17
+              },
+            ]}
+            keyboardType="numeric"
+            placeholder="Autre"
+            value={longueurPerso}
+            onChangeText={txt => {
+              setLongueurPerso(txt.replace(/[^0-9]/g, ''));
+              setErreurLongueur('');
+            }}
+            onFocus={() => setLongueurPersoActive(true)}
+          />
+          <Text style={{marginRight: 8, color: palette.text, fontWeight:'bold'}}>m</Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: palette.primary,
+              borderRadius: 20,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              marginLeft: 8,
+              minWidth: 80,
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: palette.primary,
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
+            onPress={() => {
+              const val = parseInt(longueurPerso, 10);
+              if (!val || val < 1 || val > 300) {
+                setErreurLongueur('Valeur entre 1 et 300');
+                return;
+              }
+              setLongueur(val);
+              setLongueurPersoActive(true);
+              setErreurLongueur('');
+            }}
+            disabled={!longueurPerso || isNaN(Number(longueurPerso))}
+          >
+            <Text style={{color: '#fff', fontWeight: 'bold', fontSize: 16}}>Valider</Text>
+          </TouchableOpacity>
+        </View>
+        {erreurLongueur ? (
+          <Text style={{color: 'red', marginLeft: 4, marginBottom: 4}}>{erreurLongueur}</Text>
+        ) : null}
         <Text style={styles.labelSection}>Débit (L/min) :</Text>
         <View style={styles.rowWrap}>
           {[250, 500, 1000, 1500, 2000].map(val => (
