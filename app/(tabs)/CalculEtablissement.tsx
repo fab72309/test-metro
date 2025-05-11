@@ -142,11 +142,12 @@ export default function CalculEtablissement(props: { key?: string }) {
   const { pressionLance, customPressions, setPressionLance } = usePertesDeChargeTable();
   // Sélectionne par défaut la seconde valeur personnalisée si elle existe
   const [pressionActive, setPressionActive] = useState(true);
+  // Initialiser la pression à la lance à la 2e valeur personnalisée uniquement au premier montage
   React.useEffect(() => {
     if (customPressions && customPressions.length > 1) {
       setPressionLance(customPressions[1]);
     }
-  }, [customPressions, setPressionLance]);
+  }, []);
 
   // Calculs
   const perteDeCharge = segments.reduce((acc: number, t) => acc + t.perte, 0);
