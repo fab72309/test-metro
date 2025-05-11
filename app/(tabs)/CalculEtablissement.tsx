@@ -185,7 +185,7 @@ export default function CalculEtablissement(props: { key?: string }) {
     setModalVisible(false);
   };
 
-  // Quick selection : remplacer le bouton "6b" par la valeur personnalisée
+  // Utiliser directement customPressions pour afficher les boutons de sélection de pression
   const pressions = customPressions;
 
   return (
