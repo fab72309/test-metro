@@ -2,6 +2,11 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Version
+
+Current release: **v0.1.4-alpha**.
+See `CHANGELOG.md` for details.
+
 ## Get started
 
 1. Install dependencies
@@ -13,8 +18,16 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 2. Start the app
 
    ```bash
-    npx expo start
+   npx expo start
    ```
+
+## Notable changes in v0.1.4-alpha
+
+- Removed a duplicate file in `components/GrandFeux`.
+- Cleaned debug logs from the pressure loss calculator.
+- Added unit tests for `calculerPerteDeCharge`.
+- Introduced a CI workflow running lint and tests.
+- Typed the ref used in the **GrandsFeux** screen.
 
 In the output, you'll find options to open the app in a
 

@@ -52,7 +52,7 @@ export default function Accueil() {
           <Text style={[styles.buttonText, {color: palette.buttonText}]}>Paramètres</Text>
         </TouchableOpacity>
       </View>
-      <Text style={[styles.versionText, { color: palette.text, marginVertical: 12 }]}>v0.1.3-alpha</Text>
+      <Text style={[styles.versionText, { color: palette.text, marginVertical: 12 }]}>v0.1.4-alpha</Text>
 
       {/* Modal d'avertissement */}
       <Modal

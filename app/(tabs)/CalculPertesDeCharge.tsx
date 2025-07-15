@@ -31,9 +31,7 @@ export default function CalculPertesDeCharge(props: { key?: string }) {
 
   // Calcul et affichage du résultat
   const handleCalcul = () => {
-    console.log('Context losses table:', pertesDeChargeTable);
     const res = calculerPerteDeCharge(longueur, debit, diametre, pertesDeChargeTable);
-    console.log('Calculation result:', res);
     if (res.perteDeCharge !== null) {
       setResultat(res.perteDeCharge);
       setCanConserve(true);

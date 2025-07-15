@@ -1,14 +1,14 @@
 import React, { useRef } from 'react';
 import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
 import { Header } from '../../components/ui/Header';
-import GrandFeuxCalculator from '../../components/GrandFeuxCalculator';
+import GrandFeuxCalculator, { GrandFeuxCalculatorHandle } from '../../components/GrandFeuxCalculator';
 import { useThemeContext } from '../../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function GrandsFeux() {
   const { theme } = useThemeContext();
   const isDark = theme === 'dark';
-  const calculatorRef = useRef<any>(null);
+  const calculatorRef = useRef<GrandFeuxCalculatorHandle | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {

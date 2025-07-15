@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.1.4-alpha (2025-07-15)
+- Suppression d'un fichier en doublon dans `components/GrandFeux`.
+- Nettoyage des logs de debug dans `CalculPertesDeCharge`.
+- Ajout de tests Jest pour `calculerPerteDeCharge`.
+- Mise en place d'une CI GitHub Actions exécutant lint et tests.
+- Typage explicite du ref de `GrandsFeuxCalculator`.
+
 ## v0.1.3-alpha (2025-05-11)
 - Correction : la pression à la lance est maintenant modifiable et persistante sur l’écran « Calcul établissement ».
 - Amélioration UX : possibilité de saisir une longueur de tuyau personnalisée sur l’écran « Pertes de charge » (champ visible sous les boutons, valeur affichée en rouge après le label).
