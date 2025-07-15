@@ -9,6 +9,10 @@ import PuissanceApproach from './GrandFeux/PuissanceApproach';
 import SurfaceApproach from './GrandFeux/SurfaceApproach';
 import FHLIApproach from './GrandFeux/FHLIApproach';
 
+export interface GrandFeuxCalculatorHandle {
+  forceDefaultMode: () => void;
+}
+
 const combustibleOptions = [
   { label: 'Cellulosique (1 MW/m³)', value: 1 },
   { label: 'Plastique (2,7 MW/m³)', value: 2.7 },
@@ -32,7 +36,10 @@ const FHLI_STRUCT_OPTIONS = [
   { label: 'Rideau d’eau 40 m (1000 L/min)', length: 40, flow: 1000 },
 ];
 
-function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }, ref: any) {
+function GrandFeuxCalculator(
+  { hideTitle = false }: { hideTitle?: boolean },
+  ref: React.Ref<GrandFeuxCalculatorHandle>
+) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [showInfoPopupPropagation, setShowInfoPopupPropagation] = useState(false);
   const [showInfoPopupSurface, setShowInfoPopupSurface] = useState(false); // Pour l'approche Surface
@@ -750,5 +757,7 @@ OC pour les entrepôts non sprinklés (risque important). Ajustez-le taux d'appl
   );
 }
 
-export default React.memo(React.forwardRef(GrandFeuxCalculator));
+export default React.memo(
+  React.forwardRef<GrandFeuxCalculatorHandle, { hideTitle?: boolean }>(GrandFeuxCalculator)
+);
 
