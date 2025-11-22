@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { formatNumber } from '@/utils/format';
 
-const DebitMaxPEI = () => {
+export default function DebitMaxPEI() {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
   const navigation = useNavigation();

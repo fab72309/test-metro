@@ -11,6 +11,7 @@ import { useMemoSegments } from '../../context/MemoSegmentsContext';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeContext';
 import { formatNumber } from '@/utils/format';
+import { Button } from '@/components/ui/Button';
 
 export default function HomeScreen() {
   const { table: pertesDeChargeTable } = usePertesDeChargeTable();
@@ -104,9 +105,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          <TouchableOpacity style={styles.calcBtn} onPress={handleCalcul}>
-            <Text style={styles.calcBtnTxt}>Calculer</Text>
-          </TouchableOpacity>
+          <Button title="Calculer" onPress={handleCalcul} style={{ marginTop: 18 }} />
         </View>
         {resultat !== null && (
           <View style={styles.resultCard}>
@@ -114,12 +113,10 @@ export default function HomeScreen() {
               <View>
                 <Text style={styles.resultLabel}>Perte de charge</Text>
                 <Text style={styles.resultValue}>{formatNumber(resultat)} <Text style={{ fontWeight: 'normal' }}>bars</Text></Text>
-              </View >
-              <TouchableOpacity style={styles.saveBtn} onPress={handleConserver} disabled={!canConserve}>
-                <Text style={[styles.saveBtnTxt, !canConserve && { color: '#ccc' }]}>Conserver</Text>
-              </TouchableOpacity>
-            </View >
-          </View >
+              </View>
+              <Button title="Conserver" onPress={handleConserver} disabled={!canConserve} variant="outline" size="sm" />
+            </View>
+          </View>
         )}
         {
           segments.length > 0 && (
@@ -134,18 +131,17 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 </View>
               ))}
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
-                  <Text style={styles.resetBtnTxt}>Réinitialiser</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.resetBtn, { backgroundColor: palette.primary }]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
-                  <Text style={[styles.resetBtnTxt, { color: '#fff' }]}>Calcul établissement</Text>
-                </TouchableOpacity>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, gap: 10 }}>
+                <Button title="Réinitialiser" onPress={handleReset} variant="ghost" style={{ flex: 1 }} />
+                <Button title="Calcul établissement" onPress={() => navigation.navigate('CalculEtablissement' as never)} style={{ flex: 1 }} />
               </View>
             </View>
           )
         }
       </ScrollView >
+      <View style={{ padding: 10, alignItems: 'center' }}>
+        <Text style={{ color: palette.secondaryText, fontSize: 12 }}>v0.3.2-alpha</Text>
+      </View>
     </SafeAreaView >
   );
 }
@@ -158,7 +154,7 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     marginTop: 10,
   },
   section: {
-    backgroundColor: palette.background,
+    backgroundColor: palette.card,
     borderRadius: 18,
     padding: 16,
     marginBottom: 18,
@@ -202,25 +198,8 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 15,
   },
-  calcBtn: {
-    backgroundColor: palette.primary,
-    borderRadius: 16,
-    marginTop: 18,
-    paddingVertical: 14,
-    alignItems: 'center',
-    shadowColor: palette.primary,
-    shadowOpacity: 0.10,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  calcBtnTxt: {
-    color: palette.buttonText,
-    fontWeight: 'bold',
-    fontSize: 18,
-    letterSpacing: 1,
-  },
   resultCard: {
-    backgroundColor: palette.background,
+    backgroundColor: palette.card,
     borderRadius: 18,
     padding: 18,
     marginBottom: 18,
@@ -231,7 +210,7 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
   },
   resultLabel: {
     fontSize: 15,
-    color: '#888',
+    color: palette.secondaryText,
     marginBottom: 2,
   },
   resultValue: {
@@ -240,22 +219,8 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     fontSize: 32,
     marginBottom: 0,
   },
-  saveBtn: {
-    borderColor: palette.primary,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginLeft: 10,
-    alignSelf: 'center',
-  },
-  saveBtnTxt: {
-    color: palette.primary,
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
   savedSection: {
-    backgroundColor: palette.background,
+    backgroundColor: palette.card,
     borderRadius: 18,
     padding: 16,
     marginBottom: 18,
@@ -274,7 +239,7 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomColor: '#eee',
+    borderBottomColor: palette.border,
     borderBottomWidth: 1,
     paddingVertical: 8,
     gap: 10,
@@ -290,21 +255,6 @@ const getStyles = (palette: typeof Colors.light) => StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginHorizontal: 10,
-  },
-  resetBtn: {
-    borderColor: palette.primary,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    marginTop: 4,
-    marginRight: 8,
-    backgroundColor: palette.background,
-  },
-  resetBtnTxt: {
-    color: palette.primary,
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   title: {
     color: palette.primary,

@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.2-alpha (2025-11-22)
+
+### 🎨 Standardisation UI & Mode Sombre
+- **Boutons Uniformisés** : Remplacement de tous les boutons personnalisés par le composant `Button` standardisé (rouge primaire, outline, ghost).
+- **Mode Sombre Corrigé** :
+  - Correction de l'écran d'accueil (fond des cartes vs fond d'écran).
+  - Uniformisation des couleurs de fond sur tous les écrans.
+  - Amélioration de la lisibilité des textes en mode sombre.
+- **Valeurs Personnalisées** : Refonte complète de l'écran avec les nouveaux composants UI.
+
+### 🐛 Corrections
+- **Débit Max PEI** : Correction de l'écran blanc causé par un export manquant.
+- **Navigation** : Amélioration de la cohérence visuelle des en-têtes.
+
 ## v0.3.1-alpha (2025-11-22)
 
 ### 🔢 Formatage Uniforme des Nombres

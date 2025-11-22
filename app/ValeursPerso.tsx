@@ -2,8 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useTheme, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { usePertesDeChargeTable, DEFAULT_PRESSIONS } from '../context/PertesDeChargeTableContext';
-import { pertesDeChargeTable as defaultTable } from '../constants/pertesDeChargeTable';
+import { pertesDeChargeTable as defaultTable, TypeTuyau, Debit } from '../constants/pertesDeChargeTable';
 import { Ionicons } from '@expo/vector-icons';
+import { Button } from '@/components/ui/Button';
 
 export default function ValeursPerso() {
   const { colors, dark } = useTheme();
@@ -166,9 +167,10 @@ export default function ValeursPerso() {
                     );
                   })}
                   {/* Boutons validation/réinitialisation pour pertes de charge */}
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12 }}>
-                    <TouchableOpacity
-                      style={[themedStyles.paramBtn, { marginRight: 8 }]}
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12, gap: 8 }}>
+                    <Button
+                      title="Réinitialiser"
+                      variant="outline"
                       onPress={() => {
                         // Réinitialise ce bloc de diamètre (valeurs par défaut)
                         const defaultBlock = defaultTable[type as TypeTuyau];
@@ -181,11 +183,9 @@ export default function ValeursPerso() {
                           [type]: { ...defaultBlock }
                         });
                       }}
-                    >
-                      <Text style={themedStyles.paramBtnTxt}>Réinitialiser</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[themedStyles.paramBtn, { backgroundColor: '#D32F2F' }]}
+                    />
+                    <Button
+                      title="Valider"
                       onPress={() => {
                         // Applique toutes les valeurs du bloc d’un coup
                         const newBlock: Record<string, number | null> = {};
@@ -200,9 +200,7 @@ export default function ValeursPerso() {
                           [type as TypeTuyau]: newBlock
                         });
                       }}
-                    >
-                      <Text style={[themedStyles.paramBtnTxt, { color: '#fff' }]}>Valider</Text>
-                    </TouchableOpacity>
+                    />
                   </View>
                 </View>
               );
@@ -219,7 +217,7 @@ export default function ValeursPerso() {
           {/* Personnalisation des pressions rapides */}
           {customPressions.map((val, idx) => (
             <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <Text style={{ flex: 1 }}>Pression rapide {idx + 1}</Text>
+              <Text style={{ flex: 1, color: colors.text }}>Pression rapide {idx + 1}</Text>
               <TextInput
                 style={[themedStyles.paramInput, { width: 60, textAlign: 'center' }]}
                 keyboardType={keyboardTypeDec}
@@ -230,21 +228,20 @@ export default function ValeursPerso() {
                   setEditCustomPressions(arr);
                 }}
               />
-              <Text style={{ marginLeft: 4 }}>b</Text>
+              <Text style={{ marginLeft: 4, color: colors.text }}>b</Text>
             </View>
           ))}
-          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12 }}>
-            <TouchableOpacity
-              style={[themedStyles.paramBtn, { marginRight: 8 }]}
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12, gap: 8 }}>
+            <Button
+              title="Réinitialiser"
+              variant="outline"
               onPress={() => {
                 setEditCustomPressions(DEFAULT_PRESSIONS.map(String));
                 resetCustomPressions();
               }}
-            >
-              <Text style={themedStyles.paramBtnTxt}>Réinitialiser</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[themedStyles.paramBtn, { backgroundColor: '#D32F2F' }]}
+            />
+            <Button
+              title="Valider"
               onPress={() => {
                 const arr = editCustomPressions.map((text, idx) => {
                   const num = parseFloat(text.replace(',', '.'));
@@ -258,12 +255,10 @@ export default function ValeursPerso() {
                 setCustomPressions(nums);
                 setEditCustomPressions(arr);
               }}
-            >
-              <Text style={[themedStyles.paramBtnTxt, { color: '#fff' }]}>Valider</Text>
-            </TouchableOpacity>
+            />
           </View>
 
-          <Text style={{ color: colors.text + '99', fontSize: 13, textAlign: 'center', marginBottom: 4 }}>
+          <Text style={{ color: colors.text + '99', fontSize: 13, textAlign: 'center', marginBottom: 4, marginTop: 12 }}>
             Cette valeur sera utilisée dans la page « Calcul établissement ».
           </Text>
           <Text style={{ color: colors.text + '77', fontSize: 12, textAlign: 'center', marginBottom: 10 }}>
@@ -295,12 +290,15 @@ export default function ValeursPerso() {
         <Ionicons name={expandedSections.grandsFeuxFHLI ? 'chevron-up' : 'chevron-down'} color='#D32F2F' size={20} />
       </TouchableOpacity>
       {expandedSections.grandsFeuxFHLI && <View style={{ padding: 16 }}><Text style={{ color: colors.text }}>À implémenter…</Text></View>}
-      <TouchableOpacity style={themedStyles.resetBtn} onPress={() => {
-        resetCustomPressions();
-        setEditCustomPressions(DEFAULT_PRESSIONS.map(String));
-      }}>
-        <Text style={themedStyles.resetBtnTxt}>Réinitialiser les valeurs par défaut</Text>
-      </TouchableOpacity>
+      <Button
+        title="Réinitialiser les valeurs par défaut"
+        variant="secondary"
+        style={{ marginTop: 18, alignSelf: 'center' }}
+        onPress={() => {
+          resetCustomPressions();
+          setEditCustomPressions(DEFAULT_PRESSIONS.map(String));
+        }}
+      />
     </ScrollView>
   );
 }
