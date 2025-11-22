@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Title, Body, Caption, Label } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { formatNumber } from '@/utils/format';
 
 interface SurfaceApproachProps {
   surface: string;
@@ -37,7 +38,8 @@ Ex. Pour 500 m² à 3 L/min/m² → 500×3=1,500 L/min (1,50 m³/h).
 
 Ajustez-le selon le type de combustible et la doctrine locale.`;
 
-  const details = resultLmin ? `${surface} m² × ${taux} L/min/m² = ${resultLmin} L/min` : null;
+  // ... inside component
+  const details = resultLmin ? `${formatNumber(surface)} m² × ${taux} L/min/m² = ${formatNumber(resultLmin)} L/min` : null;
 
   return (
     <View style={styles.container}>
@@ -79,7 +81,7 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
           </View>
 
           <Body style={{ fontSize: 16, marginBottom: 8 }}>
-            <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultLmin} L/min ({resultM3h} m³/h)
+            <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{formatNumber(resultLmin)} L/min ({formatNumber(resultM3h)} m³/h)
           </Body>
 
           <TouchableOpacity onPress={() => setShowDetails(!showDetails)}>

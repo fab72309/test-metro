@@ -10,19 +10,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMemoSegments } from '../../context/MemoSegmentsContext';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeContext';
+import { formatNumber } from '@/utils/format';
 
 export default function HomeScreen() {
+  const { table: pertesDeChargeTable } = usePertesDeChargeTable();
+  const { segments, addSegment, removeSegment, clearSegments } = useMemoSegments();
+  const navigation = useNavigation();
   const { theme } = useThemeContext();
   const palette = Colors[theme];
   const styles = getStyles(palette);
-  const navigation = useNavigation();
-  const { table: pertesDeChargeTable } = usePertesDeChargeTable();
+
   const [diametre, setDiametre] = useState<Diametre>(45);
-  const [longueur, setLongueur] = useState(40);
-  const [debit, setDebit] = useState<Debit>(500);
+  const [longueur, setLongueur] = useState(20);
+  const [debit, setDebit] = useState<Debit>(250);
   const [resultat, setResultat] = useState<number | null>(null);
   const [canConserve, setCanConserve] = useState(false);
-  const { segments, addSegment, removeSegment, clearSegments } = useMemoSegments();
 
   // Calcul et affichage du résultat
   const handleCalcul = () => {
@@ -111,38 +113,40 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View>
                 <Text style={styles.resultLabel}>Perte de charge</Text>
-                <Text style={styles.resultValue}>{resultat} <Text style={{ fontWeight: 'normal' }}>bars</Text></Text>
-              </View>
+                <Text style={styles.resultValue}>{formatNumber(resultat)} <Text style={{ fontWeight: 'normal' }}>bars</Text></Text>
+              </View >
               <TouchableOpacity style={styles.saveBtn} onPress={handleConserver} disabled={!canConserve}>
                 <Text style={[styles.saveBtnTxt, !canConserve && { color: '#ccc' }]}>Conserver</Text>
               </TouchableOpacity>
-            </View>
-          </View>
+            </View >
+          </View >
         )}
-        {segments.length > 0 && (
-          <View style={styles.savedSection}>
-            <Text style={styles.savedTitle}>Résultats conservés</Text>
-            {segments.map((c, idx) => (
-              <View key={c.id} style={styles.savedRow}>
-                <Text style={styles.savedDesc}>Ø {c.diametre}mm - {c.longueur}m - {c.debit}L/min</Text>
-                <Text style={styles.savedVal}>{c.perte.toFixed(2)} bars</Text>
-                <TouchableOpacity onPress={() => handleDelete(c.id)}>
-                  <Ionicons name="trash-outline" size={20} color={palette.primary} />
+        {
+          segments.length > 0 && (
+            <View style={styles.savedSection}>
+              <Text style={styles.savedTitle}>Résultats conservés</Text>
+              {segments.map((c, idx) => (
+                <View key={c.id} style={styles.savedRow}>
+                  <Text style={styles.savedDesc}>Ø {c.diametre}mm - {c.longueur}m - {c.debit}L/min</Text>
+                  <Text style={styles.savedVal}>{formatNumber(c.perte)} bars</Text>
+                  <TouchableOpacity onPress={() => handleDelete(c.id)}>
+                    <Ionicons name="trash-outline" size={20} color={palette.primary} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
+                  <Text style={styles.resetBtnTxt}>Réinitialiser</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.resetBtn, { backgroundColor: palette.primary }]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
+                  <Text style={[styles.resetBtnTxt, { color: '#fff' }]}>Calcul établissement</Text>
                 </TouchableOpacity>
               </View>
-            ))}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-              <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
-                <Text style={styles.resetBtnTxt}>Réinitialiser</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.resetBtn, { backgroundColor: palette.primary }]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
-                <Text style={[styles.resetBtnTxt, { color: '#fff' }]}>Calcul établissement</Text>
-              </TouchableOpacity>
             </View>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          )
+        }
+      </ScrollView >
+    </SafeAreaView >
   );
 }
 

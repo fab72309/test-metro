@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Title, Subtitle, Label, Body, Caption } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
+import { formatNumber } from '@/utils/format';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 function FHLIApproach() {
@@ -53,12 +54,6 @@ function FHLIApproach() {
     const val = parseFloat(customRate);
     return isNaN(val) ? 0 : val;
   }, [rateType, customRate]);
-
-  const formatNumber = (num: number | string) => {
-    if (typeof num === 'string') num = parseFloat(num);
-    if (isNaN(num)) return '';
-    return num.toLocaleString('fr-FR');
-  };
 
   const handleCalculateFoam = useCallback(() => {
     const concentration = parseFloat(conc);
@@ -239,9 +234,10 @@ function FHLIApproach() {
             containerStyle={{ marginBottom: 0 }}
             style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon4000 === 'undefined' ? '0' : nbCanon4000}
-            onChangeText={setNbCanon4000}
+            onChangeText={(t) => setNbCanon4000(t.length > 1 && t.startsWith('0') ? t.substring(1) : t)}
             keyboardType="numeric"
             placeholder="0"
+            selectTextOnFocus
           />
         </View>
         <View style={{ width: '33.33%', paddingHorizontal: 4 }}>
@@ -250,9 +246,10 @@ function FHLIApproach() {
             containerStyle={{ marginBottom: 0 }}
             style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon2000 === 'undefined' ? '0' : nbCanon2000}
-            onChangeText={setNbCanon2000}
+            onChangeText={(t) => setNbCanon2000(t.length > 1 && t.startsWith('0') ? t.substring(1) : t)}
             keyboardType="numeric"
             placeholder="0"
+            selectTextOnFocus
           />
         </View>
         <View style={{ width: '33.33%', paddingHorizontal: 4 }}>
@@ -261,9 +258,10 @@ function FHLIApproach() {
             containerStyle={{ marginBottom: 0 }}
             style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon1000 === 'undefined' ? '0' : nbCanon1000}
-            onChangeText={setNbCanon1000}
+            onChangeText={(t) => setNbCanon1000(t.length > 1 && t.startsWith('0') ? t.substring(1) : t)}
             keyboardType="numeric"
             placeholder="0"
+            selectTextOnFocus
           />
         </View>
       </View>
@@ -298,7 +296,7 @@ function FHLIApproach() {
             {!showWDetails && (
               <View style={{ marginTop: 8 }}>
                 <Body><Text style={{ fontWeight: 'bold' }}>Débit pratique : </Text>{formatNumber(canonDebit)} L/min</Body>
-                <Body><Text style={{ fontWeight: 'bold' }}>Volume total eau : </Text>{formatNumber(waterTotalVolume || 0)} L ({formatNumber(parseFloat(waterTotalVolume || '0') / 1000)} m³)</Body>
+                <Body><Text style={{ fontWeight: 'bold' }}>Volume total eau : </Text>{formatNumber(waterTotalVolume)} L ({formatNumber(parseFloat(waterTotalVolume || '0') / 1000)} m³)</Body>
               </View>
             )}
 
@@ -322,7 +320,7 @@ function FHLIApproach() {
                 </View>
 
                 <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: '#B3E5FC', paddingTop: 8 }}>
-                  <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#01579B' }}>Volume total eau : {formatNumber(waterTotalVolume || 0)} L</Body>
+                  <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#01579B' }}>Volume total eau : {formatNumber(waterTotalVolume)} L</Body>
                 </View>
               </View>
             )}
@@ -336,15 +334,15 @@ function FHLIApproach() {
             </TouchableOpacity>
 
             <View style={{ marginTop: 8 }}>
-              <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#E65100' }}>Quantité totale : {formatNumber(totalVolume || 0)} L</Body>
+              <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#E65100' }}>Quantité totale : {formatNumber(totalVolume)} L</Body>
               <Body>({formatNumber(parseFloat(totalVolume || '0') / 1000)} m³)</Body>
             </View>
 
             {showEmDetails && (
               <View style={{ marginTop: 12 }}>
-                <Body><Text style={{ fontWeight: 'bold' }}>Temporisation : </Text>{formatNumber(tempVolume || 0)} L</Body>
-                <Body><Text style={{ fontWeight: 'bold' }}>Extinction : </Text>{formatNumber(extVolume || 0)} L</Body>
-                <Body><Text style={{ fontWeight: 'bold' }}>Entretien : </Text>{formatNumber(maintVolume || 0)} L</Body>
+                <Body><Text style={{ fontWeight: 'bold' }}>Temporisation : </Text>{formatNumber(tempVolume)} L</Body>
+                <Body><Text style={{ fontWeight: 'bold' }}>Extinction : </Text>{formatNumber(extVolume)} L</Body>
+                <Body><Text style={{ fontWeight: 'bold' }}>Entretien : </Text>{formatNumber(maintVolume)} L</Body>
 
                 <TouchableOpacity style={[styles.row, { marginTop: 12 }]} onPress={() => setShowEmFullDetails(v => !v)}>
                   <Label style={{ color: '#E65100' }}>Voir formules détaillées</Label>

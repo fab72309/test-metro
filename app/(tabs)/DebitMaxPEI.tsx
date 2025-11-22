@@ -11,8 +11,9 @@ import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { formatNumber } from '@/utils/format';
 
-export default function DebitMaxPEI() {
+const DebitMaxPEI = () => {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
   const navigation = useNavigation();
@@ -23,9 +24,16 @@ export default function DebitMaxPEI() {
   const [resultat, setResultat] = useState('-');
   const [resultatArrondi, setResultatArrondi] = useState('-');
   const [resultatM3h, setResultatM3h] = useState('-');
-  const [details, setDetails] = useState({ ps: '', pr: '', pUtil: '', qUtil: '', qMax: '', qDispo: '' });
-  const [infoVisible, setInfoVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [details, setDetails] = useState({
+    ps: '',
+    pr: '',
+    pUtil: '',
+    qUtil: '',
+    qMax: '',
+    qDispo: '',
+  });
+  const [infoVisible, setInfoVisible] = useState(false);
 
   function handleCalcul() {
     const ps = parseFloat(pressionStatique.replace(',', '.'));
@@ -102,8 +110,8 @@ export default function DebitMaxPEI() {
             </TouchableOpacity>
           </View>
           <View style={styles.resultBox}>
-            <Title>{resultatArrondi} L/min</Title>
-            <Caption>({resultatM3h} m³/h)</Caption>
+            <Title>{formatNumber(resultatArrondi)} L/min</Title>
+            <Caption>({formatNumber(resultatM3h)} m³/h)</Caption>
           </View>
         </Card>
 
@@ -116,12 +124,12 @@ export default function DebitMaxPEI() {
 
         {showDetails && (
           <Card style={styles.detailsBox}>
-            <View style={styles.detailRow}><Label>Pression statique :</Label><Body>{details.ps} bar</Body></View>
-            <View style={styles.detailRow}><Label>Pression résiduelle :</Label><Body>{details.pr} bar</Body></View>
-            <View style={styles.detailRow}><Label>Pression utilisée :</Label><Body>{details.pUtil} bar</Body></View>
-            <View style={styles.detailRow}><Label>Débit utilisé :</Label><Body>{details.qUtil} L/min</Body></View>
-            <View style={styles.detailRow}><Label>Q max :</Label><Body>{details.qMax} L/min</Body></View>
-            <View style={styles.detailRow}><Label>Débit disponible :</Label><Body>{details.qDispo} L/min</Body></View>
+            <View style={styles.detailRow}><Label>Pression statique :</Label><Body>{formatNumber(details.ps)} bar</Body></View>
+            <View style={styles.detailRow}><Label>Pression résiduelle :</Label><Body>{formatNumber(details.pr)} bar</Body></View>
+            <View style={styles.detailRow}><Label>Pression utilisée :</Label><Body>{formatNumber(details.pUtil)} bar</Body></View>
+            <View style={styles.detailRow}><Label>Débit utilisé :</Label><Body>{formatNumber(details.qUtil)} L/min</Body></View>
+            <View style={styles.detailRow}><Label>Q max :</Label><Body>{formatNumber(details.qMax)} L/min</Body></View>
+            <View style={styles.detailRow}><Label>Débit disponible :</Label><Body>{formatNumber(details.qDispo)} L/min</Body></View>
           </Card>
         )}
 

@@ -15,6 +15,7 @@ import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
+import { formatNumber } from '@/utils/format';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
 export default function CalculPertesDeCharge() {
@@ -22,17 +23,15 @@ export default function CalculPertesDeCharge() {
   const palette = Colors[theme];
   const navigation = useNavigation();
   const { table: pertesDeChargeTable } = usePertesDeChargeTable();
+  const { segments, addSegment, clearSegments, removeSegment } = useMemoSegments();
 
   const [diametre, setDiametre] = useState<Diametre>(45);
-  const [longueur, setLongueur] = useState(40);
-  const [debit, setDebit] = useState<Debit>(500);
-  const [resultat, setResultat] = useState<number | null>(null);
-  const [canConserve, setCanConserve] = useState(false);
-  const { segments, addSegment, removeSegment, clearSegments } = useMemoSegments();
-
-  // Pour la saisie personnalisée de longueur
+  const [longueur, setLongueur] = useState(20);
   const [longueurPerso, setLongueurPerso] = useState('');
   const [erreurLongueur, setErreurLongueur] = useState('');
+  const [debit, setDebit] = useState<Debit>(250);
+  const [resultat, setResultat] = useState<number | null>(null);
+  const [canConserve, setCanConserve] = useState(false);
 
   const handleCalcul = () => {
     const res = calculerPerteDeCharge(longueur, debit, diametre, pertesDeChargeTable);
@@ -139,44 +138,48 @@ export default function CalculPertesDeCharge() {
           <Button title="Calculer" onPress={handleCalcul} style={{ marginTop: 16 }} />
         </Card>
 
-        {resultat !== null && (
-          <Card variant="filled" style={styles.resultCard}>
-            <View style={styles.resultHeader}>
-              <View>
-                <Label>Perte de charge</Label>
-                <Title>{resultat} bars</Title>
+        {
+          resultat !== null && (
+            <Card variant="filled" style={styles.resultCard}>
+              <View style={styles.resultHeader}>
+                <View>
+                  <Label>Perte de charge</Label>
+                  <Title>{formatNumber(resultat)} bars</Title>
+                </View>
+                <Button
+                  title="Conserver"
+                  onPress={handleConserver}
+                  disabled={!canConserve}
+                  variant="outline"
+                  size="sm"
+                />
               </View>
-              <Button
-                title="Conserver"
-                onPress={handleConserver}
-                disabled={!canConserve}
-                variant="outline"
-                size="sm"
-              />
-            </View>
-          </Card>
-        )}
+            </Card>
+          )
+        }
 
-        {segments.length > 0 && (
-          <Card style={styles.section}>
-            <Title style={{ textAlign: 'center' }}>Résultats conservés</Title>
-            {segments.map((c) => (
-              <View key={c.id} style={styles.savedRow}>
-                <Body style={{ flex: 1 }}>Ø {c.diametre}mm - {c.longueur}m - {c.debit}L/min</Body>
-                <Body style={{ fontWeight: 'bold', color: palette.primary }}>{c.perte.toFixed(2)} bars</Body>
-                <TouchableOpacity onPress={() => removeSegment(c.id)} style={{ marginLeft: 8 }}>
-                  <Ionicons name="trash-outline" size={20} color={palette.primary} />
-                </TouchableOpacity>
+        {
+          segments.length > 0 && (
+            <Card style={styles.section}>
+              <Title style={{ textAlign: 'center' }}>Résultats conservés</Title>
+              {segments.map((c) => (
+                <View key={c.id} style={styles.savedRow}>
+                  <Body style={{ flex: 1 }}>Ø {c.diametre}mm - {c.longueur}m - {c.debit}L/min</Body>
+                  <Body style={{ fontWeight: 'bold', color: palette.primary }}>{formatNumber(c.perte)} bars</Body>
+                  <TouchableOpacity onPress={() => removeSegment(c.id)} style={{ marginLeft: 8 }}>
+                    <Ionicons name="trash-outline" size={20} color={palette.primary} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <View style={styles.actionButtons}>
+                <Button title="Réinitialiser" onPress={handleReset} variant="ghost" />
+                <Button title="Calcul établissement" onPress={() => navigation.navigate('CalculEtablissement' as never)} />
               </View>
-            ))}
-            <View style={styles.actionButtons}>
-              <Button title="Réinitialiser" onPress={handleReset} variant="ghost" />
-              <Button title="Calcul établissement" onPress={() => navigation.navigate('CalculEtablissement' as never)} />
-            </View>
-          </Card>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+            </Card>
+          )
+        }
+      </ScrollView >
+    </SafeAreaView >
   );
 }
 

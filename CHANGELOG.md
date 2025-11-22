@@ -2,6 +2,22 @@
 
 ## v0.3.1-alpha (2025-11-22)
 
+### 🔢 Formatage Uniforme des Nombres
+- **Nouvelle Fonction Utilitaire** : Création de `utils/format.ts` avec la fonction `formatNumber`
+  - Utilise `Intl.NumberFormat` avec locale française (`fr-FR`)
+  - **Séparateurs de milliers** : Affiche `1 000` au lieu de `1000` (espace comme séparateur)
+  - **Décimales intelligentes** : Affiche `300` au lieu de `300.00` (supprime les décimales inutiles)
+  - **Maximum 2 décimales** : Limite les décimales à 2 chiffres quand nécessaire (`1 234,56`)
+  - **Gestion des valeurs nulles** : Retourne `-` pour null/undefined
+- **Application Cross-App** : Formatage appliqué dans 8 fichiers
+  - ✅ `components/GrandFeux/SurfaceApproach.tsx` : débits requis et surface
+  - ✅ `components/GrandFeux/FHLIApproach.tsx` : tous les débits, volumes et quantités d'émulseur
+  - ✅ `components/GrandFeux/PuissanceApproach.tsx` : combustible et débits
+  - ✅ `app/(tabs)/DebitMaxPEI.tsx` : débit disponible et détails de calcul
+  - ✅ `app/(tabs)/CalculEtablissement.tsx` : pertes de charge, dénivelé, pressions
+  - ✅ `app/(tabs)/CalculPertesDeCharge.tsx` : résultats et segments conservés
+  - ✅ `app/(tabs)/index.tsx` : écran d'accueil avec calculateur
+
 ### 💄 Améliorations UI
 - **Titres Uniformisés** : Introduction du composant `ScreenHeader` pour garantir une cohérence visuelle parfaite des titres sur toutes les pages (taille, icône, alignement).
 - **Nettoyage Navigation** : Suppression des en-têtes natifs dans `_layout.tsx` pour un contrôle total via le nouveau composant.

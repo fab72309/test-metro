@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { formatNumber } from '@/utils/format';
 
 const deniveaux = [-30, -20, -10, 0, 10, 20, 30];
 
@@ -79,7 +80,7 @@ export default function CalculEtablissement() {
           {segments.map((t, idx) => (
             <View style={styles.savedRow} key={t.id}>
               <Body style={styles.savedDesc}>{`T${idx + 1}: Ø${t.diametre}mm - ${t.longueur}m - ${t.debit}L/min`}</Body>
-              <Body style={{ fontWeight: 'bold', color: palette.primary }}>{t.perte.toFixed(2)}b</Body>
+              <Body style={{ fontWeight: 'bold', color: palette.primary }}>{formatNumber(t.perte)}b</Body>
               <View style={styles.actions}>
                 <TouchableOpacity onPress={() => openEdit(idx)} style={{ padding: 4 }}>
                   <Ionicons name="pencil" size={20} color={palette.accent} />
@@ -107,7 +108,7 @@ export default function CalculEtablissement() {
             ))}
           </View>
           <Body style={{ textAlign: 'center', marginVertical: 8 }}>
-            {denivele.toFixed(2)}m ({perteDenivele >= 0 ? '+' : ''}{perteDenivele.toFixed(2)} bars)
+            {formatNumber(denivele)}m ({perteDenivele >= 0 ? '+' : ''}{formatNumber(perteDenivele)} bars)
           </Body>
           <View style={styles.buttonRow}>
             <Button title="-" onPress={() => setDenivele(d => Math.max(-30, Math.min(30, +(d - 0.5).toFixed(2))))} variant="outline" size="sm" />
@@ -139,19 +140,19 @@ export default function CalculEtablissement() {
           <Title>Résumé</Title>
           <View style={styles.resultRow}>
             <Body>Perte de charge :</Body>
-            <Body style={{ fontWeight: 'bold' }}>{perteDeCharge.toFixed(2)} bars</Body>
+            <Body style={{ fontWeight: 'bold' }}>{formatNumber(perteDeCharge)} bars</Body>
           </View>
           <View style={styles.resultRow}>
             <Body>Perte dénivelé :</Body>
-            <Body style={{ fontWeight: 'bold' }}>{perteDenivele >= 0 ? '+' : ''}{perteDenivele.toFixed(2)} bars</Body>
+            <Body style={{ fontWeight: 'bold' }}>{perteDenivele >= 0 ? '+' : ''}{formatNumber(perteDenivele)} bars</Body>
           </View>
           <View style={styles.resultRow}>
             <Body>Pression à la lance :</Body>
-            <Body style={{ fontWeight: 'bold' }}>{pression.toFixed(2)} bars</Body>
+            <Body style={{ fontWeight: 'bold' }}>{formatNumber(pression)} bars</Body>
           </View>
           <View style={[styles.resultRow, { marginTop: 8, borderTopWidth: 1, borderTopColor: '#ccc', paddingTop: 8 }]}>
             <Title>Total :</Title>
-            <Title style={{ color: palette.primary }}>{total.toFixed(2)} bars</Title>
+            <Title style={{ color: palette.primary }}>{formatNumber(total)} bars</Title>
           </View>
         </Card>
 

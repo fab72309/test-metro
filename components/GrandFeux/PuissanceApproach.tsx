@@ -7,6 +7,7 @@ import { Chip } from '@/components/ui/Chip';
 import { Card } from '@/components/ui/Card';
 import { Title, Subtitle, Label, Body, Caption } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
+import { formatNumber } from '@/utils/format';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface PuissanceApproachProps {
@@ -111,7 +112,7 @@ Gagner du temps pour :
       {strategie === 'offensive' && (
         <View style={{ marginVertical: 16 }}>
           <Label>Puissance par m3 de combustible (MW/m3)</Label>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginBottom: 8 }}>{combustible.toFixed(2)}</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginBottom: 8 }}>{formatNumber(combustible)}</Text>
           <Slider
             minimumValue={1}
             maximumValue={2.7}
@@ -194,13 +195,13 @@ Gagner du temps pour :
 
               {resultPmax && (
                 <Body style={{ fontSize: 16, marginBottom: 4 }}>
-                  <Text style={{ fontWeight: 'bold' }}>Puissance max estimée : </Text>{resultPmax} MW
+                  <Text style={{ fontWeight: 'bold' }}>Puissance max estimée : </Text>{formatNumber(resultPmax)} MW
                 </Body>
               )}
 
               {resultFlowLmin && resultFlowM3h && (
                 <Body style={{ fontSize: 16, marginBottom: 8 }}>
-                  <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultFlowLmin} L/min ({resultFlowM3h} m³/h)
+                  <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{formatNumber(resultFlowLmin)} L/min ({formatNumber(resultFlowM3h)} m³/h)
                 </Body>
               )}
 
@@ -253,7 +254,7 @@ Gagner du temps pour :
               </View>
 
               <Body style={{ fontSize: 16, marginBottom: 8 }}>
-                <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultPropLmin} L/min ({resultPropM3h} m³/h)
+                <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{formatNumber(resultPropLmin)} L/min ({formatNumber(resultPropM3h)} m³/h)
               </Body>
 
               <TouchableOpacity onPress={() => setShowDetailsPropagation(!showDetailsPropagation)}>
@@ -266,8 +267,9 @@ Gagner du temps pour :
             </Card>
           )}
         </View>
-      )}
-    </View>
+      )
+      }
+    </View >
   );
 }
 
