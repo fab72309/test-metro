@@ -1,33 +1,87 @@
-# Welcome to your Expo app 👋
+# Fire Hydraulics Calculator 🚒
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile et web pour les calculs hydrauliques pompiers, développée avec [Expo](https://expo.dev) et React Native.
 
 ## Version
 
-Current release: **v0.1.4-alpha**.
-See `CHANGELOG.md` for details.
+Current release: **v0.3.0-alpha** 🎉  
+See `CHANGELOG.md` for full details.
+
+## ✨ Highlights v0.3.0-alpha
+
+### 🎨 Design System Premium
+- Composants UI réutilisables (Button, Input, Card, Chip, Typography)
+- Micro-animations fluides avec React Native Reanimated
+- Retours haptiques (vibrations) sur iOS et Android
+- Mode sombre OLED-optimisé avec palette repensée
+- Cohérence visuelle cross-platform (mobile + web)
+
+### 🌓 Mode Sombre Optimisé
+- Fond noir OLED (#0D0F14) pour économie batterie
+- Contrastes WCAG AA respectés
+- Synchronisation automatique web/mobile
+- Transitions fluides entre thèmes
+
+### 📱 Responsive Design
+- Support optimisé tablettes et web
+- Layouts adaptatifs (portrait/landscape)
+- Scrollbars personnalisées (web)
 
 ## Get started
 
-1. Install dependencies
+1. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. **Start the app**
 
    ```bash
-   npx expo start
+   # Development mode
+   npm start
+
+   # Specific platforms
+   npm run ios      # iOS Simulator
+   npm run android  # Android Emulator
+   npm run web      # Web browser
    ```
 
-## Notable changes in v0.1.4-alpha
+3. **Run tests**
 
-- Removed a duplicate file in `components/GrandFeux`.
-- Cleaned debug logs from the pressure loss calculator.
-- Added unit tests for `calculerPerteDeCharge`.
-- Introduced a CI workflow running lint and tests.
-- Typed the ref used in the **GrandsFeux** screen.
+   ```bash
+   npm test
+   ```
+
+4. **Lint code**
+
+   ```bash
+   npm run lint
+   ```
+
+## 📁 Project Structure
+
+```
+├── app/                    # Screens (file-based routing)
+│   ├── (tabs)/            # Tab navigation screens
+│   └── _layout.tsx        # Root layout with theme provider
+├── components/            # Reusable components
+│   ├── ui/               # Design system components
+│   └── GrandFeux/        # Fire calculation components
+├── constants/            # Colors, configs
+├── hooks/                # Custom hooks (useThemeSync, etc.)
+├── utils/                # Utilities (haptics, etc.)
+└── context/              # React Context providers
+```
+
+## 🎯 Features
+
+- ✅ **Calculs Hydrauliques** : Pertes de charge, grands feux, débit max PEI
+- ✅ **Mode Sombre** : OLED-optimisé avec synchronisation cross-platform
+- ✅ **Animations** : Micro-animations fluides (haptics + spring)
+- ✅ **Responsive** : Fonctionne sur mobile, tablette et web
+- ✅ **Personnalisable** : Valeurs par défaut modifiables
+- ✅ **Tests** : Tests unitaires Jest pour les calculs critiques
 
 In the output, you'll find options to open the app in a
 

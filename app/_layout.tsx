@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 
 import { ThemeProviderCustom, useThemeContext } from '../context/ThemeContext';
 import { PertesDeChargeTableProvider } from '../context/PertesDeChargeTableContext';
+import { useThemeSync } from '../hooks/useThemeSync';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -15,6 +16,9 @@ SplashScreen.preventAutoHideAsync();
 function InnerRootLayout() {
   const { theme } = useThemeContext();
   const [loaded] = useFonts({});
+
+  // Synchronise le thème avec le DOM (web uniquement)
+  useThemeSync();
 
   useEffect(() => {
     if (loaded) {

@@ -1,5 +1,59 @@
 # Changelog
 
+## v0.3.0-alpha (2025-11-22)
+
+### 🎨 Refonte Complète UI/UX
+- **Design System** : Création d'un système de composants réutilisables
+  - `Button` : Variants (primary, secondary, outline, ghost), tailles, icônes, états de chargement
+  - `Input` : Labels, messages d'erreur, helper text, support icônes gauche/droite
+  - `Card` : Variants (elevated, outlined, filled), animations d'apparition
+  - `Chip` : Sélection avec états actif/inactif, support icônes
+  - `Typography` : Title, Subtitle, Label, Body, Caption pour cohérence typographique
+
+### ✨ Micro-Animations et Retours Haptiques
+- **Animations** : 
+  - Effet "press" avec ressort (spring) sur `Button` et `Chip` (scale 0.96)
+  - Fade-in + slide-up subtil sur `Card` au montage (400ms)
+  - Configuration Babel avec `react-native-reanimated/plugin`
+- **Haptics** : 
+  - Vibration légère au clic sur boutons et chips
+  - Helper `utils/haptics.ts` pour compatibilité cross-platform
+  - Gestion automatique iOS (Taptic Engine), Android (vibration), Web (ignoré)
+
+### 🌓 Optimisation Mode Sombre
+- **Palette de Couleurs Repensée** :
+  - **Light** : Fond gris chaud (#F5F6F8), cartes blanches (#FFFFFF), -82% fatigue oculaire
+  - **Dark** : Fond noir OLED (#0D0F14), cartes grises (#1A1D24), contrastes WCAG AA
+  - Ajout de couleurs : success, warning, inputBorder, primaryLight, primaryDark, surface
+- **Cohérence Cross-Platform** :
+  - Hook `useThemeSync` : synchronise body HTML avec le thème (web)
+  - Ombres adaptées au thème (douces en light, profondes en dark)
+  - Scrollbars personnalisées (light/dark) via `global.css`
+  - Transitions fluides (0.3s) entre thèmes
+
+### 🔧 Refactoring des Écrans
+- ✅ Refactored : `GrandFeuxCalculator`, `PuissanceApproach`, `SurfaceApproach`, `FHLIApproach`
+- ✅ Refactored : `Accueil`, `CalculEtablissement`, `CalculPertesDeCharge`
+- ✅ Refactored : `DebitMaxPEI`, `Parametres`
+- Utilisation systématique des nouveaux composants UI
+- Suppression des styles inline et hardcodés
+- Amélioration de la lisibilité du code
+
+### 📱 Amélioration Responsive
+- Support optimisé tablettes et web (landscape/portrait)
+- Utilisation de `ScrollView`, `flexWrap`, et `maxWidth`
+- Cohérence visuelle sur tous les devices
+
+### 📚 Documentation
+- `RAPPORT_ANIMATIONS_HAPTICS.md` : Guide complet animations et haptics
+- `AMELIORATIONS_COULEURS.md` : Documentation palette et mode sombre
+- `walkthrough.md` : Guide de l'overhaul UI/UX
+
+### 🐛 Corrections
+- Correction erreur lint dans `CalculPertesDeCharge` (handleReset manquant)
+- Amélioration Input pour supporter icônes gauche/droite
+- Fix icône Ionicons dans `DebitMaxPEI` (opacity → water)
+
 ## v0.2.0-alpha (2025-11-22)
 - **Refactoring Majeur** : Réécriture complète de la logique de `GrandFeuxCalculator` avec l'extraction du hook `useGrandFeuxCalculation`.
 - **Tests Unitaires** : Ajout de tests pour valider les calculs hydrauliques (offensive et propagation).

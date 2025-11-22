@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Alert, TouchableOpacity, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 import PropagationButtons from '../GrandFeuxCalculator_buttons_propagation';
+import { Input } from '@/components/ui/Input';
+import { Chip } from '@/components/ui/Chip';
+import { Card } from '@/components/ui/Card';
+import { Title, Subtitle, Label, Body, Caption } from '@/components/ui/Typography';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface PuissanceApproachProps {
   strategie: 'offensive' | 'propagation';
@@ -50,6 +56,8 @@ function PuissanceApproach({
 }: PuissanceApproachProps) {
   const [showDetailsOffensive, setShowDetailsOffensive] = useState(false);
   const [showDetailsPropagation, setShowDetailsPropagation] = useState(false);
+  const theme = useColorScheme() ?? 'light';
+  const colors = Colors[theme];
 
   // Texte pour l'info bulle
   const infoText = `Comment ce débit est-il calculé ?
@@ -84,110 +92,178 @@ Gagner du temps pour :
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Approche Puissance</Text>
+      <Title>Approche Puissance</Title>
+
       {/* Strategy Tabs */}
       <View style={styles.tabRow}>
-        <TouchableOpacity style={[styles.tab, strategie === 'offensive' && styles.selectedTab]} onPress={() => setStrategie('offensive')}>
-          <Text style={[styles.tabText, strategie === 'offensive' && styles.selectedTabText]}>Attaque offensive</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, strategie === 'propagation' && styles.selectedTab]} onPress={() => setStrategie('propagation')}>
-          <Text style={[styles.tabText, strategie === 'propagation' && styles.selectedTabText]}>Lutte propagation</Text>
-        </TouchableOpacity>
+        <Chip
+          label="Attaque offensive"
+          selected={strategie === 'offensive'}
+          onPress={() => setStrategie('offensive')}
+        />
+        <Chip
+          label="Lutte propagation"
+          selected={strategie === 'propagation'}
+          onPress={() => setStrategie('propagation')}
+        />
       </View>
+
       {strategie === 'offensive' && (
         <View style={{ marginVertical: 16 }}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Puissance par m3 de combustible (MW/m3)</Text>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{combustible.toFixed(2)}</Text>
+          <Label>Puissance par m3 de combustible (MW/m3)</Label>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginBottom: 8 }}>{combustible.toFixed(2)}</Text>
           <Slider
             minimumValue={1}
             maximumValue={2.7}
             step={0.01}
             value={combustible}
             onValueChange={setCombustible}
-            minimumTrackTintColor="#D32F2F"
-            maximumTrackTintColor="#eee"
-            thumbTintColor="#D32F2F"
+            minimumTrackTintColor={colors.primary}
+            maximumTrackTintColor={colors.border}
+            thumbTintColor={colors.primary}
           />
           <View style={styles.sliderLabels}>
             {[1, 2, 2.7].map(val => (
               <TouchableOpacity key={val} onPress={() => setCombustible(val)}>
-                <Text style={[styles.sliderLabel, combustible === val && styles.sliderLabelActive]}> {val} </Text>
+                <Caption style={[combustible === val && { color: colors.primary, fontWeight: 'bold' }]}> {val} </Caption>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Surface (m²)</Text>
-          <TextInput style={styles.input} value={surface} onChangeText={setSurface} keyboardType="numeric" placeholder="m²" />
-          <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Hauteur (m)</Text>
-          <TextInput style={styles.input} value={hauteur} onChangeText={setHauteur} keyboardType="numeric" placeholder="m" />
-          <Text style={{ fontWeight: 'bold', marginTop: 12 }}>Volume en feu (%)</Text>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{fraction}%</Text>
-          <Slider minimumValue={0} maximumValue={100} step={1} value={fraction} onValueChange={setFraction} minimumTrackTintColor="#D32F2F" maximumTrackTintColor="#eee" thumbTintColor="#D32F2F" />
+
+          <Input
+            label="Surface (m²)"
+            value={surface}
+            onChangeText={setSurface}
+            keyboardType="numeric"
+            placeholder="Ex: 500"
+            containerStyle={{ marginTop: 16 }}
+          />
+
+          <Input
+            label="Hauteur (m)"
+            value={hauteur}
+            onChangeText={setHauteur}
+            keyboardType="numeric"
+            placeholder="Ex: 10"
+          />
+
+          <Label style={{ marginTop: 12 }}>Volume en feu (%)</Label>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginBottom: 8 }}>{fraction}%</Text>
+          <Slider
+            minimumValue={0}
+            maximumValue={100}
+            step={1}
+            value={fraction}
+            onValueChange={setFraction}
+            minimumTrackTintColor={colors.primary}
+            maximumTrackTintColor={colors.border}
+            thumbTintColor={colors.primary}
+          />
           <View style={styles.sliderLabelsFraction}>
             {[0, 25, 50, 75, 100].map(val => (
               <TouchableOpacity key={val} onPress={() => setFraction(val)}>
-                <Text style={[styles.sliderLabelFraction, fraction === val && styles.sliderLabelFractionActive]}> {val}% </Text>
+                <Caption style={[fraction === val && { color: colors.primary, fontWeight: 'bold' }]}> {val}% </Caption>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={{ fontWeight: 'bold', marginTop: 12 }}>Rendement des lances</Text>
+
+          <Label style={{ marginTop: 16, marginBottom: 8 }}>Rendement des lances</Label>
           <View style={styles.effButtons}>
             {[20, 50].map(val => (
-              <TouchableOpacity key={val} style={[styles.effButton, rendement * 100 === val && styles.effButtonActive]} onPress={() => setRendement(val / 100)}>
-                <Text style={[styles.effButtonText, rendement * 100 === val && styles.effButtonTextActive]}> {val}% </Text>
-              </TouchableOpacity>
+              <Chip
+                key={val}
+                label={`${val}%`}
+                selected={rendement * 100 === val}
+                onPress={() => setRendement(val / 100)}
+              />
             ))}
           </View>
-          <View style={{ alignItems: 'center', marginTop: 14 }}>
+
+          <View style={{ alignItems: 'center', marginTop: 24 }}>
             <PropagationButtons onReset={resetAll} onCalculate={handleCalculate} />
           </View>
+
           {resultOffensive && (
-            <View style={styles.resultBlock}>
+            <Card variant="filled" style={styles.resultBlock}>
               <View style={styles.resultHeader}>
-                <Text style={[styles.resultTitle, styles.fireRedCenter]}>Résultat</Text>
+                <Title style={{ color: colors.primary, marginBottom: 0, marginRight: 8 }}>Résultat</Title>
                 <TouchableOpacity onPress={() => Alert.alert('Comment ce débit est-il calculé ?', infoText)} style={styles.infoIconContainer}>
                   <Text style={styles.infoIcon}>i</Text>
                 </TouchableOpacity>
               </View>
-              {resultPmax && <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Puissance max estimée : </Text>{resultPmax} MW</Text>}
+
+              {resultPmax && (
+                <Body style={{ fontSize: 16, marginBottom: 4 }}>
+                  <Text style={{ fontWeight: 'bold' }}>Puissance max estimée : </Text>{resultPmax} MW
+                </Body>
+              )}
+
               {resultFlowLmin && resultFlowM3h && (
-                <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultFlowLmin} L/min ({resultFlowM3h} m³/h)</Text>
+                <Body style={{ fontSize: 16, marginBottom: 8 }}>
+                  <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultFlowLmin} L/min ({resultFlowM3h} m³/h)
+                </Body>
               )}
+
               <TouchableOpacity onPress={() => setShowDetailsOffensive(!showDetailsOffensive)}>
-                <Text style={styles.detailsToggle}>{showDetailsOffensive ? 'Masquer détails' : 'Voir détails'}</Text>
+                <Text style={[styles.detailsToggle, { color: colors.primary }]}>{showDetailsOffensive ? 'Masquer détails' : 'Voir détails'}</Text>
               </TouchableOpacity>
+
               {showDetailsOffensive && calcDetailsOffensive && (
-                <Text style={styles.resultDetail}>{calcDetailsOffensive}</Text>
+                <Caption style={{ marginTop: 8, fontStyle: 'italic' }}>{calcDetailsOffensive}</Caption>
               )}
-            </View>
+            </Card>
           )}
         </View>
       )}
+
       {strategie === 'propagation' && (
         <View style={{ marginVertical: 16 }}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Surface verticale à protéger (m²)</Text>
-          <TextInput style={styles.input} value={surfaceVertical} onChangeText={setSurfaceVertical} keyboardType="numeric" placeholder="m²" />
-          <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Taux d'application (L/min/m²)</Text>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{tauxApplication} L/min/m²</Text>
-          <Slider minimumValue={1} maximumValue={20} step={1} value={tauxApplication} onValueChange={setTauxApplication} minimumTrackTintColor="#D32F2F" maximumTrackTintColor="#eee" thumbTintColor="#D32F2F" />
-          <View style={{ alignItems: 'center', marginTop: 12 }}>
+          <Input
+            label="Surface verticale à protéger (m²)"
+            value={surfaceVertical}
+            onChangeText={setSurfaceVertical}
+            keyboardType="numeric"
+            placeholder="Ex: 200"
+          />
+
+          <Label style={{ marginTop: 12 }}>Taux d'application (L/min/m²)</Label>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginBottom: 8 }}>{tauxApplication} L/min/m²</Text>
+          <Slider
+            minimumValue={1}
+            maximumValue={20}
+            step={1}
+            value={tauxApplication}
+            onValueChange={setTauxApplication}
+            minimumTrackTintColor={colors.primary}
+            maximumTrackTintColor={colors.border}
+            thumbTintColor={colors.primary}
+          />
+
+          <View style={{ alignItems: 'center', marginTop: 24 }}>
             <PropagationButtons onReset={resetAll} onCalculate={handleCalculate} />
           </View>
+
           {resultPropLmin && (
-            <View style={styles.resultBlock}>
+            <Card variant="filled" style={styles.resultBlock}>
               <View style={styles.resultHeader}>
-                <Text style={[styles.resultTitle, styles.fireRedCenter]}>Résultat</Text>
+                <Title style={{ color: colors.primary, marginBottom: 0, marginRight: 8 }}>Résultat</Title>
                 <TouchableOpacity onPress={() => Alert.alert('Détails propagation', infoTextPropagation)} style={styles.infoIconContainer}>
                   <Text style={styles.infoIcon}>i</Text>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultPropLmin} L/min ({resultPropM3h} m³/h)</Text>
+
+              <Body style={{ fontSize: 16, marginBottom: 8 }}>
+                <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultPropLmin} L/min ({resultPropM3h} m³/h)
+              </Body>
+
               <TouchableOpacity onPress={() => setShowDetailsPropagation(!showDetailsPropagation)}>
-                <Text style={styles.detailsToggle}>{showDetailsPropagation ? 'Masquer détails' : 'Voir détails'}</Text>
+                <Text style={[styles.detailsToggle, { color: colors.primary }]}>{showDetailsPropagation ? 'Masquer détails' : 'Voir détails'}</Text>
               </TouchableOpacity>
+
               {showDetailsPropagation && calcDetailsPropagation && (
-                <Text style={styles.resultDetail}>{calcDetailsPropagation.replace(/\nSoit [^\n]+ m³\/h/, '')}</Text>
+                <Caption style={{ marginTop: 8, fontStyle: 'italic' }}>{calcDetailsPropagation.replace(/\nSoit [^\n]+ m³\/h/, '')}</Caption>
               )}
-            </View>
+            </Card>
           )}
         </View>
       )}
@@ -198,37 +274,15 @@ Gagner du temps pour :
 export default React.memo(PuissanceApproach);
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
-  input: { height: 40, borderColor: 'gray', borderWidth: 1, padding: 10 },
-  resultBlock: { backgroundColor: '#f1f1f1', padding: 16, borderRadius: 8, marginTop: 16 },
-  resultTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 4 },
-  resultHeader: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  infoIconContainer: { marginLeft: 4, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 4, paddingVertical: 2 },
+  container: { padding: 4 },
+  resultBlock: { marginTop: 24, padding: 16 },
+  resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  infoIconContainer: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   infoIcon: { fontStyle: 'italic', color: '#888', fontSize: 12 },
-  resultText: { fontSize: 24, fontWeight: 'bold', color: '#D32F2F' },
-  resultDetail: { fontSize: 14, color: '#666' },
-  tabRow: { flexDirection: 'row', justifyContent: 'center', marginBottom: 12 },
-  tab: { paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#f1f1f1', borderRadius: 8, marginRight: 8 },
-  selectedTab: { backgroundColor: '#D32F2F' },
-  tabText: { color: '#333' },
-  selectedTabText: { color: '#fff', fontWeight: 'bold' },
-  button: { padding: 10, borderRadius: 8, backgroundColor: '#f1f1f1' },
-  buttonPrimary: { backgroundColor: '#D32F2F' },
-  buttonText: { fontWeight: 'bold', color: '#333' },
-  buttonPrimaryText: { color: '#fff' },
+  tabRow: { flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 12, flexWrap: 'wrap' },
   sliderLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  sliderLabel: { color: '#888', fontSize: 14 },
-  sliderLabelActive: { color: '#D32F2F', fontWeight: 'bold' },
   sliderLabelsFraction: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  sliderLabelFraction: { color: '#888', fontSize: 14 },
-  sliderLabelFractionActive: { color: '#D32F2F', fontWeight: 'bold' },
-  fireRedCenter: { color: '#D32F2F', textAlign: 'center' },
-  resultSubtitle: { fontSize: 16, marginVertical: 4, color: '#111' },
-  detailsToggle: { color: '#D32F2F', textAlign: 'center', marginVertical: 8, fontWeight: 'bold' },
-  effButtons: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: 8 },
-  effButton: { padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#D32F2F' },
-  effButtonActive: { backgroundColor: '#D32F2F' },
-  effButtonText: { color: '#D32F2F', fontWeight: 'bold' },
-  effButtonTextActive: { color: '#fff' },
+  detailsToggle: { textAlign: 'left', marginVertical: 8, fontWeight: 'bold' },
+  effButtons: { flexDirection: 'row', justifyContent: 'flex-start', gap: 8 },
 });
+

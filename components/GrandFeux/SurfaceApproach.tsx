@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Alert, TouchableOpacity, Text } from 'react-native';
 import Slider from '@react-native-community/slider';
 import PropagationButtons from '../GrandFeuxCalculator_buttons_propagation';
+import { Input } from '@/components/ui/Input';
+import { Card } from '@/components/ui/Card';
+import { Title, Body, Caption, Label } from '@/components/ui/Typography';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface SurfaceApproachProps {
   surface: string;
@@ -21,6 +26,8 @@ function SurfaceApproach({
   handleCalculate, resetAll
 }: SurfaceApproachProps) {
   const [showDetails, setShowDetails] = useState(false);
+  const theme = useColorScheme() ?? 'light';
+  const colors = Colors[theme];
 
   // Info text pour SurfaceApproach
   const infoTextSurface = `Comment est calculé le débit requis ?
@@ -34,45 +41,53 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Approche Surface</Text>
-      <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Surface (m²)</Text>
-      <TextInput
-        style={styles.input}
+      <Title>Approche Surface</Title>
+
+      <Input
+        label="Surface (m²)"
         value={surface}
         onChangeText={setSurface}
         keyboardType="numeric"
-        placeholder="m²"
+        placeholder="Ex: 500"
       />
-      <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Taux d'application (L/min/m²)</Text>
-      <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{taux} L/min/m²</Text>
+
+      <Label style={{ marginTop: 12 }}>Taux d'application (L/min/m²)</Label>
+      <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginBottom: 8 }}>{taux} L/min/m²</Text>
       <Slider
         minimumValue={1}
         maximumValue={20}
         step={1}
         value={taux}
         onValueChange={setTaux}
-        minimumTrackTintColor="#D32F2F"
-        maximumTrackTintColor="#eee"
-        thumbTintColor="#D32F2F"
+        minimumTrackTintColor={colors.primary}
+        maximumTrackTintColor={colors.border}
+        thumbTintColor={colors.primary}
         style={{ marginBottom: 16 }}
       />
+
       <View style={{ alignItems: 'center', marginTop: 14 }}>
         <PropagationButtons onReset={resetAll} onCalculate={handleCalculate} />
       </View>
+
       {resultLmin && (
-        <View style={styles.resultBlock}>
+        <Card variant="filled" style={styles.resultBlock}>
           <View style={styles.resultHeader}>
-            <Text style={[styles.resultTitle, styles.fireRedCenter]}>Résultat</Text>
+            <Title style={{ color: colors.primary, marginBottom: 0, marginRight: 8 }}>Résultat</Title>
             <TouchableOpacity onPress={() => Alert.alert('Comment est calculé le débit requis ?', infoTextSurface)} style={styles.infoIconContainer}>
               <Text style={styles.infoIcon}>i</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultLmin} L/min ({resultM3h} m³/h)</Text>
+
+          <Body style={{ fontSize: 16, marginBottom: 8 }}>
+            <Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultLmin} L/min ({resultM3h} m³/h)
+          </Body>
+
           <TouchableOpacity onPress={() => setShowDetails(!showDetails)}>
-            <Text style={styles.detailsToggle}>{showDetails ? 'Masquer détails' : 'Voir détails'}</Text>
+            <Text style={[styles.detailsToggle, { color: colors.primary }]}>{showDetails ? 'Masquer détails' : 'Voir détails'}</Text>
           </TouchableOpacity>
-          {showDetails && details && <Text style={styles.resultDetail}>{details}</Text>}
-        </View>
+
+          {showDetails && details && <Caption style={{ marginTop: 8, fontStyle: 'italic' }}>{details}</Caption>}
+        </Card>
       )}
     </View>
   );
@@ -81,16 +96,11 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
 export default React.memo(SurfaceApproach);
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
-  input: { height: 40, borderColor: 'gray', borderWidth: 1, padding: 10 },
-  resultBlock: { backgroundColor: '#f1f1f1', padding: 16, borderRadius: 8, marginTop: 16 },
-  resultHeader: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  infoIconContainer: { marginLeft: 4, borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 4, paddingVertical: 2 },
+  container: { padding: 4 },
+  resultBlock: { marginTop: 24, padding: 16 },
+  resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  infoIconContainer: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   infoIcon: { fontStyle: 'italic', color: '#888', fontSize: 12 },
-  fireRedCenter: { color: '#D32F2F', textAlign: 'center' },
-  resultSubtitle: { fontSize: 16, marginVertical: 4, color: '#111' },
-  detailsToggle: { color: '#D32F2F', textAlign: 'center', marginVertical: 8, fontWeight: 'bold' },
-  resultTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 4 },
-  resultDetail: { fontSize: 14, color: '#666' },
+  detailsToggle: { textAlign: 'left', marginVertical: 8, fontWeight: 'bold' },
 });
+
