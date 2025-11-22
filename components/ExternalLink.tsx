@@ -1,4 +1,3 @@
-import { Linking } from 'react-native';
 import { Link } from 'expo-router';
 import { openBrowserAsync } from 'expo-web-browser';
 import { type ComponentProps } from 'react';

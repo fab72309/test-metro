@@ -1,15 +1,25 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import PropagationButtons from '../GrandFeuxCalculator_buttons_propagation';
 
-function SurfaceApproach() {
-  const [surface, setSurface] = useState('');
-  const [taux, setTaux] = useState(6);
-  const [result, setResult] = useState<string | null>(null);
-  const [resultLmin, setResultLmin] = useState<string | null>(null);
-  const [resultM3h, setResultM3h] = useState<string | null>(null);
-  const [details, setDetails] = useState<string | null>(null);
+interface SurfaceApproachProps {
+  surface: string;
+  setSurface: (s: string) => void;
+  taux: number;
+  setTaux: (n: number) => void;
+  resultLmin: string | null;
+  resultM3h: string | null;
+  handleCalculate: () => void;
+  resetAll: () => void;
+}
+
+function SurfaceApproach({
+  surface, setSurface,
+  taux, setTaux,
+  resultLmin, resultM3h,
+  handleCalculate, resetAll
+}: SurfaceApproachProps) {
   const [showDetails, setShowDetails] = useState(false);
 
   // Info text pour SurfaceApproach
@@ -20,33 +30,12 @@ Ex. Pour 500 m² à 3 L/min/m² → 500×3=1,500 L/min (1,50 m³/h).
 
 Ajustez-le selon le type de combustible et la doctrine locale.`;
 
-  const handleCalculate = useCallback(() => {
-    const surf = parseFloat(surface);
-    if (isNaN(surf) || isNaN(taux)) return;
-    const debit = surf * taux;
-    const res = debit.toFixed(2);
-    const m3h = (debit * 0.06).toFixed(2);
-    setResultLmin(res);
-    setResultM3h(m3h);
-    setShowDetails(false);
-    setResult(`${res} L/min`);
-    setDetails(`${surf} m² × ${taux} L/min/m² = ${res} L/min`);
-  }, [surface, taux]);
-
-  const handleReset = useCallback(() => {
-    setSurface('');
-    setTaux(6);
-    setResult(null);
-    setResultLmin(null);
-    setResultM3h(null);
-    setDetails(null);
-    setShowDetails(false);
-  }, []);
+  const details = resultLmin ? `${surface} m² × ${taux} L/min/m² = ${resultLmin} L/min` : null;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Approche Surface</Text>
-      <Text style={{fontWeight:'bold', marginBottom:4}}>Surface (m²)</Text>
+      <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Surface (m²)</Text>
       <TextInput
         style={styles.input}
         value={surface}
@@ -54,8 +43,8 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
         keyboardType="numeric"
         placeholder="m²"
       />
-      <Text style={{fontWeight:'bold', marginTop:12, marginBottom:4}}>Taux d'application (L/min/m²)</Text>
-      <Text style={{fontWeight:'bold', fontSize:16, color:'#D32F2F'}}>{taux} L/min/m²</Text>
+      <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Taux d'application (L/min/m²)</Text>
+      <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{taux} L/min/m²</Text>
       <Slider
         minimumValue={1}
         maximumValue={20}
@@ -65,10 +54,10 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
         minimumTrackTintColor="#D32F2F"
         maximumTrackTintColor="#eee"
         thumbTintColor="#D32F2F"
-        style={{marginBottom:16}}
+        style={{ marginBottom: 16 }}
       />
-      <View style={{alignItems:'center', marginTop:14}}>
-        <PropagationButtons onReset={handleReset} onCalculate={handleCalculate} />
+      <View style={{ alignItems: 'center', marginTop: 14 }}>
+        <PropagationButtons onReset={resetAll} onCalculate={handleCalculate} />
       </View>
       {resultLmin && (
         <View style={styles.resultBlock}>
@@ -78,7 +67,7 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
               <Text style={styles.infoIcon}>i</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.resultSubtitle}><Text style={{fontWeight:'bold'}}>Débit requis : </Text>{resultLmin} L/min ({resultM3h} m³/h)</Text>
+          <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultLmin} L/min ({resultM3h} m³/h)</Text>
           <TouchableOpacity onPress={() => setShowDetails(!showDetails)}>
             <Text style={styles.detailsToggle}>{showDetails ? 'Masquer détails' : 'Voir détails'}</Text>
           </TouchableOpacity>
@@ -89,7 +78,7 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
   );
 }
 
-export default memo(SurfaceApproach);
+export default React.memo(SurfaceApproach);
 
 const styles = StyleSheet.create({
   container: { padding: 16 },

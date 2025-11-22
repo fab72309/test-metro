@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import { pertesDeChargeTable as pertesDeChargeTableDefault, diametreToTypeTuyau, longueursDisponibles, debitsDisponibles, diametresDisponibles, Debit, Diametre } from '../../constants/pertesDeChargeTable';
+import { pertesDeChargeTable as pertesDeChargeTableDefault, Debit, Diametre } from '../../constants/pertesDeChargeTable';
 import { usePertesDeChargeTable } from '../../context/PertesDeChargeTableContext';
 import { calculerPerteDeCharge } from '../../constants/calculPerteDeCharge';
 
@@ -56,94 +56,94 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: palette.background}}>
-      <View style={{zIndex:10, backgroundColor: palette.background, paddingHorizontal:0, paddingVertical:16, alignSelf: 'center'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }}>
+      <View style={{ zIndex: 10, backgroundColor: palette.background, paddingHorizontal: 0, paddingVertical: 16, alignSelf: 'center' }}>
         <View style={styles.headerRow}>
-          <Ionicons name="flame" size={26} color={palette.primary} style={{marginRight: 6}}/>
+          <Ionicons name="flame" size={26} color={palette.primary} style={{ marginRight: 6 }} />
           <Text style={styles.title}>Calcul de pertes de charge</Text>
         </View>
       </View>
       <ScrollView
-        contentContainerStyle={{padding: 16, paddingBottom: 100, flexGrow: 1, paddingTop:0}}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100, flexGrow: 1, paddingTop: 0 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-      <View style={styles.section}>
-        <Text style={styles.labelSection}>Diamètre du tuyau (mm) :</Text>
-        <View style={styles.rowWrap}>
-          {[45, 70, 110].map(val => (
-            <TouchableOpacity
-              key={val}
-              style={[styles.paramBtn, diametre === val && styles.paramBtnSelected]}
-              onPress={() => setDiametre(val as Diametre)}>
-              <Text style={diametre === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} mm</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.labelSection}>Longueur du tuyau (m) :</Text>
-        <View style={styles.rowWrap}>
-          {[20, 40, 60, 80, 100].map(val => (
-            <TouchableOpacity
-              key={val}
-              style={[styles.paramBtn, longueur === val && styles.paramBtnSelected]}
-              onPress={() => setLongueur(val)}>
-              <Text style={longueur === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} m</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.labelSection}>Débit (L/min) :</Text>
-        <View style={styles.rowWrap}>
-          {[250, 500, 1000, 1500, 2000].map(val => (
-            <TouchableOpacity
-              key={val}
-              style={[styles.paramBtn, debit === val && styles.paramBtnSelected]}
-              onPress={() => setDebit(val as Debit)}>
-              <Text style={debit === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <TouchableOpacity style={styles.calcBtn} onPress={handleCalcul}>
-          <Text style={styles.calcBtnTxt}>Calculer</Text>
-        </TouchableOpacity>
-      </View>
-      {resultat !== null && (
-        <View style={styles.resultCard}>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-            <View>
-              <Text style={styles.resultLabel}>Perte de charge</Text>
-              <Text style={styles.resultValue}>{resultat} <Text style={{fontWeight:'normal'}}>bars</Text></Text>
-            </View>
-            <TouchableOpacity style={styles.saveBtn} onPress={handleConserver} disabled={!canConserve}>
-              <Text style={[styles.saveBtnTxt, !canConserve && {color:'#ccc'}]}>Conserver</Text>
-            </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.labelSection}>Diamètre du tuyau (mm) :</Text>
+          <View style={styles.rowWrap}>
+            {[45, 70, 110].map(val => (
+              <TouchableOpacity
+                key={val}
+                style={[styles.paramBtn, diametre === val && styles.paramBtnSelected]}
+                onPress={() => setDiametre(val as Diametre)}>
+                <Text style={diametre === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} mm</Text>
+              </TouchableOpacity>
+            ))}
           </View>
+          <Text style={styles.labelSection}>Longueur du tuyau (m) :</Text>
+          <View style={styles.rowWrap}>
+            {[20, 40, 60, 80, 100].map(val => (
+              <TouchableOpacity
+                key={val}
+                style={[styles.paramBtn, longueur === val && styles.paramBtnSelected]}
+                onPress={() => setLongueur(val)}>
+                <Text style={longueur === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val} m</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.labelSection}>Débit (L/min) :</Text>
+          <View style={styles.rowWrap}>
+            {[250, 500, 1000, 1500, 2000].map(val => (
+              <TouchableOpacity
+                key={val}
+                style={[styles.paramBtn, debit === val && styles.paramBtnSelected]}
+                onPress={() => setDebit(val as Debit)}>
+                <Text style={debit === val ? styles.paramBtnSelectedTxt : styles.paramBtnTxt}>{val}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TouchableOpacity style={styles.calcBtn} onPress={handleCalcul}>
+            <Text style={styles.calcBtnTxt}>Calculer</Text>
+          </TouchableOpacity>
         </View>
-      )}
-      {segments.length > 0 && (
-        <View style={styles.savedSection}>
-          <Text style={styles.savedTitle}>Résultats conservés</Text>
-          {segments.map((c, idx) => (
-            <View key={c.id} style={styles.savedRow}>
-              <Text style={styles.savedDesc}>Ø {c.diametre}mm - {c.longueur}m - {c.debit}L/min</Text>
-              <Text style={styles.savedVal}>{c.perte.toFixed(2)} bars</Text>
-              <TouchableOpacity onPress={() => handleDelete(c.id)}>
-                <Ionicons name="trash-outline" size={20} color={palette.primary}/>
+        {resultat !== null && (
+          <View style={styles.resultCard}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View>
+                <Text style={styles.resultLabel}>Perte de charge</Text>
+                <Text style={styles.resultValue}>{resultat} <Text style={{ fontWeight: 'normal' }}>bars</Text></Text>
+              </View>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleConserver} disabled={!canConserve}>
+                <Text style={[styles.saveBtnTxt, !canConserve && { color: '#ccc' }]}>Conserver</Text>
               </TouchableOpacity>
             </View>
-          ))}
-          <View style={{flexDirection:'row', justifyContent:'space-between', marginTop:10}}>
-            <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
-              <Text style={styles.resetBtnTxt}>Réinitialiser</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.resetBtn, {backgroundColor:palette.primary}]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
-              <Text style={[styles.resetBtnTxt, {color:'#fff'}]}>Calcul établissement</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      )}
-    </ScrollView>
-  </SafeAreaView>
-);
+        )}
+        {segments.length > 0 && (
+          <View style={styles.savedSection}>
+            <Text style={styles.savedTitle}>Résultats conservés</Text>
+            {segments.map((c, idx) => (
+              <View key={c.id} style={styles.savedRow}>
+                <Text style={styles.savedDesc}>Ø {c.diametre}mm - {c.longueur}m - {c.debit}L/min</Text>
+                <Text style={styles.savedVal}>{c.perte.toFixed(2)} bars</Text>
+                <TouchableOpacity onPress={() => handleDelete(c.id)}>
+                  <Ionicons name="trash-outline" size={20} color={palette.primary} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+              <TouchableOpacity style={styles.resetBtn} onPress={handleReset}>
+                <Text style={styles.resetBtnTxt}>Réinitialiser</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.resetBtn, { backgroundColor: palette.primary }]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
+                <Text style={[styles.resetBtnTxt, { color: '#fff' }]}>Calcul établissement</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const getStyles = (palette: typeof Colors.light) => StyleSheet.create({

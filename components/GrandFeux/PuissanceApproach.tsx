@@ -1,30 +1,55 @@
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
 import PropagationButtons from '../GrandFeuxCalculator_buttons_propagation';
 
-function PuissanceApproach({ strategie, setStrategie }: { strategie: 'offensive' | 'propagation', setStrategie: (s: 'offensive' | 'propagation') => void }) {
-  const [surface, setSurface] = useState('');
-  const [hauteur, setHauteur] = useState('');
-  const [fraction, setFraction] = useState(0);
-  const [combustible, setCombustible] = useState(2);
-  // Propagation states
-  const [surfaceVertical, setSurfaceVertical] = useState('');
-  const [tauxApplication, setTauxApplication] = useState(6);
-  const [resultPropagation, setResultPropagation] = useState<string|null>(null);
-  const [resultPropLmin, setResultPropLmin] = useState<string|null>(null);
-  const [resultPropM3h, setResultPropM3h] = useState<string|null>(null);
-  const [calcDetailsPropagation, setCalcDetailsPropagation] = useState<string|null>(null);
-  const [showDetailsPropagation, setShowDetailsPropagation] = useState(false);
-  // Offensive states
-  const [rendement, setRendement] = useState(0.2);
-  const [resultOffensive, setResultOffensive] = useState<string|null>(null);
-  const [resultPmax, setResultPmax] = useState<string|null>(null);
-  const [resultFlowLmin, setResultFlowLmin] = useState<string|null>(null);
-  const [resultFlowM3h, setResultFlowM3h] = useState<string|null>(null);
-  const [calcDetailsOffensive, setCalcDetailsOffensive] = useState<string|null>(null);
+interface PuissanceApproachProps {
+  strategie: 'offensive' | 'propagation';
+  setStrategie: (s: 'offensive' | 'propagation') => void;
+  surface: string;
+  setSurface: (s: string) => void;
+  hauteur: string;
+  setHauteur: (s: string) => void;
+  fraction: number;
+  setFraction: (n: number) => void;
+  combustible: number;
+  setCombustible: (n: number) => void;
+  rendement: number;
+  setRendement: (n: number) => void;
+  surfaceVertical: string;
+  setSurfaceVertical: (s: string) => void;
+  tauxApplication: number;
+  setTauxApplication: (n: number) => void;
+  resultOffensive: string | null;
+  calcDetailsOffensive: string | null;
+  resultPmax: string | null;
+  resultFlowLmin: string | null;
+  resultFlowM3h: string | null;
+  resultPropagation: string | null;
+  calcDetailsPropagation: string | null;
+  resultPropLmin: string | null;
+  resultPropM3h: string | null;
+  handleCalculate: () => void;
+  resetAll: () => void;
+}
+
+function PuissanceApproach({
+  strategie, setStrategie,
+  surface, setSurface,
+  hauteur, setHauteur,
+  fraction, setFraction,
+  combustible, setCombustible,
+  rendement, setRendement,
+  surfaceVertical, setSurfaceVertical,
+  tauxApplication, setTauxApplication,
+  resultOffensive, calcDetailsOffensive,
+  resultPmax, resultFlowLmin, resultFlowM3h,
+  resultPropagation, calcDetailsPropagation,
+  resultPropLmin, resultPropM3h,
+  handleCalculate, resetAll
+}: PuissanceApproachProps) {
   const [showDetailsOffensive, setShowDetailsOffensive] = useState(false);
-  
+  const [showDetailsPropagation, setShowDetailsPropagation] = useState(false);
 
   // Texte pour l'info bulle
   const infoText = `Comment ce débit est-il calculé ?
@@ -57,63 +82,6 @@ Gagner du temps pour :
 2. Prévenir la propagation vers d’autres cellules ou bâtiments,
 3. Attendre le renfort ou l’arrivée de moyens d’attaque offensifs.`;
 
-  const handleCalculate = useCallback(() => {
-    // Attaque offensive calculation
-    const surf = parseFloat(surface);
-    const haut = parseFloat(hauteur);
-    if (isNaN(surf) || isNaN(haut)) return;
-    const pmax = surf * haut * combustible * (fraction/100);
-    const multiplier = rendement === 0.5 ? 42.5 : 106;
-    const qLmin = pmax * multiplier;
-    const resLmin = qLmin.toFixed(0);
-    const resM3h = (qLmin * 0.06).toFixed(2); // Conversion officielle 1 L/min = 0,06 m³/h
-    // Set individual result states
-    setResultPmax(pmax.toFixed(2));
-    setResultFlowLmin(resLmin);
-    setResultFlowM3h(resM3h);
-    setResultOffensive(`${resLmin} L/min (${resM3h} m³/h)`);
-    setCalcDetailsOffensive(`Pmax = ${surf} m² × ${haut} m × ${combustible} MW/m³ × (${fraction}/100) = ${pmax.toFixed(2)} MW\nDébit requis : ${pmax.toFixed(2)} MW × ${multiplier} L/min/MW = ${resLmin} L/min`); // Suppression du détail m³/h
-  }, [surface, hauteur, fraction, combustible, rendement]);
-
-  const handleAttackReset = useCallback(() => {
-    setSurface('');
-    setHauteur('');
-    setFraction(0);
-    setCombustible(2);
-    setRendement(0.2);
-    setResultOffensive(null);
-    setCalcDetailsOffensive(null);
-    // Clear individual results
-    setResultPmax(null);
-    setResultFlowLmin(null);
-    setResultFlowM3h(null);
-    setShowDetailsOffensive(false);
-  }, []);
-
-  const handlePropReset = useCallback(() => {
-    setSurfaceVertical('');
-    setTauxApplication(6);
-    setResultPropagation(null);
-    setCalcDetailsPropagation(null);
-    setResultPropLmin(null);
-    setResultPropM3h(null);
-    setShowDetailsPropagation(false);
-  }, []);
-
-  const handlePropCalculate = useCallback(() => {
-    const surf = parseFloat(surfaceVertical);
-    const taux = parseFloat(String(tauxApplication));
-    if (isNaN(surf) || isNaN(taux)) return;
-    const debit = surf * taux;
-    const res = debit.toFixed(2);
-    const m3h = (debit * 0.06).toFixed(2);
-    setResultPropLmin(res);
-    setResultPropM3h(m3h);
-    setShowDetailsPropagation(false);
-    setResultPropagation(res);
-    setCalcDetailsPropagation(`${surf} m² × ${taux} L/min/m² = ${res} L/min`); // Pas d'affichage m³/h dans les détails
-  }, [surfaceVertical, tauxApplication]);
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Approche Puissance</Text>
@@ -127,9 +95,9 @@ Gagner du temps pour :
         </TouchableOpacity>
       </View>
       {strategie === 'offensive' && (
-        <View style={{marginVertical:16}}>
-          <Text style={{fontWeight:'bold', marginBottom:4}}>Puissance par m3 de combustible (MW/m3)</Text>
-          <Text style={{fontWeight:'bold', fontSize:16, color:'#D32F2F'}}>{combustible.toFixed(2)}</Text>
+        <View style={{ marginVertical: 16 }}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Puissance par m3 de combustible (MW/m3)</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{combustible.toFixed(2)}</Text>
           <Slider
             minimumValue={1}
             maximumValue={2.7}
@@ -147,12 +115,12 @@ Gagner du temps pour :
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={{fontWeight:'bold', marginBottom:4}}>Surface (m²)</Text>
+          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Surface (m²)</Text>
           <TextInput style={styles.input} value={surface} onChangeText={setSurface} keyboardType="numeric" placeholder="m²" />
-          <Text style={{fontWeight:'bold', marginTop:12, marginBottom:4}}>Hauteur (m)</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Hauteur (m)</Text>
           <TextInput style={styles.input} value={hauteur} onChangeText={setHauteur} keyboardType="numeric" placeholder="m" />
-          <Text style={{fontWeight:'bold', marginTop:12}}>Volume en feu (%)</Text>
-          <Text style={{fontWeight:'bold', fontSize:16, color:'#D32F2F'}}>{fraction}%</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 12 }}>Volume en feu (%)</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{fraction}%</Text>
           <Slider minimumValue={0} maximumValue={100} step={1} value={fraction} onValueChange={setFraction} minimumTrackTintColor="#D32F2F" maximumTrackTintColor="#eee" thumbTintColor="#D32F2F" />
           <View style={styles.sliderLabelsFraction}>
             {[0, 25, 50, 75, 100].map(val => (
@@ -161,7 +129,7 @@ Gagner du temps pour :
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={{fontWeight:'bold', marginTop:12}}>Rendement des lances</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 12 }}>Rendement des lances</Text>
           <View style={styles.effButtons}>
             {[20, 50].map(val => (
               <TouchableOpacity key={val} style={[styles.effButton, rendement * 100 === val && styles.effButtonActive]} onPress={() => setRendement(val / 100)}>
@@ -169,8 +137,8 @@ Gagner du temps pour :
               </TouchableOpacity>
             ))}
           </View>
-          <View style={{alignItems:'center', marginTop:14}}>
-            <PropagationButtons onReset={handleAttackReset} onCalculate={handleCalculate} />
+          <View style={{ alignItems: 'center', marginTop: 14 }}>
+            <PropagationButtons onReset={resetAll} onCalculate={handleCalculate} />
           </View>
           {resultOffensive && (
             <View style={styles.resultBlock}>
@@ -180,9 +148,9 @@ Gagner du temps pour :
                   <Text style={styles.infoIcon}>i</Text>
                 </TouchableOpacity>
               </View>
-              {resultPmax && <Text style={styles.resultSubtitle}><Text style={{fontWeight:'bold'}}>Puissance max estimée : </Text>{resultPmax} MW</Text>}
+              {resultPmax && <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Puissance max estimée : </Text>{resultPmax} MW</Text>}
               {resultFlowLmin && resultFlowM3h && (
-                <Text style={styles.resultSubtitle}><Text style={{fontWeight:'bold'}}>Débit requis : </Text>{resultFlowLmin} L/min ({resultFlowM3h} m³/h)</Text>
+                <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultFlowLmin} L/min ({resultFlowM3h} m³/h)</Text>
               )}
               <TouchableOpacity onPress={() => setShowDetailsOffensive(!showDetailsOffensive)}>
                 <Text style={styles.detailsToggle}>{showDetailsOffensive ? 'Masquer détails' : 'Voir détails'}</Text>
@@ -195,14 +163,14 @@ Gagner du temps pour :
         </View>
       )}
       {strategie === 'propagation' && (
-        <View style={{marginVertical:16}}>
-          <Text style={{fontWeight:'bold', marginBottom:4}}>Surface verticale à protéger (m²)</Text>
+        <View style={{ marginVertical: 16 }}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Surface verticale à protéger (m²)</Text>
           <TextInput style={styles.input} value={surfaceVertical} onChangeText={setSurfaceVertical} keyboardType="numeric" placeholder="m²" />
-          <Text style={{fontWeight:'bold', marginTop:12, marginBottom:4}}>Taux d'application (L/min/m²)</Text>
-          <Text style={{fontWeight:'bold', fontSize:16, color:'#D32F2F'}}>{tauxApplication} L/min/m²</Text>
+          <Text style={{ fontWeight: 'bold', marginTop: 12, marginBottom: 4 }}>Taux d'application (L/min/m²)</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#D32F2F' }}>{tauxApplication} L/min/m²</Text>
           <Slider minimumValue={1} maximumValue={20} step={1} value={tauxApplication} onValueChange={setTauxApplication} minimumTrackTintColor="#D32F2F" maximumTrackTintColor="#eee" thumbTintColor="#D32F2F" />
-          <View style={{alignItems:'center', marginTop:12}}>
-            <PropagationButtons onReset={handlePropReset} onCalculate={handlePropCalculate} />
+          <View style={{ alignItems: 'center', marginTop: 12 }}>
+            <PropagationButtons onReset={resetAll} onCalculate={handleCalculate} />
           </View>
           {resultPropLmin && (
             <View style={styles.resultBlock}>
@@ -212,13 +180,13 @@ Gagner du temps pour :
                   <Text style={styles.infoIcon}>i</Text>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.resultSubtitle}><Text style={{fontWeight:'bold'}}>Débit requis : </Text>{resultPropLmin} L/min ({resultPropM3h} m³/h)</Text>
+              <Text style={styles.resultSubtitle}><Text style={{ fontWeight: 'bold' }}>Débit requis : </Text>{resultPropLmin} L/min ({resultPropM3h} m³/h)</Text>
               <TouchableOpacity onPress={() => setShowDetailsPropagation(!showDetailsPropagation)}>
                 <Text style={styles.detailsToggle}>{showDetailsPropagation ? 'Masquer détails' : 'Voir détails'}</Text>
               </TouchableOpacity>
               {showDetailsPropagation && calcDetailsPropagation && (
                 <Text style={styles.resultDetail}>{calcDetailsPropagation.replace(/\nSoit [^\n]+ m³\/h/, '')}</Text>
-              )} // Suppression de la ligne m³/h dans les détails
+              )}
             </View>
           )}
         </View>
@@ -227,7 +195,7 @@ Gagner du temps pour :
   );
 }
 
-export default memo(PuissanceApproach);
+export default React.memo(PuissanceApproach);
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
