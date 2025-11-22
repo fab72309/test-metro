@@ -12,6 +12,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeContext';
 import { formatNumber } from '@/utils/format';
 import { Button } from '@/components/ui/Button';
+import { RELEASE_NOTES } from '../../constants/ReleaseNotes';
+import { Title, Body } from '@/components/ui/Typography';
+import { Card } from '@/components/ui/Card';
 
 export default function HomeScreen() {
   const { table: pertesDeChargeTable } = usePertesDeChargeTable();
@@ -26,6 +29,8 @@ export default function HomeScreen() {
   const [debit, setDebit] = useState<Debit>(250);
   const [resultat, setResultat] = useState<number | null>(null);
   const [canConserve, setCanConserve] = useState(false);
+  const [showReleaseNotes, setShowReleaseNotes] = useState(false);
+  const currentRelease = RELEASE_NOTES[0]; // v0.3.2-alpha
 
   // Calcul et affichage du résultat
   const handleCalcul = () => {
@@ -138,6 +143,39 @@ export default function HomeScreen() {
             </View>
           )
         }
+
+        {/* Notes de version (v0.3.2-alpha) */}
+        <Card style={{ marginTop: 18, padding: 16 }}>
+          <TouchableOpacity
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+            onPress={() => setShowReleaseNotes(!showReleaseNotes)}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="sparkles" size={20} color={palette.primary} style={{ marginRight: 8 }} />
+              <Title style={{ marginBottom: 0, fontSize: 18 }}>Nouveautés {currentRelease.version}</Title>
+            </View>
+            <Ionicons name={showReleaseNotes ? 'chevron-up' : 'chevron-down'} size={20} color={palette.primary} />
+          </TouchableOpacity>
+
+          {showReleaseNotes && (
+            <View style={{ marginTop: 12 }}>
+              <Body style={{ fontSize: 12, color: palette.secondaryText, marginBottom: 8 }}>{currentRelease.date}</Body>
+              {currentRelease.changes.map((change, idx) => (
+                <View key={idx} style={{ flexDirection: 'row', marginBottom: 4 }}>
+                  <Text style={{ color: palette.primary, marginRight: 6 }}>•</Text>
+                  <Body style={{ flex: 1 }}>{change}</Body>
+                </View>
+              ))}
+              <Button
+                title="Voir tout l'historique"
+                variant="ghost"
+                size="sm"
+                style={{ marginTop: 8, alignSelf: 'flex-start' }}
+                onPress={() => navigation.navigate('Parametres' as never)}
+              />
+            </View>
+          )}
+        </Card>
       </ScrollView >
       <View style={{ padding: 10, alignItems: 'center' }}>
         <Text style={{ color: palette.secondaryText, fontSize: 12 }}>v0.3.2-alpha</Text>
