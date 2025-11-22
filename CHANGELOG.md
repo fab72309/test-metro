@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.0 (2025-11-22)
+- **Refactoring Majeur** : Réécriture complète de la logique de `GrandFeuxCalculator` avec l'extraction du hook `useGrandFeuxCalculation`.
+- **Tests Unitaires** : Ajout de tests pour valider les calculs hydrauliques (offensive et propagation).
+- **Nettoyage de Code** : Suppression de fichiers dupliqués et correction de nombreux avertissements de linting (variables inutilisées, dépendances de hooks).
+- **Amélioration UI/UX** : Correction de bugs d'affichage et meilleure gestion des états dans les composants enfants.
+- **Configuration** : Mise à jour de la configuration ESLint et nettoyage du projet.
+
 ## v0.1.4-alpha (2025-07-15)
 - Suppression d'un fichier en doublon dans `components/GrandFeux`.
 - Nettoyage des logs de debug dans `CalculPertesDeCharge`.
