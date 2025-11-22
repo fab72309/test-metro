@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3.1-alpha (2025-11-22)
+
+### 💄 Améliorations UI
+- **Titres Uniformisés** : Introduction du composant `ScreenHeader` pour garantir une cohérence visuelle parfaite des titres sur toutes les pages (taille, icône, alignement).
+- **Nettoyage Navigation** : Suppression des en-têtes natifs dans `_layout.tsx` pour un contrôle total via le nouveau composant.
+
+### 🐛 Corrections
+- **FHLI** : Correction de l'affichage des champs "Nombre de canons" qui étaient mal alignés sur certaines résolutions.
+
 ## v0.3.0-alpha (2025-11-22)
 
 ### 🎨 Refonte Complète UI/UX
