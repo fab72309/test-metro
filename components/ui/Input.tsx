@@ -84,6 +84,8 @@ const styles = StyleSheet.create({
         flex: 1,
         height: '100%',
         fontSize: 16,
+        minWidth: 0, // Critical for flexbox on web
+        padding: 0,  // Remove default padding
     },
     leftIcon: {
         marginRight: 8,

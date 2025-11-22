@@ -232,8 +232,8 @@ function FHLIApproach() {
       )}
 
       <Label style={{ marginTop: 24, marginBottom: 12 }}>Nombre de canons :</Label>
-      <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-        <View style={{ flex: 1, marginHorizontal: 4 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4, marginBottom: 12 }}>
+        <View style={{ width: '33.33%', paddingHorizontal: 4 }}>
           <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>4 000L/min</Label>
           <Input
             containerStyle={{ marginBottom: 0 }}
@@ -244,7 +244,7 @@ function FHLIApproach() {
             placeholder="0"
           />
         </View>
-        <View style={{ flex: 1, marginHorizontal: 4 }}>
+        <View style={{ width: '33.33%', paddingHorizontal: 4 }}>
           <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>2 000L/min</Label>
           <Input
             containerStyle={{ marginBottom: 0 }}
@@ -255,7 +255,7 @@ function FHLIApproach() {
             placeholder="0"
           />
         </View>
-        <View style={{ flex: 1, marginHorizontal: 4 }}>
+        <View style={{ width: '33.33%', paddingHorizontal: 4 }}>
           <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>1 000L/min</Label>
           <Input
             containerStyle={{ marginBottom: 0 }}
