@@ -11,6 +11,7 @@ import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
 const deniveaux = [-30, -20, -10, 0, 10, 20, 30];
 
@@ -69,6 +70,7 @@ export default function CalculEtablissement() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScreenHeader title="Calcul établissement" icon="calculator" />
 
         {/* Tronçons mémorisés */}
         <Card style={styles.section}>

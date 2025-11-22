@@ -15,6 +15,7 @@ import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
 export default function CalculPertesDeCharge() {
   const { theme } = useThemeContext();
@@ -69,10 +70,7 @@ export default function CalculPertesDeCharge() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Ionicons name="flame" size={26} color={palette.primary} />
-          <Title style={{ marginBottom: 0, marginLeft: 8 }}>Calcul de pertes de charge</Title>
-        </View>
+        <ScreenHeader title="Calcul de pertes de charge" icon="flame" />
 
         <Card style={styles.section}>
           <Label>Diamètre du tuyau (mm)</Label>

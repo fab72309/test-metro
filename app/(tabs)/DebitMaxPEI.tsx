@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
 export default function DebitMaxPEI() {
   const { theme } = useThemeContext();
@@ -60,10 +61,7 @@ export default function DebitMaxPEI() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Ionicons name="water" size={32} color={palette.primary} />
-          <Title style={{ marginBottom: 0, marginLeft: 8, color: palette.primary }}>Débit max du PEI</Title>
-        </View>
+        <ScreenHeader title="Débit max du PEI" icon="water" />
 
         <Card style={styles.card}>
           <Input

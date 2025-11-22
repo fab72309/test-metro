@@ -9,6 +9,7 @@ import { Colors } from '../../constants/Colors';
 import { Card } from '@/components/ui/Card';
 import { Title, Body } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
 
 export default function Parametres() {
   const { theme, setTheme } = useThemeContext();
@@ -18,10 +19,7 @@ export default function Parametres() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Ionicons name="settings" size={32} color={palette.primary} />
-          <Title style={{ marginBottom: 0, marginLeft: 8, color: palette.primary }}>Paramètres</Title>
-        </View>
+        <ScreenHeader title="Paramètres" icon="settings" />
 
         <Card style={styles.section}>
           <View style={styles.sectionHeader}>

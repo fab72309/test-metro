@@ -50,17 +50,7 @@ export default function TabLayout() {
           name="CalculEtablissement"
           component={CalculEtablissement}
           options={{
-            headerTitle: () => (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: 10 }}>
-                <Ionicons name="construct" size={26} color="#D32F2F" style={{ marginRight: 6 }} />
-                <Text style={{ fontWeight: 'bold', fontSize: 23, color: '#D32F2F' }}>Établissement</Text>
-              </View>
-            ),
-            headerShown: true,
-            headerTitleAlign: 'center',
-            headerStyle: { backgroundColor: '#fff', elevation: 0, shadowOpacity: 0 },
-            headerTintColor: '#D32F2F',
-            headerTitleStyle: { fontWeight: 'bold', fontSize: 23, color: '#D32F2F' },
+            title: 'Établissement',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="construct" size={size ?? 26} color={color} />
             ),
@@ -80,21 +70,10 @@ export default function TabLayout() {
           name="GrandsFeux"
           component={GrandsFeux}
           options={{
-            headerTitle: () => (
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                <MaterialCommunityIcons name="fire" size={26} color="#D32F2F" style={{ marginRight: 6 }} />
-                <Text style={{ fontWeight: 'bold', fontSize: 23, color: '#D32F2F' }}>Grands feux</Text>
-              </View>
-            ),
+            title: 'Grands feux',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="fire" size={size ?? 26} color={color} />
             ),
-            headerShown: true,
-            headerTitleAlign: 'center',
-            headerStyle: { backgroundColor: '#fff', elevation: 0, shadowOpacity: 0 },
-            headerTintColor: '#D32F2F',
-            headerTitleStyle: { fontWeight: 'bold', fontSize: 23 },
-            
           }}
         />
         <Tabs.Screen
