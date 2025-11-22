@@ -372,7 +372,7 @@ function FHLIApproach() {
 
   return (
     <View style={styles.container}>
-      <Title>Approche FHLI</Title>
+      <Title style={{ textAlign: 'center' }}>Approche FHLI</Title>
       {renderTabs()}
       {tab === 'foam' ? renderFoam() : renderStructure()}
     </View>

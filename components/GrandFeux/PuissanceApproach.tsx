@@ -93,7 +93,7 @@ Gagner du temps pour :
 
   return (
     <View style={styles.container}>
-      <Title>Approche Puissance</Title>
+      <Title style={{ textAlign: 'center' }}>Approche Puissance</Title>
 
       {/* Strategy Tabs */}
       <View style={styles.tabRow}>

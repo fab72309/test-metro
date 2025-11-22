@@ -43,7 +43,7 @@ Ajustez-le selon le type de combustible et la doctrine locale.`;
 
   return (
     <View style={styles.container}>
-      <Title>Approche Surface</Title>
+      <Title style={{ textAlign: 'center' }}>Approche Surface</Title>
 
       <Input
         label="Surface (m²)"
