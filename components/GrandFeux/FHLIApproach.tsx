@@ -233,9 +233,10 @@ function FHLIApproach() {
 
       <Label style={{ marginTop: 24, marginBottom: 12 }}>Nombre de canons :</Label>
       <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-        <View style={{ flex: 1, marginHorizontal: 3, alignItems: 'center' }}>
-          <Label style={{ textAlign: 'center', fontSize: 12 }}>4 000L/min</Label>
+        <View style={{ flex: 1, marginHorizontal: 4 }}>
+          <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>4 000L/min</Label>
           <Input
+            containerStyle={{ marginBottom: 0 }}
             style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon4000 === 'undefined' ? '0' : nbCanon4000}
             onChangeText={setNbCanon4000}
@@ -243,9 +244,10 @@ function FHLIApproach() {
             placeholder="0"
           />
         </View>
-        <View style={{ flex: 1, marginHorizontal: 3, alignItems: 'center' }}>
-          <Label style={{ textAlign: 'center', fontSize: 12 }}>2 000L/min</Label>
+        <View style={{ flex: 1, marginHorizontal: 4 }}>
+          <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>2 000L/min</Label>
           <Input
+            containerStyle={{ marginBottom: 0 }}
             style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon2000 === 'undefined' ? '0' : nbCanon2000}
             onChangeText={setNbCanon2000}
@@ -253,9 +255,10 @@ function FHLIApproach() {
             placeholder="0"
           />
         </View>
-        <View style={{ flex: 1, marginHorizontal: 3, alignItems: 'center' }}>
-          <Label style={{ textAlign: 'center', fontSize: 12 }}>1 000L/min</Label>
+        <View style={{ flex: 1, marginHorizontal: 4 }}>
+          <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>1 000L/min</Label>
           <Input
+            containerStyle={{ marginBottom: 0 }}
             style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon1000 === 'undefined' ? '0' : nbCanon1000}
             onChangeText={setNbCanon1000}

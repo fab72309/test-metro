@@ -71,7 +71,7 @@ export default function Accueil() {
             size="lg"
           />
         </View>
-        <Caption style={[styles.versionText, { color: palette.text }]}>v0.2.0-alpha</Caption>
+        <Caption style={[styles.versionText, { color: palette.text }]}>v0.3.0-alpha</Caption>
 
         {/* Modal d'avertissement */}
         <Modal
