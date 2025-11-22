@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0 (2025-11-22)
+## v0.2.0-alpha (2025-11-22)
 - **Refactoring Majeur** : Réécriture complète de la logique de `GrandFeuxCalculator` avec l'extraction du hook `useGrandFeuxCalculation`.
 - **Tests Unitaires** : Ajout de tests pour valider les calculs hydrauliques (offensive et propagation).
 - **Nettoyage de Code** : Suppression de fichiers dupliqués et correction de nombreux avertissements de linting (variables inutilisées, dépendances de hooks).

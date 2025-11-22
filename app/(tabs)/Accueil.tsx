@@ -12,7 +12,7 @@ export default function Accueil() {
   const palette = Colors[theme];
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: palette.background}]}> 
+    <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       {/* Info Icon flottant en haut à droite */}
       <TouchableOpacity
         style={styles.infoIconFloating}
@@ -31,28 +31,28 @@ export default function Accueil() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={[styles.title, {color: palette.title}]}>HYDRAULIQUE</Text>
-        <Text style={[styles.title, {color: palette.title}]}>OPERATIONNELLE</Text>
+        <Text style={[styles.title, { color: palette.title }]}>HYDRAULIQUE</Text>
+        <Text style={[styles.title, { color: palette.title }]}>OPERATIONNELLE</Text>
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('CalculPertesDeCharge' as never)}>
-          <Text style={[styles.buttonText, {color: palette.buttonText}]}>Pertes de charge</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: palette.button }]} onPress={() => navigation.navigate('CalculPertesDeCharge' as never)}>
+          <Text style={[styles.buttonText, { color: palette.buttonText }]}>Pertes de charge</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
-          <Text style={[styles.buttonText, {color: palette.buttonText}]}>Etablissement</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: palette.button }]} onPress={() => navigation.navigate('CalculEtablissement' as never)}>
+          <Text style={[styles.buttonText, { color: palette.buttonText }]}>Etablissement</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('DebitMaxPEI' as never)}>
-          <Text style={[styles.buttonText, {color: palette.buttonText}]}>Débit max du PEI</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: palette.button }]} onPress={() => navigation.navigate('DebitMaxPEI' as never)}>
+          <Text style={[styles.buttonText, { color: palette.buttonText }]}>Débit max du PEI</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('GrandsFeux' as never)}>
-          <Text style={[styles.buttonText, {color: palette.buttonText}]}>Grands feux</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: palette.button }]} onPress={() => navigation.navigate('GrandsFeux' as never)}>
+          <Text style={[styles.buttonText, { color: palette.buttonText }]}>Grands feux</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, {backgroundColor: palette.button}]} onPress={() => navigation.navigate('Parametres' as never)}>
-          <Text style={[styles.buttonText, {color: palette.buttonText}]}>Paramètres</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: palette.button }]} onPress={() => navigation.navigate('Parametres' as never)}>
+          <Text style={[styles.buttonText, { color: palette.buttonText }]}>Paramètres</Text>
         </TouchableOpacity>
       </View>
-      <Text style={[styles.versionText, { color: palette.text, marginVertical: 12 }]}>v0.1.4-alpha</Text>
+      <Text style={[styles.versionText, { color: palette.text, marginVertical: 12 }]}>v0.2.0-alpha</Text>
 
       {/* Modal d'avertissement */}
       <Modal
@@ -65,10 +65,10 @@ export default function Accueil() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>🛑 Avertissement – Usage pédagogique uniquement</Text>
             <Text style={styles.modalText}>
-L'application Hydraulique Opérationnelle est conçue à des fins pédagogiques et de formation.{"\n"}
-Elle ne doit en aucun cas être utilisée dans un contexte opérationnel réel.{"\n\n"}
-Les résultats fournis sont basés sur des formules standards et ne remplacent ni l’analyse de terrain, ni l’expertise des intervenants.{"\n"}
-Le créateur de l'application décline toute responsabilité en cas d'usage inapproprié, notamment en situation d'urgence ou lors d'une opération de secours.
+              L'application Hydraulique Opérationnelle est conçue à des fins pédagogiques et de formation.{"\n"}
+              Elle ne doit en aucun cas être utilisée dans un contexte opérationnel réel.{"\n\n"}
+              Les résultats fournis sont basés sur des formules standards et ne remplacent ni l’analyse de terrain, ni l’expertise des intervenants.{"\n"}
+              Le créateur de l'application décline toute responsabilité en cas d'usage inapproprié, notamment en situation d'urgence ou lors d'une opération de secours.
             </Text>
             <Pressable style={styles.modalButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.modalButtonText}>J'ai compris !</Text>
