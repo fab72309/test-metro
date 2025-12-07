@@ -59,6 +59,30 @@ See `CHANGELOG.md` for full details.
    npm run lint
    ```
 
+## 🚀 Publier vos changements sur GitHub
+
+Si vos commits locaux n'apparaissent pas sur GitHub, vérifiez que le dépôt distant est configuré et que votre branche est poussée :
+
+1. Confirmez la présence d'un remote (il n'y en a aucun par défaut dans cet environnement) :
+
+   ```bash
+   git remote -v
+   ```
+
+   Si la commande ne retourne rien, ajoutez votre URL GitHub :
+
+   ```bash
+   git remote add origin https://github.com/<votre-org>/<votre-repo>.git
+   ```
+
+2. Associez votre branche de travail au dépôt distant puis poussez-la :
+
+   ```bash
+   git push -u origin work
+   ```
+
+Une fois le remote configuré et la branche poussée, vos modifications seront visibles sur GitHub.
+
 ## 📁 Project Structure
 
 ```
