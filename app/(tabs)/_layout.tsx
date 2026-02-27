@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,9 +8,9 @@ import Accueil from './Accueil';
 import Parametres from './Parametres';
 import GrandsFeux from './GrandsFeux';
 import DebitMaxPEI from './DebitMaxPEI';
+import Relais from './Relais';
 import CalculEtablissement from './CalculEtablissement';
 import CalculPertesDeCharge from './CalculPertesDeCharge';
-import { View, Text, Image } from 'react-native';
 
 const Tabs = createBottomTabNavigator();
 
@@ -21,7 +20,19 @@ export default function TabLayout() {
       <Tabs.Navigator
         initialRouteName="Accueil"
         screenOptions={{
-          tabBarActiveTintColor: '#D32F2F',
+          tabBarActiveTintColor: '#1976D2',
+          tabBarInactiveTintColor: '#6B7280',
+          tabBarShowLabel: true,
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
+            marginBottom: 2,
+          },
+          tabBarStyle: {
+            height: 64,
+            paddingTop: 4,
+            paddingBottom: 6,
+          },
           headerShown: false,
         }}
       >
@@ -67,6 +78,16 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="Relais"
+          component={Relais}
+          options={{
+            title: 'Relais',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="swap-horizontal" size={size ?? 26} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="GrandsFeux"
           component={GrandsFeux}
           options={{
@@ -81,9 +102,8 @@ export default function TabLayout() {
           component={Parametres}
           options={{
             title: 'Paramètres',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="settings" size={size ?? 26} color={color} />
-            ),
+            tabBarButton: () => null,
+            tabBarItemStyle: { display: 'none' },
           }}
         />
       </Tabs.Navigator>

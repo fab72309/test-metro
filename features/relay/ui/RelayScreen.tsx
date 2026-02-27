@@ -23,6 +23,7 @@ import {
   RelayMeansDistributionBoard,
   type RelayDistributionEngine,
 } from '@/features/relay/ui/RelayMeansDistributionBoard';
+import { RelayMeansPlacementModal } from '@/features/relay/ui/RelayMeansPlacementModal';
 import { RelaySegmentsEditor } from '@/features/relay/ui/RelaySegmentsEditor';
 import { formatNumber } from '@/utils/format';
 
@@ -85,11 +86,14 @@ export default function RelayScreen() {
   const palette = Colors[theme];
   const [diagramVisible, setDiagramVisible] = useState(false);
   const [pumpDetailsVisible, setPumpDetailsVisible] = useState(false);
+  const [phase3PlacementVisible, setPhase3PlacementVisible] = useState(false);
+  const [placementSegmentId, setPlacementSegmentId] = useState<string | null>(null);
   const [engineListExpanded, setEngineListExpanded] = useState(true);
   const [phase1CalcExpanded, setPhase1CalcExpanded] = useState(false);
   const [phase2CalcExpanded, setPhase2CalcExpanded] = useState(false);
   const [phase3CalcExpanded, setPhase3CalcExpanded] = useState(false);
   const [enginePlacementMeters, setEnginePlacementMeters] = useState<Record<string, number>>({});
+  const [segmentEngineAssignments, setSegmentEngineAssignments] = useState<Record<string, string[]>>({});
   const [phase1CalculatedSnapshot, setPhase1CalculatedSnapshot] = useState<{
     key: string;
     demandFlowLpm: number;
@@ -132,13 +136,24 @@ export default function RelayScreen() {
     return computeRelay(scenario, engineCatalog, pertesDeChargeTable);
   }, [engineCatalog, engineCatalogLoading, pertesDeChargeTable, pertesLoading, scenario]);
 
-  const totalLengthM = useMemo(
+  const segmentsTotalLengthM = useMemo(
     () => scenario.segments.reduce((sum, segment) => sum + Math.max(0, segment.lengthM), 0),
     [scenario.segments]
+  );
+  const totalLengthM = useMemo(
+    () =>
+      Number.isFinite(scenario.establishmentLengthM) && scenario.establishmentLengthM > 0
+        ? scenario.establishmentLengthM
+        : segmentsTotalLengthM,
+    [scenario.establishmentLengthM, segmentsTotalLengthM]
   );
   const totalElevationM = useMemo(
     () => scenario.segments.reduce((sum, segment) => sum + segment.elevationM, 0),
     [scenario.segments]
+  );
+  const remainingLengthM = useMemo(
+    () => Math.round((totalLengthM - segmentsTotalLengthM) * 100) / 100,
+    [segmentsTotalLengthM, totalLengthM]
   );
   const lineFlowM3h = useMemo(() => scenario.flowPerLineLpm * 0.06, [scenario.flowPerLineLpm]);
   const demandFlowLpm = useMemo(
@@ -237,6 +252,47 @@ export default function RelayScreen() {
     });
     return instances;
   }, [availableEngineModels, scenario.availableEngineCounts]);
+  const selectedEngineById = useMemo(() => {
+    const next: Record<string, RelayDistributionEngine> = {};
+    selectedEngineInstances.forEach((engine) => {
+      next[engine.instanceId] = engine;
+    });
+    return next;
+  }, [selectedEngineInstances]);
+  const jBarPerHmForPlacement = useMemo(
+    () => computation?.jLossBarPerHm ?? (totalLengthM > 0 ? ((computation?.lineLossBar ?? 0) / totalLengthM) * 100 : 0),
+    [computation?.jLossBarPerHm, computation?.lineLossBar, totalLengthM]
+  );
+  const assignedMeansBySegment = useMemo(() => {
+    const next: Record<
+      string,
+      Array<{ instanceId: string; label: string; appliedPressureBar: number; dMaxM: number }>
+    > = {};
+    scenario.segments.forEach((segment) => {
+      const assignedIds = segmentEngineAssignments[segment.id] ?? [];
+      next[segment.id] = assignedIds
+        .map((instanceId) => {
+          const engine = selectedEngineById[instanceId];
+          if (!engine) return null;
+          const appliedPressureBar = engine.nominalPressureBar * workRateRatio;
+          const transportBar = Math.max(0, appliedPressureBar - 1);
+          const dMaxM = jBarPerHmForPlacement > 0 ? (transportBar / jBarPerHmForPlacement) * 100 : totalLengthM;
+          return {
+            instanceId,
+            label: engine.label,
+            appliedPressureBar,
+            dMaxM,
+          };
+        })
+        .filter(
+          (
+            item
+          ): item is { instanceId: string; label: string; appliedPressureBar: number; dMaxM: number } =>
+            Boolean(item)
+        );
+    });
+    return next;
+  }, [jBarPerHmForPlacement, scenario.segments, segmentEngineAssignments, selectedEngineById, totalLengthM, workRateRatio]);
   const selectedEnginePlacements = useMemo<RelayDistributionEngine[]>(
     () =>
       selectedEngineInstances.map((engine) => ({
@@ -296,6 +352,45 @@ export default function RelayScreen() {
     selectedEngineInstances,
     totalLengthM,
   ]);
+
+  useEffect(() => {
+    setSegmentEngineAssignments((prev) => {
+      const validSegmentIds = new Set(scenario.segments.map((segment) => segment.id));
+      const validEngineIds = new Set(selectedEngineInstances.map((engine) => engine.instanceId));
+      const usedEngines = new Set<string>();
+      const next: Record<string, string[]> = {};
+
+      scenario.segments.forEach((segment) => {
+        const current = prev[segment.id] ?? [];
+        const kept: string[] = [];
+        current.forEach((instanceId) => {
+          if (!validEngineIds.has(instanceId) || usedEngines.has(instanceId)) return;
+          kept.push(instanceId);
+          usedEngines.add(instanceId);
+        });
+        if (kept.length > 0) {
+          next[segment.id] = kept;
+        }
+      });
+
+      const prevKeys = Object.keys(prev).filter(
+        (segmentId) => validSegmentIds.has(segmentId) && (prev[segmentId]?.length ?? 0) > 0
+      );
+      const nextKeys = Object.keys(next);
+      const unchanged =
+        prevKeys.length === nextKeys.length &&
+        nextKeys.every((segmentId) => {
+          const prevList = prev[segmentId] ?? [];
+          const nextList = next[segmentId] ?? [];
+          return (
+            prevList.length === nextList.length &&
+            nextList.every((instanceId, index) => prevList[index] === instanceId)
+          );
+        });
+
+      return unchanged ? prev : next;
+    });
+  }, [scenario.segments, selectedEngineInstances]);
 
   const setMissionDuration = (duration: RelayMissionDuration) => {
     const options = duration === 'h1_2' ? [70, 75, 80] : [50, 55, 60];
@@ -416,6 +511,51 @@ export default function RelayScreen() {
     });
   };
 
+  const assignEngineToSegment = (segmentId: string, instanceId: string) => {
+    setSegmentEngineAssignments((prev) => {
+      const next: Record<string, string[]> = {};
+      let changed = false;
+
+      Object.entries(prev).forEach(([currentSegmentId, instanceIds]) => {
+        const filtered = instanceIds.filter((id) => id !== instanceId);
+        if (filtered.length > 0) {
+          next[currentSegmentId] = filtered;
+        }
+        if (filtered.length !== instanceIds.length) {
+          changed = true;
+        }
+      });
+
+      const currentTarget = next[segmentId] ?? [];
+      if (!currentTarget.includes(instanceId)) {
+        next[segmentId] = [...currentTarget, instanceId];
+        changed = true;
+      }
+
+      return changed ? next : prev;
+    });
+  };
+
+  const removeEngineFromSegment = (segmentId: string, instanceId: string) => {
+    setSegmentEngineAssignments((prev) => {
+      const current = prev[segmentId] ?? [];
+      if (!current.includes(instanceId)) return prev;
+      const nextSegmentList = current.filter((id) => id !== instanceId);
+      const next = { ...prev };
+      if (nextSegmentList.length === 0) {
+        delete next[segmentId];
+      } else {
+        next[segmentId] = nextSegmentList;
+      }
+      return next;
+    });
+  };
+
+  const openPlacementForSegment = (segmentId: string) => {
+    setPlacementSegmentId(segmentId);
+    setPhase3PlacementVisible(true);
+  };
+
   const stepField = (
     current: number,
     step: number,
@@ -479,7 +619,7 @@ export default function RelayScreen() {
   const derivedWarnings = computation?.warnings ?? [];
   const formWarnings = validation.warnings;
   const effectiveJTotalBar = computation?.lineLossBar ?? 0;
-  const effectiveJhmBar = computation?.jLossBarPerHm ?? (totalLengthM > 0 ? (effectiveJTotalBar / totalLengthM) * 100 : 0);
+  const effectiveJhmBar = jBarPerHmForPlacement;
   const effectiveZTotalBar = computation?.elevationLossBar ?? totalElevationM / 10;
   const phase1HoseSummary = scenario.useCustomHoseMix
     ? `${customHoseCount40} x 40 m + ${customHoseCount20} x 20 m`
@@ -610,9 +750,9 @@ export default function RelayScreen() {
             value={getDraftValue('lengthM', String(totalLengthM))}
             keyboardType={keyboardTypeDec}
             onChangeText={(text) =>
-              handleRequiredDraftInput('lengthM', text, (num) => updateSegmentTotal('lengthM', num), { min: 1 })
+              handleRequiredDraftInput('lengthM', text, (num) => updateScenario({ establishmentLengthM: num }), { min: 1 })
             }
-            onBlur={() => commitRequiredDraft('lengthM', (num) => updateSegmentTotal('lengthM', num), { min: 1 })}
+            onBlur={() => commitRequiredDraft('lengthM', (num) => updateScenario({ establishmentLengthM: num }), { min: 1 })}
           />
 
           <View style={styles.selectorsRow}>
@@ -1019,7 +1159,24 @@ export default function RelayScreen() {
             onAdd={addSegment}
             onRemove={removeSegment}
             onUpdate={updateSegment}
+            onOpenPlacement={openPlacementForSegment}
+            jBarPerHm={effectiveJhmBar}
+            assignedMeansBySegment={assignedMeansBySegment}
           />
+
+          <View style={styles.phase3LengthProgress}>
+            <Caption>
+              Longueur à traiter: {formatNumber(totalLengthM)} m | Traité: {formatNumber(segmentsTotalLengthM)} m | Restant:{' '}
+              {formatNumber(remainingLengthM)} m
+            </Caption>
+            <Caption style={remainingLengthM === 0 ? styles.calcDetailsOk : styles.calcDetailsKo}>
+              {remainingLengthM > 0
+                ? 'Reste de la longueur à répartir'
+                : remainingLengthM < 0
+                  ? 'Longueur des tronçons supérieure à la longueur à traiter'
+                  : 'Longueur couverte par les tronçons'}
+            </Caption>
+          </View>
 
           <View style={styles.chipRow}>
             {(Object.keys(sourceModeLabels) as RelaySupplyMode[]).map((mode) => (
@@ -1336,6 +1493,23 @@ export default function RelayScreen() {
         <WarningList title="Alertes de calcul" warnings={derivedWarnings} />
       </ScrollView>
 
+      <RelayMeansPlacementModal
+        visible={phase3PlacementVisible}
+        onClose={() => {
+          setPhase3PlacementVisible(false);
+          setPlacementSegmentId(null);
+        }}
+        targetSegmentId={placementSegmentId}
+        segments={scenario.segments}
+        engines={selectedEngineInstances}
+        workRatePercent={scenario.workRatePercent}
+        jBarPerHm={effectiveJhmBar}
+        totalLengthM={Math.max(totalLengthM, scenario.hoseLengthM)}
+        assignments={segmentEngineAssignments}
+        onAssign={assignEngineToSegment}
+        onRemove={removeEngineFromSegment}
+      />
+
       {computation && (
         <>
           <RelayDiagramModal
@@ -1462,6 +1636,13 @@ const styles = StyleSheet.create({
   },
   selectedEnginesBlock: {
     flex: 1,
+    borderRadius: Layout.radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(120,120,120,0.22)',
+    padding: Layout.spacing.sm,
+    gap: 2,
+  },
+  phase3LengthProgress: {
     borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: 'rgba(120,120,120,0.22)',

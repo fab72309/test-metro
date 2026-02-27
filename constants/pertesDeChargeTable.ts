@@ -37,10 +37,10 @@ export const pertesDeChargeTable: Record<TypeTuyau, Partial<Record<Debit, number
   },
   '110x40': {
     250: null,
-    500: 0.01,
+    500: null,
     1000: 0.1,
     1500: 0.2,
-    2000: 0.5,
+    2000: 0.6,
   },
 };
 
