@@ -54,7 +54,7 @@ export default function Accueil() {
 
         <View style={styles.buttonsContainer}>
           <Button
-            title="Pertes de charge"
+            title="Pertes de charges"
             onPress={() => navigation.navigate('CalculPertesDeCharge' as never)}
             style={styles.button}
             size="lg"
@@ -84,7 +84,7 @@ export default function Accueil() {
             size="lg"
           />
         </View>
-        <Caption style={[styles.versionText, { color: palette.text }]}>v0.4.0-alpha</Caption>
+        <Caption style={[styles.versionText, { color: palette.text }]}>v0.4.1-alpha</Caption>
 
         {/* Menu rétractable */}
         <Modal
@@ -131,16 +131,29 @@ export default function Accueil() {
           animationType="fade"
           onRequestClose={() => setModalVisible(false)}
         >
-          <View style={styles.modalOverlay}>
-            <Card style={styles.modalContent}>
-              <Title style={styles.modalTitle}>🛑 Avertissement – Usage pédagogique uniquement</Title>
-              <Body style={styles.modalText}>
+          <View
+            style={[
+              styles.modalOverlay,
+              { backgroundColor: theme === 'dark' ? 'rgba(4, 7, 14, 0.82)' : 'rgba(0,0,0,0.5)' },
+            ]}
+          >
+            <Card variant="outlined" style={[styles.modalContent, { borderColor: palette.border }]}>
+              <View style={[styles.warningBadge, { backgroundColor: theme === 'dark' ? 'rgba(255, 107, 107, 0.14)' : 'rgba(211, 47, 47, 0.08)' }]}>
+                <Ionicons name="warning" size={18} color={palette.link} />
+                <Body style={[styles.warningBadgeText, { color: palette.link }]}>Usage pédagogique uniquement</Body>
+              </View>
+              <Title style={[styles.modalTitle, { color: palette.text }]}>Avertissement</Title>
+              <Body style={[styles.modalText, { color: palette.text }]}>
                 L'application Hydraulique Opérationnelle est conçue à des fins pédagogiques et de formation.{"\n"}
                 Elle ne doit en aucun cas être utilisée dans un contexte opérationnel réel.{"\n\n"}
                 Les résultats fournis sont basés sur des formules standards et ne remplacent ni l’analyse de terrain, ni l’expertise des intervenants.{"\n"}
                 Le créateur de l'application décline toute responsabilité en cas d'usage inapproprié, notamment en situation d'urgence ou lors d'une opération de secours.
               </Body>
-              <Button title="J'ai compris !" onPress={() => setModalVisible(false)} />
+              <Button
+                title="J'ai compris !"
+                onPress={() => setModalVisible(false)}
+                style={styles.modalButton}
+              />
             </Card>
           </View>
         </Modal>
@@ -244,10 +257,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: '#fff',
     alignItems: 'center',
     maxWidth: 400,
     width: '100%',
+    paddingTop: 18,
+    paddingBottom: 18,
   },
   menuOverlay: {
     flex: 1,
@@ -271,15 +285,31 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   modalTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#c0392b',
-    marginBottom: 10,
+    marginBottom: 12,
     textAlign: 'center',
   },
   modalText: {
     fontSize: 15,
+    lineHeight: 24,
     marginBottom: 22,
     textAlign: 'center',
+  },
+  warningBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+  },
+  warningBadgeText: {
+    fontWeight: '700',
+    marginBottom: 0,
+  },
+  modalButton: {
+    minWidth: 160,
   },
 });

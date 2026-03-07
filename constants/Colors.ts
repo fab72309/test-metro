@@ -61,7 +61,7 @@ export const Colors = {
 
     // Textes (contrastes WCAG AA optimisés)
     text: '#E8EAED',           // Blanc cassé (meilleur que #ECEDEE)
-    secondaryText: '#9AA0A6',  // Gris clair optimisé
+    secondaryText: '#B1B8C2',  // Gris clair optimisé
     title: '#64B5F6',          // Bleu lumineux
 
     // Boutons
@@ -69,7 +69,7 @@ export const Colors = {
     buttonText: '#FFFFFF',
 
     // Bordures et séparateurs
-    border: '#2D3139',         // Bordure subtile mais visible
+    border: '#343C49',         // Bordure subtile mais visible
 
     // États
     error: '#64B5F6',
@@ -83,9 +83,9 @@ export const Colors = {
     link: '#FF6B6B',
 
     // Inputs
-    inputBackground: '#16181E', // Noir plus profond pour inputs
-    inputBorder: '#2D3139',
-    inputBorderFocus: '#64B5F6',
+    inputBackground: '#202733', // Surface plus lisible sur fond sombre
+    inputBorder: '#4A5A71',
+    inputBorderFocus: '#90CAF9',
 
     // Couleurs principales
     primary: '#64B5F6',        // Bleu clair pour dark
@@ -96,6 +96,6 @@ export const Colors = {
     // Headers & surfaces
     header: '#1A1D24',
     surface: '#1A1D24',
-    surfaceVariant: '#24272F',
+    surfaceVariant: '#242C37',
   },
 };

@@ -1,5 +1,14 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle, PressableProps } from 'react-native';
+import {
+    Pressable,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    ViewStyle,
+    TextStyle,
+    PressableProps,
+    StyleProp,
+} from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -20,7 +29,7 @@ interface ButtonProps extends PressableProps {
     loading?: boolean;
     icon?: keyof typeof MaterialCommunityIcons.glyphMap;
     onPress: () => void;
-    style?: ViewStyle;
+    style?: StyleProp<ViewStyle>;
 }
 
 export function Button({

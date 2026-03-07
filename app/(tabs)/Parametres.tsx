@@ -32,11 +32,23 @@ export default function Parametres() {
           </View>
           <View style={styles.rowBetween}>
             <Body>Français</Body>
-            <Switch value={isFrench} onValueChange={setIsFrench} />
+            <Switch
+              value={isFrench}
+              onValueChange={setIsFrench}
+              trackColor={{ false: palette.border, true: palette.primaryLight }}
+              thumbColor={theme === 'dark' ? palette.card : '#FFFFFF'}
+              ios_backgroundColor={palette.border}
+            />
           </View>
           <View style={styles.rowBetween}>
             <Body>English</Body>
-            <Switch value={!isFrench} onValueChange={(v) => setIsFrench(!v)} />
+            <Switch
+              value={!isFrench}
+              onValueChange={(v) => setIsFrench(!v)}
+              trackColor={{ false: palette.border, true: palette.primaryLight }}
+              thumbColor={theme === 'dark' ? palette.card : '#FFFFFF'}
+              ios_backgroundColor={palette.border}
+            />
           </View>
         </Card>
 
@@ -47,7 +59,13 @@ export default function Parametres() {
           </View>
           <View style={styles.rowBetween}>
             <Body>Mode sombre</Body>
-            <Switch value={theme === 'dark'} onValueChange={(v) => setTheme(v ? 'dark' : 'light')} />
+            <Switch
+              value={theme === 'dark'}
+              onValueChange={(v) => setTheme(v ? 'dark' : 'light')}
+              trackColor={{ false: palette.border, true: palette.primaryLight }}
+              thumbColor={theme === 'dark' ? palette.card : '#FFFFFF'}
+              ios_backgroundColor={palette.border}
+            />
           </View>
         </Card>
 

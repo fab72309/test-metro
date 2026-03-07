@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TextInputProps, StyleProp, ViewStyle } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Layout } from '@/constants/Layout';
@@ -9,7 +9,7 @@ interface InputProps extends TextInputProps {
     label?: string;
     error?: string;
     helperText?: string;
-    containerStyle?: ViewStyle;
+    containerStyle?: StyleProp<ViewStyle>;
     labelMinHeight?: number;
     autoFilled?: boolean;
     leftIcon?: React.ReactNode;
@@ -26,14 +26,27 @@ export function Input({
     style,
     leftIcon,
     rightIcon,
+    onFocus,
+    onBlur,
     ...rest
 }: InputProps) {
     const theme = useColorScheme() ?? 'light';
     const colors = Colors[theme];
+    const [isFocused, setIsFocused] = React.useState(false);
     const autoFillBackground = theme === 'light' ? '#D9DEE6' : '#121821';
     const autoFillBorder = theme === 'light' ? '#BDC4D0' : '#2C3440';
     const inputBackground = autoFilled ? autoFillBackground : colors.inputBackground;
     const inputBorder = autoFilled ? autoFillBorder : colors.inputBorder;
+    const activeBorderColor = error
+        ? colors.error
+        : isFocused
+            ? colors.inputBorderFocus
+            : inputBorder;
+    const activeBackgroundColor = isFocused
+        ? theme === 'dark'
+            ? '#242D3A'
+            : colors.card
+        : inputBackground;
 
     return (
         <View style={[styles.container, containerStyle]}>
@@ -47,8 +60,9 @@ export function Input({
             <View style={[
                 styles.inputContainer,
                 {
-                    backgroundColor: inputBackground,
-                    borderColor: error ? colors.error : inputBorder,
+                    backgroundColor: activeBackgroundColor,
+                    borderColor: activeBorderColor,
+                    borderWidth: isFocused ? 1.5 : 1,
                 }
             ]}>
                 {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
@@ -61,6 +75,14 @@ export function Input({
                         style,
                     ]}
                     placeholderTextColor={colors.secondaryText}
+                    onFocus={(event) => {
+                        setIsFocused(true);
+                        onFocus?.(event);
+                    }}
+                    onBlur={(event) => {
+                        setIsFocused(false);
+                        onBlur?.(event);
+                    }}
                     {...rest}
                 />
                 {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}

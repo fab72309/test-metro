@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.4.0-alpha (2026-03-07)
+## v0.4.1-alpha (2026-03-07)
 
 ### 🚒 Relais
 - **Alertes opérationnelles** : Les alertes sont désormais alignées sur le processus réel (phase 1, phase 2, phase 3) au lieu d’afficher des warnings théoriques isolés.

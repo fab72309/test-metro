@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -34,6 +34,9 @@ export function RelaySegmentsEditor({
   assignedMeansBySegment,
   segmentOperationalById,
 }: RelaySegmentsEditorProps) {
+  const { width } = useWindowDimensions();
+  const isCompact = width < 680;
+
   const stepLength = (segmentId: string, current: number, delta: number) => {
     const next = Math.max(0, current + delta);
     onUpdate(segmentId, { lengthM: next });
@@ -45,8 +48,13 @@ export function RelaySegmentsEditor({
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Button title="+ Tronçon" size="sm" onPress={onAdd} />
+      <View style={[styles.headerRow, isCompact && styles.headerRowCompact]}>
+        <Button
+          title="+ Tronçon"
+          size="sm"
+          onPress={onAdd}
+          style={isCompact ? styles.actionBtnCompact : undefined}
+        />
       </View>
 
       {segments.map((segment, index) => {
@@ -80,77 +88,85 @@ export function RelaySegmentsEditor({
             </View>
 
             <View style={styles.fieldsStack}>
-              <View style={styles.inputsAndPressureRow}>
-                <View style={styles.fieldsColumn}>
-                  <View style={styles.fieldRow}>
+              <View style={[styles.fieldsGrid, isCompact && styles.fieldsGridCompact]}>
+                <View style={styles.fieldControl}>
+                  <Body style={styles.fieldLabel}>Longueur (m)</Body>
+                  <View style={styles.fieldControlRow}>
                     <Input
-                      label="Longueur (m)"
                       value={String(segment.lengthM)}
                       onChangeText={(text) => {
                         const parsed = parseNumber(text);
                         if (parsed !== null) onUpdate(segment.id, { lengthM: parsed });
                       }}
                       keyboardType="decimal-pad"
-                      containerStyle={styles.fieldInput}
-                      helperText=" "
+                      containerStyle={[styles.fieldInput, isCompact && styles.fieldInputCompact]}
                     />
-                    <View style={styles.stepperInline}>
+                    <View style={[styles.stepperInline, isCompact && styles.stepperInlineCompact]}>
                       <Button
                         title="+"
                         size="sm"
-                        style={styles.stepperBtn}
+                        style={[styles.stepperBtn, isCompact && styles.stepperBtnCompact]}
                         onPress={() => stepLength(segment.id, segment.lengthM, 10)}
                       />
                       <Button
                         title="-"
                         size="sm"
                         variant="outline"
-                        style={styles.stepperBtn}
+                        style={[styles.stepperBtn, isCompact && styles.stepperBtnCompact]}
                         onPress={() => stepLength(segment.id, segment.lengthM, -10)}
                       />
                     </View>
                   </View>
+                  <Body style={styles.fieldHelper} />
+                </View>
 
-                  <View style={styles.fieldRow}>
+                <View style={styles.fieldControl}>
+                  <Body style={styles.fieldLabel}>Dénivelé (m)</Body>
+                  <View style={styles.fieldControlRow}>
                     <Input
-                      label="Dénivelé (m)"
                       value={String(segment.elevationM)}
                       onChangeText={(text) => {
                         const parsed = parseNumber(text);
                         if (parsed !== null) onUpdate(segment.id, { elevationM: parsed });
                       }}
                       keyboardType="decimal-pad"
-                      containerStyle={styles.fieldInput}
-                      helperText="Montée + / Descente -"
+                      containerStyle={[styles.fieldInput, isCompact && styles.fieldInputCompact]}
                     />
-                    <View style={styles.stepperInline}>
+                    <View style={[styles.stepperInline, isCompact && styles.stepperInlineCompact]}>
                       <Button
                         title="+"
                         size="sm"
-                        style={styles.stepperBtn}
+                        style={[styles.stepperBtn, isCompact && styles.stepperBtnCompact]}
                         onPress={() => stepElevation(segment.id, segment.elevationM, 1)}
                       />
                       <Button
                         title="-"
                         size="sm"
                         variant="outline"
-                        style={styles.stepperBtn}
+                        style={[styles.stepperBtn, isCompact && styles.stepperBtnCompact]}
                         onPress={() => stepElevation(segment.id, segment.elevationM, -1)}
                       />
                     </View>
                   </View>
+                  <Body style={styles.fieldHelper}>Montée + / Descente -</Body>
                 </View>
+              </View>
 
-                <View style={styles.pressureBlock}>
+              <View style={styles.pressureAndRemoveRow}>
+                <View style={[styles.pressureBlock, isCompact && styles.pressureBlockCompact]}>
                   {assigned.length === 0 || !summary ? (
                     <>
-                      <Body style={styles.pressureTitle}>Pression tronçon</Body>
+                      <Body style={[styles.pressureTitle, isCompact && styles.pressureTitleCompact]}>Pression tronçon</Body>
                       <Body style={styles.pressurePending}>Affecter un moyen</Body>
                     </>
                   ) : (
                     <>
-                      <Body style={styles.pressureTitle}>Pression requise tronçon</Body>
-                      <Body style={styles.pressureValue}>{formatNumber(summary.requiredPressureBar)} bar</Body>
+                      <Body style={[styles.pressureTitle, isCompact && styles.pressureTitleCompact]}>
+                        Pression requise tronçon
+                      </Body>
+                      <Body style={[styles.pressureValue, isCompact && styles.pressureValueCompact]}>
+                        {formatNumber(summary.requiredPressureBar)} bar
+                      </Body>
                       <Body style={styles.pressureMeta}>
                         J {formatNumber(summary.lineLossBar)} + Z {formatNumber(summary.elevationLossBar)} + aval{' '}
                         {formatNumber(summary.downstreamTargetBar)} = {formatNumber(summary.requiredPressureBar)}
@@ -174,16 +190,17 @@ export function RelaySegmentsEditor({
                     </>
                   )}
                 </View>
-              </View>
-            </View>
 
-            <View style={styles.segmentActions}>
-              <Button
-                title="Retirer"
-                variant="outline"
-                size="sm"
-                onPress={() => onRemove(segment.id)}
-              />
+                <View style={styles.removeActionWrap}>
+                  <Button
+                    title="Retirer moyen"
+                    variant="outline"
+                    size="sm"
+                    onPress={() => onRemove(segment.id)}
+                    style={styles.removeButton}
+                  />
+                </View>
+              </View>
             </View>
           </Card>
         );
@@ -202,6 +219,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Layout.spacing.sm,
   },
+  headerRowCompact: {
+    alignItems: 'stretch',
+  },
   segmentCard: {
     marginVertical: 0,
     gap: Layout.spacing.sm,
@@ -215,38 +235,57 @@ const styles = StyleSheet.create({
   },
   segmentTitle: {
     fontWeight: '700',
+    fontSize: 17,
+    lineHeight: 24,
   },
   placeMeansBtn: {
     alignSelf: 'flex-start',
   },
+  actionBtnCompact: {
+    width: '100%',
+  },
   fieldsStack: {
     gap: Layout.spacing.sm,
   },
-  inputsAndPressureRow: {
+  fieldsGrid: {
     flexDirection: 'row',
     gap: Layout.spacing.sm,
     alignItems: 'flex-start',
   },
-  fieldsColumn: {
+  fieldsGridCompact: {
+    gap: Layout.spacing.xs,
+  },
+  fieldControl: {
     flex: 1,
-    gap: Layout.spacing.sm,
+    minWidth: 0,
   },
-  fieldRow: {
+  fieldLabel: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '600',
+    opacity: 0.78,
+    marginBottom: Layout.spacing.xs,
+  },
+  fieldControlRow: {
     flexDirection: 'row',
-    gap: Layout.spacing.sm,
-    alignItems: 'flex-start',
+    gap: Layout.spacing.xs,
+    alignItems: 'center',
   },
   fieldInput: {
-    width: '34%',
-    minWidth: 130,
-    maxWidth: 220,
+    width: 118,
+    maxWidth: '100%',
     marginBottom: 0,
+  },
+  fieldInputCompact: {
+    width: 92,
   },
   stepperInline: {
     flexDirection: 'row',
     gap: Layout.spacing.xs,
-    marginTop: 22,
     alignItems: 'center',
+  },
+  stepperInlineCompact: {
+    gap: 6,
   },
   stepperBtn: {
     minWidth: Layout.sizes.controlHeight,
@@ -255,14 +294,36 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingHorizontal: 0,
   },
+  stepperBtnCompact: {
+    minWidth: 40,
+    minHeight: 40,
+    height: 40,
+  },
+  fieldHelper: {
+    minHeight: 16,
+    fontSize: 12,
+    lineHeight: 16,
+    opacity: 0.75,
+    marginTop: Layout.spacing.xs,
+    marginBottom: 0,
+  },
+  pressureAndRemoveRow: {
+    flexDirection: 'row',
+    gap: Layout.spacing.sm,
+    alignItems: 'stretch',
+  },
   pressureBlock: {
     flex: 1,
+    minWidth: 0,
     minHeight: 108,
     borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: 'rgba(120,120,120,0.2)',
-    padding: Layout.spacing.xs,
-    gap: 2,
+    padding: Layout.spacing.sm,
+    gap: 4,
+  },
+  pressureBlockCompact: {
+    minHeight: 0,
   },
   pressureTitle: {
     fontWeight: '700',
@@ -270,11 +331,19 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: 0,
   },
+  pressureTitleCompact: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
   pressureValue: {
     fontWeight: '700',
     fontSize: 16,
     lineHeight: 20,
     marginBottom: 0,
+  },
+  pressureValueCompact: {
+    fontSize: 18,
+    lineHeight: 22,
   },
   pressurePending: {
     fontSize: 12,
@@ -338,8 +407,12 @@ const styles = StyleSheet.create({
   },
   assignedRow: {
     fontSize: 13,
+    lineHeight: 20,
   },
-  segmentActions: {
-    alignItems: 'flex-start',
+  removeActionWrap: {
+    justifyContent: 'flex-end',
+  },
+  removeButton: {
+    minWidth: 118,
   },
 });

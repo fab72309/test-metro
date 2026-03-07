@@ -47,6 +47,27 @@ function FHLIApproach() {
 
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
+  const isDark = theme === 'dark';
+  const extinctionResult = {
+    cardBackground: isDark ? '#1A2A22' : '#F1F8E9',
+    borderColor: isDark ? '#2E7D57' : '#C5E1A5',
+    titleColor: isDark ? '#A5E6BE' : '#33691E',
+    subtitleColor: isDark ? '#C0DCCB' : '#558B2F',
+  };
+  const waterResult = {
+    cardBackground: isDark ? '#162635' : '#E1F5FE',
+    borderColor: isDark ? '#3C78A8' : '#81D4FA',
+    titleColor: isDark ? '#8ECDFF' : '#B71C1C',
+    accentColor: isDark ? '#D9EDFF' : '#B71C1C',
+    dividerColor: isDark ? '#29445C' : '#B3E5FC',
+  };
+  const foamResult = {
+    cardBackground: isDark ? '#2B2415' : '#FFF9C4',
+    borderColor: isDark ? '#A47A22' : '#FFF59D',
+    titleColor: isDark ? '#FFD56F' : '#F57F17',
+    accentColor: isDark ? '#FFE8A8' : '#E65100',
+    detailBackground: isDark ? '#3A301D' : '#FFFDE7',
+  };
 
   const getTauxReflexe = useCallback(() => {
     if (rateType === 'Hydrocarbures') return 5;
@@ -204,16 +225,33 @@ function FHLIApproach() {
       </View>
 
       {canonResult !== null && (
-        <Card variant="filled" style={{ backgroundColor: '#F1F8E9', borderColor: '#C5E1A5' }}>
+        <Card
+          variant="filled"
+          style={{ backgroundColor: extinctionResult.cardBackground, borderColor: extinctionResult.borderColor }}
+        >
           <TouchableOpacity style={[styles.row, { alignItems: 'flex-start' }]} onPress={() => setShowCanonDetails(v => !v)}>
             <View style={{ flex: 1 }}>
-              <Title style={{ textAlign: 'center', color: '#33691E', fontSize: 18 }}>Débit d'extinction nécessaire</Title>
-              <Caption style={{ textAlign: 'center', color: '#558B2F' }}>(débit de solution moussante)</Caption>
+              <Title style={{ textAlign: 'center', color: extinctionResult.titleColor, fontSize: 18 }}>
+                Débit d'extinction nécessaire
+              </Title>
+              <Caption style={{ textAlign: 'center', color: extinctionResult.subtitleColor }}>
+                (débit de solution moussante)
+              </Caption>
             </View>
-            <Ionicons name={showCanonDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#33691E" style={{ marginLeft: 8, marginTop: 2 }} />
+            <Ionicons
+              name={showCanonDetails ? "chevron-up-outline" : "chevron-down-outline"}
+              size={20}
+              color={extinctionResult.titleColor}
+              style={{ marginLeft: 8, marginTop: 2 }}
+            />
           </TouchableOpacity>
 
-          <Text style={[styles.resultValue, { textAlign: 'center', fontSize: 18, fontWeight: 'bold', color: '#33691E' }]}>
+          <Text
+            style={[
+              styles.resultValue,
+              { textAlign: 'center', fontSize: 18, fontWeight: 'bold', color: extinctionResult.titleColor },
+            ]}
+          >
             {formatNumber(canonResult)} L/min ({formatNumber((canonResult / 1000) * 60)} m³/h)
           </Text>
 
@@ -287,22 +325,36 @@ function FHLIApproach() {
           <Title style={{ textAlign: 'center', color: colors.primary }}>Résultats</Title>
 
           {/* Eau */}
-          <Card variant="filled" style={{ backgroundColor: '#E1F5FE', borderColor: '#81D4FA' }}>
+          <Card
+            variant="filled"
+            style={{ backgroundColor: waterResult.cardBackground, borderColor: waterResult.borderColor }}
+          >
             <TouchableOpacity style={styles.row} onPress={() => setShowWDetails(v => !v)}>
-              <Title style={{ fontSize: 18, color: '#B71C1C', marginBottom: 0 }}>Besoins en eau</Title>
-              <Ionicons name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#B71C1C" />
+              <Title style={{ fontSize: 18, color: waterResult.titleColor, marginBottom: 0 }}>Besoins en eau</Title>
+              <Ionicons
+                name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"}
+                size={20}
+                color={waterResult.titleColor}
+              />
             </TouchableOpacity>
 
             {!showWDetails && (
               <View style={{ marginTop: 8 }}>
-                <Body><Text style={{ fontWeight: 'bold' }}>Débit pratique : </Text>{formatNumber(canonDebit)} L/min</Body>
-                <Body><Text style={{ fontWeight: 'bold' }}>Volume total eau : </Text>{formatNumber(waterTotalVolume)} L ({formatNumber(parseFloat(waterTotalVolume || '0') / 1000)} m³)</Body>
+                <Body style={{ color: waterResult.accentColor }}>
+                  <Text style={{ fontWeight: 'bold' }}>Débit pratique : </Text>{formatNumber(canonDebit)} L/min
+                </Body>
+                <Body style={{ color: waterResult.accentColor }}>
+                  <Text style={{ fontWeight: 'bold' }}>Volume total eau : </Text>
+                  {formatNumber(waterTotalVolume)} L ({formatNumber(parseFloat(waterTotalVolume || '0') / 1000)} m³)
+                </Body>
               </View>
             )}
 
             {showWDetails && (
               <View style={{ marginTop: 8 }}>
-                <Body><Text style={{ fontWeight: 'bold' }}>Débit pratique : </Text>{formatNumber(canonDebit)} L/min</Body>
+                <Body style={{ color: waterResult.accentColor }}>
+                  <Text style={{ fontWeight: 'bold' }}>Débit pratique : </Text>{formatNumber(canonDebit)} L/min
+                </Body>
 
                 <View style={{ marginVertical: 8 }}>
                   <Body><Text style={{ fontWeight: 'bold' }}>Volume temporisation : </Text>{formatNumber((canonDebit / 2) * parseFloat(tempDur))} L</Body>
@@ -319,23 +371,38 @@ function FHLIApproach() {
                   <Caption>Formule : {formatNumber(canonDebit)} × {maintDur}</Caption>
                 </View>
 
-                <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: '#B3E5FC', paddingTop: 8 }}>
-                  <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#B71C1C' }}>Volume total eau : {formatNumber(waterTotalVolume)} L</Body>
+                <View
+                  style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: waterResult.dividerColor, paddingTop: 8 }}
+                >
+                  <Body style={{ fontSize: 16, fontWeight: 'bold', color: waterResult.accentColor }}>
+                    Volume total eau : {formatNumber(waterTotalVolume)} L
+                  </Body>
                 </View>
               </View>
             )}
           </Card>
 
           {/* Émulseur */}
-          <Card variant="filled" style={{ backgroundColor: '#FFF9C4', borderColor: '#FFF59D', marginTop: 12 }}>
+          <Card
+            variant="filled"
+            style={{ backgroundColor: foamResult.cardBackground, borderColor: foamResult.borderColor, marginTop: 12 }}
+          >
             <TouchableOpacity style={styles.row} onPress={() => setShowEmDetails(v => !v)}>
-              <Title style={{ fontSize: 18, color: '#F57F17', marginBottom: 0 }}>Besoins en émulseur</Title>
-              <Ionicons name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#F57F17" />
+              <Title style={{ fontSize: 18, color: foamResult.titleColor, marginBottom: 0 }}>Besoins en émulseur</Title>
+              <Ionicons
+                name={showEmDetails ? "chevron-up-outline" : "chevron-down-outline"}
+                size={20}
+                color={foamResult.titleColor}
+              />
             </TouchableOpacity>
 
             <View style={{ marginTop: 8 }}>
-              <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#E65100' }}>Quantité totale : {formatNumber(totalVolume)} L</Body>
-              <Body>({formatNumber(parseFloat(totalVolume || '0') / 1000)} m³)</Body>
+              <Body style={{ fontSize: 16, fontWeight: 'bold', color: foamResult.accentColor }}>
+                Quantité totale : {formatNumber(totalVolume)} L
+              </Body>
+              <Body style={{ color: foamResult.accentColor }}>
+                ({formatNumber(parseFloat(totalVolume || '0') / 1000)} m³)
+              </Body>
             </View>
 
             {showEmDetails && (
@@ -345,12 +412,18 @@ function FHLIApproach() {
                 <Body><Text style={{ fontWeight: 'bold' }}>Entretien : </Text>{formatNumber(maintVolume)} L</Body>
 
                 <TouchableOpacity style={[styles.row, { marginTop: 12 }]} onPress={() => setShowEmFullDetails(v => !v)}>
-                  <Label style={{ color: '#E65100' }}>Voir formules détaillées</Label>
-                  <Ionicons name={showEmFullDetails ? "chevron-up-outline" : "chevron-down-outline"} size={16} color="#E65100" />
+                  <Label style={{ color: foamResult.accentColor }}>Voir formules détaillées</Label>
+                  <Ionicons
+                    name={showEmFullDetails ? "chevron-up-outline" : "chevron-down-outline"}
+                    size={16}
+                    color={foamResult.accentColor}
+                  />
                 </TouchableOpacity>
 
                 {showEmFullDetails && (
-                  <View style={{ backgroundColor: '#FFFDE7', padding: 8, borderRadius: 8, marginTop: 4 }}>
+                  <View
+                    style={{ backgroundColor: foamResult.detailBackground, padding: 8, borderRadius: 8, marginTop: 4 }}
+                  >
                     <Caption style={{ marginBottom: 4 }}>Q. émul (temp) = (Capacité/2) × Durée × Conc</Caption>
                     <Caption style={{ marginBottom: 4 }}>Q. émul (ext) = Capacité × Durée × Conc</Caption>
                     <Caption>Q. émul (entr) = Capacité × Durée × Conc</Caption>
@@ -372,7 +445,7 @@ function FHLIApproach() {
 
   return (
     <View style={styles.container}>
-      <Title style={{ textAlign: 'center' }}>Approche FHLI</Title>
+      <Title style={{ textAlign: 'center' }}>Calculs FHLI</Title>
       {renderTabs()}
       {tab === 'foam' ? renderFoam() : renderStructure()}
     </View>

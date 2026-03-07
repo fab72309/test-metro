@@ -4,7 +4,7 @@ Application mobile et web pour les calculs hydrauliques pompiers, développée a
 
 ## Version
 
-Current release: **v0.4.0-alpha** 🎉  
+Current release: **v0.4.1-alpha** 🎉  
 See `CHANGELOG.md` for full details.
 
 ## ✨ Highlights v0.3.0-alpha
