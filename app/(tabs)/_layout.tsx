@@ -51,7 +51,7 @@ export default function TabLayout() {
           name="CalculPertesDeCharge"
           component={CalculPertesDeCharge}
           options={{
-            title: 'Pertes de charge',
+            title: 'Pertes de charges',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="water-pump" size={size ?? 26} color={color} />
             ),

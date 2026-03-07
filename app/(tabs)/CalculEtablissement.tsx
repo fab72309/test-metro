@@ -41,6 +41,10 @@ export default function CalculEtablissement() {
   const [modalVisible, setModalVisible] = useState(false);
   const [error, setError] = useState('');
 
+  const stepDenivele = (delta: number) => {
+    setDenivele((current) => Math.max(-30, Math.min(30, +(current + delta).toFixed(2))));
+  };
+
   const openEdit = (idx: number) => {
     setEdit({
       diametre: segments[idx].diametre,
@@ -78,7 +82,7 @@ export default function CalculEtablissement() {
           <Title>Tronçons mémorisés</Title>
           {segments.length === 0 && <Caption style={{ fontStyle: 'italic' }}>Aucun tronçon mémorisé</Caption>}
           {segments.map((t, idx) => (
-            <View style={styles.savedRow} key={t.id}>
+            <View style={[styles.savedRow, { borderBottomColor: palette.border }]} key={t.id}>
               <Body style={styles.savedDesc}>{`T${idx + 1}: Ø${t.diametre}mm - ${t.longueur}m - ${t.debit}L/min`}</Body>
               <Body style={{ fontWeight: 'bold', color: palette.primary }}>{formatNumber(t.perte)}b</Body>
               <View style={styles.actions}>
@@ -107,20 +111,45 @@ export default function CalculEtablissement() {
               />
             ))}
           </View>
-          <Body style={{ textAlign: 'center', marginVertical: 8 }}>
-            {formatNumber(denivele)}m ({perteDenivele >= 0 ? '+' : ''}{formatNumber(perteDenivele)} bars)
-          </Body>
-          <View style={styles.buttonRow}>
-            <Button title="-" onPress={() => setDenivele(d => Math.max(-30, Math.min(30, +(d - 0.5).toFixed(2))))} variant="outline" size="sm" />
-            <Button title="+" onPress={() => setDenivele(d => Math.max(-30, Math.min(30, +(d + 0.5).toFixed(2))))} variant="outline" size="sm" />
+          <View style={[styles.deniveleSummary, { backgroundColor: palette.surfaceVariant }]}>
+            <Caption style={[styles.deniveleSummaryLabel, { color: palette.secondaryText }]}>Impact sur la pression</Caption>
+            <Body style={styles.deniveleSummaryValue}>
+              {formatNumber(denivele)}m ({perteDenivele >= 0 ? '+' : ''}{formatNumber(perteDenivele)} bars)
+            </Body>
+          </View>
+          <View style={[styles.stepperShell, { backgroundColor: palette.surfaceVariant, borderColor: palette.border }]}>
+            <TouchableOpacity
+              onPress={() => stepDenivele(-0.5)}
+              activeOpacity={0.85}
+              style={[styles.stepperAction, { backgroundColor: palette.card, borderColor: palette.border }]}
+            >
+              <Ionicons name="remove" size={18} color={palette.primary} />
+            </TouchableOpacity>
+            <View style={styles.stepperCenter}>
+              <Caption style={[styles.stepperCaption, { color: palette.secondaryText }]}>Ajustement fin</Caption>
+              <Body style={styles.stepperValue}>0,5 m</Body>
+            </View>
+            <TouchableOpacity
+              onPress={() => stepDenivele(0.5)}
+              activeOpacity={0.9}
+              style={[styles.stepperAction, { backgroundColor: palette.primary, borderColor: palette.primary }]}
+            >
+              <Ionicons name="add" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
         </Card>
 
         {/* Pression lance */}
         <Card style={styles.section}>
           <View style={styles.headerRow}>
-            <Label>Pression à la lance</Label>
-            <Switch value={pressionActive} onValueChange={setPressionActive} />
+            <Label style={styles.inlineLabel}>Pression à la lance</Label>
+            <Switch
+              value={pressionActive}
+              onValueChange={setPressionActive}
+              trackColor={{ false: palette.border, true: palette.primaryLight }}
+              thumbColor={theme === 'dark' ? palette.card : '#FFFFFF'}
+              ios_backgroundColor={palette.border}
+            />
           </View>
           <View style={styles.chipRow}>
             {customPressions.map(val => (
@@ -150,7 +179,7 @@ export default function CalculEtablissement() {
             <Body>Pression à la lance :</Body>
             <Body style={{ fontWeight: 'bold' }}>{formatNumber(pression)} bars</Body>
           </View>
-          <View style={[styles.resultRow, { marginTop: 8, borderTopWidth: 1, borderTopColor: '#ccc', paddingTop: 8 }]}>
+          <View style={[styles.resultRow, { marginTop: 6, borderTopWidth: 1, borderTopColor: palette.border, paddingTop: 8 }]}>
             <Title>Total :</Title>
             <Title style={{ color: palette.primary }}>{formatNumber(total)} bars</Title>
           </View>
@@ -161,7 +190,7 @@ export default function CalculEtablissement() {
           <View style={styles.modalOverlay}>
             <Card style={styles.modalContent}>
               <Title>Modifier le tronçon</Title>
-              {error ? <Caption style={{ color: '#1976D2', marginBottom: 10 }}>{error}</Caption> : null}
+              {error ? <Caption style={{ color: palette.primary, marginBottom: 10 }}>{error}</Caption> : null}
 
               <Input
                 label="Diamètre (mm)"
@@ -197,13 +226,68 @@ export default function CalculEtablissement() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { padding: 16, gap: 16 },
-  section: { gap: 12 },
-  savedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  scrollContent: { padding: 14, paddingBottom: 24, gap: 10 },
+  section: { gap: 10, marginVertical: 0, padding: 14 },
+  savedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+  },
   savedDesc: { flex: 1, marginRight: 8 },
   actions: { flexDirection: 'row', gap: 8 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  buttonRow: { flexDirection: 'row', justifyContent: 'center', gap: 16 },
+  deniveleSummary: {
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    gap: 2,
+  },
+  deniveleSummaryLabel: {
+    marginBottom: 0,
+    fontWeight: '600',
+  },
+  deniveleSummaryValue: {
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700',
+  },
+  stepperShell: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stepperAction: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+  },
+  stepperCaption: {
+    marginBottom: 0,
+    fontWeight: '600',
+  },
+  stepperValue: {
+    fontWeight: '700',
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  inlineLabel: {
+    marginBottom: 0,
+  },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   resultRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },

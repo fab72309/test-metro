@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -90,6 +90,8 @@ function CollapsibleCalcDetails({
 export default function RelayScreen() {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
+  const { width } = useWindowDimensions();
+  const isCompactLayout = width < 680;
   const [phase3PlacementVisible, setPhase3PlacementVisible] = useState(false);
   const [placementSegmentId, setPlacementSegmentId] = useState<string | null>(null);
   const [engineListExpanded, setEngineListExpanded] = useState(true);
@@ -768,7 +770,7 @@ export default function RelayScreen() {
         <ScreenHeader title="Relais" icon="swap-horizontal" />
 
         <Card style={styles.section}>
-          <Title>Phase 1 - Besoin hydraulique</Title>
+          <Title style={isCompactLayout ? styles.sectionTitleCompact : undefined}>Phase 1 - Besoin hydraulique</Title>
           <View style={styles.stepperRow}>
             <Input
               label="Nombre de lignes à établir"
@@ -1254,7 +1256,7 @@ export default function RelayScreen() {
         </Card>
 
         <Card style={styles.section}>
-          <Title>Phase 2 - Engins disponibles</Title>
+          <Title style={isCompactLayout ? styles.sectionTitleCompact : undefined}>Phase 2 - Engins disponibles</Title>
           <Caption>
             Sélectionne les engins réellement disponibles, puis applique un profil mission et un %W
             doctrinal pour calculer la pression totale disponible.
@@ -1418,13 +1420,14 @@ export default function RelayScreen() {
         </Card>
 
         <Card style={styles.section}>
-          <Title>Phase 3 - Répartition des moyens</Title>
-          <View style={styles.phase3ActionsRow}>
+          <Title style={isCompactLayout ? styles.sectionTitleCompact : undefined}>Phase 3 - Répartition des moyens</Title>
+          <View style={[styles.phase3ActionsRow, isCompactLayout && styles.phase3ActionsRowCompact]}>
             <Button
               title="Placer un moyen"
               size="sm"
               onPress={() => openPlacementForSegment()}
               disabled={scenario.segments.length === 0}
+              style={isCompactLayout ? styles.phase3PrimaryActionCompact : undefined}
             />
           </View>
           <RelaySegmentsEditor
@@ -1455,7 +1458,7 @@ export default function RelayScreen() {
         </Card>
 
         <Card style={styles.section}>
-          <Title>Récapitulatif opérationnel</Title>
+          <Title style={isCompactLayout ? styles.sectionTitleCompact : undefined}>Récapitulatif opérationnel</Title>
           <Caption>
             Consigne indicative = pression disponible au %W retenu sur chaque engin engagé.
           </Caption>
@@ -1592,6 +1595,10 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: Layout.spacing.sm,
+  },
+  sectionTitleCompact: {
+    fontSize: 22,
+    lineHeight: 28,
   },
   chipRow: {
     flexDirection: 'row',
@@ -1750,6 +1757,12 @@ const styles = StyleSheet.create({
   },
   phase3ActionsRow: {
     alignItems: 'flex-start',
+  },
+  phase3ActionsRowCompact: {
+    alignItems: 'stretch',
+  },
+  phase3PrimaryActionCompact: {
+    width: '100%',
   },
   capacityReportLabel: {
     marginTop: 2,

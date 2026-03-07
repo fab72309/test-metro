@@ -4,10 +4,11 @@ import GrandFeuxCalculator, { GrandFeuxCalculatorHandle } from '../../components
 import { useThemeContext } from '../../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { Colors } from '@/constants/Colors';
 
 export default function GrandsFeux() {
   const { theme } = useThemeContext();
-  const isDark = theme === 'dark';
+  const palette = Colors[theme];
   const calculatorRef = useRef<GrandFeuxCalculatorHandle | null>(null);
 
   useFocusEffect(
@@ -19,7 +20,7 @@ export default function GrandsFeux() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#181A20' : '#fff' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScreenHeader title="Dimensionnement hydraulique" icon="flame" />
       <GrandFeuxCalculator ref={calculatorRef} key="grands-feux" hideTitle />
     </SafeAreaView>

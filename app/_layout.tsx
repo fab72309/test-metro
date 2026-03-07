@@ -7,6 +7,7 @@ import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Stack } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { ThemeProviderCustom, useThemeContext } from '../context/ThemeContext';
 import { PertesDeChargeTableProvider } from '../context/PertesDeChargeTableContext';
@@ -49,30 +50,32 @@ function InnerRootLayout() {
   }
 
   return (
-    <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-      <PertesDeChargeTableProvider>
-        <EngineCatalogProvider>
-          <RelayProvider>
-            <View
-              style={[
-                styles.shell,
-                { backgroundColor: Colors[theme].background },
-                isWeb && styles.shellWeb,
-              ]}
-            >
-              <View style={[styles.frame, isWeb && { width: frameWidth }]}>
-                <Stack>
-                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                  <Stack.Screen name="ValeursPerso" options={{ title: 'Valeurs personnalisées' }} />
-                  <Stack.Screen name="+not-found" />
-                </Stack>
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
+        <PertesDeChargeTableProvider>
+          <EngineCatalogProvider>
+            <RelayProvider>
+              <View
+                style={[
+                  styles.shell,
+                  { backgroundColor: Colors[theme].background },
+                  isWeb && styles.shellWeb,
+                ]}
+              >
+                <View style={[styles.frame, isWeb && { width: frameWidth }]}>
+                  <Stack>
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="ValeursPerso" options={{ title: 'Valeurs personnalisées' }} />
+                    <Stack.Screen name="+not-found" />
+                  </Stack>
+                </View>
               </View>
-            </View>
-          </RelayProvider>
-        </EngineCatalogProvider>
-      </PertesDeChargeTableProvider>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+            </RelayProvider>
+          </EngineCatalogProvider>
+        </PertesDeChargeTableProvider>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -85,6 +88,9 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   shell: {
     flex: 1,
   },

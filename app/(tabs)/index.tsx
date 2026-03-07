@@ -68,7 +68,7 @@ export default function HomeScreen() {
       <View style={{ zIndex: 10, backgroundColor: palette.background, paddingHorizontal: 0, paddingVertical: 16, alignSelf: 'center' }}>
         <View style={styles.headerRow}>
           <Ionicons name="flame" size={26} color={palette.primary} style={{ marginRight: 6 }} />
-          <Text style={styles.title}>Calcul de pertes de charge</Text>
+          <Text style={styles.title}>Pertes de charges</Text>
         </View>
       </View>
       <ScrollView

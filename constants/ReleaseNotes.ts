@@ -6,7 +6,7 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: 'v0.4.0-alpha',
+        version: 'v0.4.1-alpha',
         date: '07/03/2026',
         changes: [
             '🚒 Relais: alertes opérationnelles reconnectées au déroulé des phases',
