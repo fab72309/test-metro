@@ -7,9 +7,11 @@ import { Title, Body, Caption } from '@/components/ui/Typography';
 import { Card } from '@/components/ui/Card';
 import { useThemeContext } from '../../context/ThemeContext';
 import { Colors } from '../../constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Accueil() {
   const [modalVisible, setModalVisible] = React.useState(false);
+  const [menuVisible, setMenuVisible] = React.useState(false);
   const { theme } = useThemeContext();
   const navigation = useNavigation();
   const palette = Colors[theme];
@@ -17,6 +19,17 @@ export default function Accueil() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Menu flottant en haut à gauche */}
+        <TouchableOpacity
+          style={styles.menuIconFloating}
+          onPress={() => setMenuVisible(true)}
+          accessibilityLabel="Menu"
+        >
+          <View style={styles.menuIconCircle}>
+            <Ionicons name="menu" size={18} color={palette.primary} />
+          </View>
+        </TouchableOpacity>
+
         {/* Info Icon flottant en haut à droite */}
         <TouchableOpacity
           style={styles.infoIconFloating}
@@ -31,7 +44,7 @@ export default function Accueil() {
         {/* Logo et titres centrés */}
         <View style={styles.logoContainerCentered}>
           <Image
-            source={require('../../assets/images/firefighter_logo.png')}
+            source={require('../../assets/images/hydraulique_ops_home_logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -53,6 +66,12 @@ export default function Accueil() {
             size="lg"
           />
           <Button
+            title="Relais"
+            onPress={() => navigation.navigate('Relais' as never)}
+            style={styles.button}
+            size="lg"
+          />
+          <Button
             title="Débit max du PEI"
             onPress={() => navigation.navigate('DebitMaxPEI' as never)}
             style={styles.button}
@@ -64,14 +83,46 @@ export default function Accueil() {
             style={styles.button}
             size="lg"
           />
-          <Button
-            title="Paramètres"
-            onPress={() => navigation.navigate('Parametres' as never)}
-            style={styles.button}
-            size="lg"
-          />
         </View>
-        <Caption style={[styles.versionText, { color: palette.text }]}>v0.3.1-alpha</Caption>
+        <Caption style={[styles.versionText, { color: palette.text }]}>v0.4.0-alpha</Caption>
+
+        {/* Menu rétractable */}
+        <Modal
+          visible={menuVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setMenuVisible(false)}
+        >
+          <View style={styles.menuOverlay}>
+            <TouchableOpacity
+              style={StyleSheet.absoluteFillObject}
+              activeOpacity={1}
+              onPress={() => setMenuVisible(false)}
+            />
+            <Card style={styles.menuCard}>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('Parametres' as never);
+                }}
+              >
+                <Ionicons name="settings-outline" size={18} color={palette.text} style={styles.menuItemIcon} />
+                <Body>Paramètres</Body>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  navigation.navigate('ValeursPerso' as never);
+                }}
+              >
+                <Ionicons name="options-outline" size={18} color={palette.text} style={styles.menuItemIcon} />
+                <Body>Valeurs personnalisées</Body>
+              </TouchableOpacity>
+            </Card>
+          </View>
+        </Modal>
 
         {/* Modal d'avertissement */}
         <Modal
@@ -148,6 +199,12 @@ const styles = StyleSheet.create({
     right: 10,
     zIndex: 10,
   },
+  menuIconFloating: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 10,
+  },
   infoIconCircle: {
     backgroundColor: '#e0e0e0',
     borderRadius: 16,
@@ -160,8 +217,20 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     shadowOffset: { width: 0, height: 1 },
   },
+  menuIconCircle: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+  },
   infoIconText: {
-    color: '#D32F2F',
+    color: '#1976D2',
     fontWeight: 'bold',
     fontSize: 18,
     fontStyle: 'italic',
@@ -180,6 +249,27 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     width: '100%',
   },
+  menuOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+  menuCard: {
+    position: 'absolute',
+    top: 52,
+    left: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minWidth: 220,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+  },
+  menuItemIcon: {
+    marginRight: 8,
+  },
   modalTitle: {
     fontSize: 17,
     fontWeight: 'bold',
@@ -193,4 +283,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

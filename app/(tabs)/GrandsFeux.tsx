@@ -20,7 +20,7 @@ export default function GrandsFeux() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#181A20' : '#fff' }]}>
-      <ScreenHeader title="Dimensionnement moyens hydrauliques" icon="flame" />
+      <ScreenHeader title="Dimensionnement hydraulique" icon="flame" />
       <GrandFeuxCalculator ref={calculatorRef} key="grands-feux" hideTitle />
     </SafeAreaView>
   );

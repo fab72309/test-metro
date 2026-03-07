@@ -281,10 +281,9 @@ const styles = StyleSheet.create({
   resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   infoIconContainer: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   infoIcon: { fontStyle: 'italic', color: '#888', fontSize: 12 },
-  tabRow: { flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 12, flexWrap: 'wrap' },
+  tabRow: { flexDirection: 'row', justifyContent: 'center', marginBottom: 12, flexWrap: 'wrap' },
   sliderLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
   sliderLabelsFraction: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
   detailsToggle: { textAlign: 'left', marginVertical: 8, fontWeight: 'bold' },
   effButtons: { flexDirection: 'row', justifyContent: 'flex-start', gap: 8 },
 });
-

@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import { Subtitle } from '@/components/ui/Typography';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Layout } from '@/constants/Layout';
 
 interface HeaderProps {
   title: string;
@@ -33,7 +34,7 @@ export function Header({ title, iconName, iconColor = '#333', iconSize = 28, ico
           style={styles.icon}
         />
       )}
-      <ThemedText type="title" style={[styles.title, { color: titleColor }]}>{title}</ThemedText>
+      <Subtitle style={[styles.title, { color: titleColor }]}>{title}</Subtitle>
     </View>
   );
 }
@@ -42,16 +43,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingTop: 12,
-    paddingLeft: 4,
-    paddingBottom: 8,
+    gap: Layout.spacing.sm,
+    paddingTop: Layout.spacing.md,
+    paddingLeft: Layout.spacing.xs,
+    paddingBottom: Layout.spacing.sm,
   },
   icon: {
-    marginRight: 6,
+    marginRight: Layout.spacing.xs,
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    marginBottom: 0,
   },
 });

@@ -4,7 +4,7 @@ Application mobile et web pour les calculs hydrauliques pompiers, développée a
 
 ## Version
 
-Current release: **v0.3.1-alpha** 🎉  
+Current release: **v0.4.0-alpha** 🎉  
 See `CHANGELOG.md` for full details.
 
 ## ✨ Highlights v0.3.0-alpha
@@ -106,6 +106,16 @@ Une fois le remote configuré et la branche poussée, vos modifications seront v
 - ✅ **Responsive** : Fonctionne sur mobile, tablette et web
 - ✅ **Personnalisable** : Valeurs par défaut modifiables
 - ✅ **Tests** : Tests unitaires Jest pour les calculs critiques
+
+## Module Relais (pompage en relais)
+
+- **Méthodes** : `math` (fiche p.10), `approximation`, `abaque guidé`.
+- **Entrées V2** : tronçons longueur/dénivelé, débit, pression cible, diamètre 70/110, mode source (PI direct / PI+engin / aspiration), catalogue engins.
+- **Pertes de charge** : interpolation par loi `Q²` sur `pertesDeChargeTable`, puis calcul des pertes régulières + dénivelé.
+- **Doctrine intégrée** : `%W` recommandé selon durée mission (1-2h: 70-80%, 4-6h: 50-60%), arrondi pression demi/unité supérieure, tuyaux arrondis inférieur.
+- **Sorties** : nombre de pompes, tableau opérationnel par engin (position m+tuyaux, consigne, débit), alertes bloquantes/non bloquantes, schéma linéaire, abaque.
+- **Personnalisation** : catalogue engins persistant (CRUD) dans `Valeurs personnalisées`, presets initiaux `2000/15`, `1000/15`, `2000/10`.
+- **Persistance** : `relay.v2.scenario`, `relay.v2.defaults`, `relay.v2.engineCatalog` avec migration automatique depuis `relay.scenario`.
 
 In the output, you'll find options to open the app in a
 

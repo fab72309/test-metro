@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as Haptics from 'expo-haptics';
 import { triggerHaptic } from '@/utils/haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Layout } from '@/constants/Layout';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -45,7 +46,7 @@ export function Chip({ label, selected = false, icon, onPress, style, ...rest }:
             style={[
                 styles.chip,
                 {
-                    backgroundColor: selected ? colors.primary : colors.inputBackground,
+                    backgroundColor: selected ? colors.primary : colors.surfaceVariant,
                     borderColor: selected ? colors.primary : colors.border,
                 },
                 style,
@@ -83,14 +84,15 @@ const styles = StyleSheet.create({
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 20,
+        paddingVertical: Layout.spacing.xs,
+        paddingHorizontal: Layout.spacing.md,
+        borderRadius: Layout.radius.pill,
         borderWidth: 1,
-        marginRight: 8,
-        marginBottom: 8,
+        marginRight: Layout.spacing.sm,
+        marginBottom: Layout.spacing.sm,
+        minHeight: Layout.sizes.controlHeight,
     },
     text: {
-        fontSize: 14,
+        fontSize: 15,
     },
 });

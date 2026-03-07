@@ -118,7 +118,7 @@ export default function CalculPertesDeCharge() {
               size="md"
             />
           </View>
-          {erreurLongueur ? <Caption style={{ color: 'red' }}>{erreurLongueur}</Caption> : null}
+          {erreurLongueur ? <Caption style={{ color: '#1976D2' }}>{erreurLongueur}</Caption> : null}
           {longueurPerso && !erreurLongueur && longueur === parseInt(longueurPerso) && (
             <Caption style={{ color: palette.primary }}>Longueur sélectionnée : {longueur} m</Caption>
           )}

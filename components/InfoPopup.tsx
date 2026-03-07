@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 17,
     marginBottom: 10,
-    color: '#D32F2F',
+    color: '#1976D2',
     textAlign: 'center',
   },
   text: {
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   button: {
-    backgroundColor: '#D32F2F',
+    backgroundColor: '#1976D2',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 18,

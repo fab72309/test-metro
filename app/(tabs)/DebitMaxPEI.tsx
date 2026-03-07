@@ -86,7 +86,7 @@ export default function DebitMaxPEI() {
             value={pressionResiduelle}
             onChangeText={setPressionResiduelle}
             keyboardType="numeric"
-            leftIcon={<Ionicons name="water" size={20} color="#2196F3" />}
+            leftIcon={<Ionicons name="water" size={20} color="#EF5350" />}
             containerStyle={{ marginTop: 12 }}
           />
           <Input
@@ -106,7 +106,7 @@ export default function DebitMaxPEI() {
           <View style={styles.resultHeader}>
             <Label style={{ color: palette.primary }}>Débit disponible :</Label>
             <TouchableOpacity onPress={() => setInfoVisible(true)}>
-              <Ionicons name="information-circle-outline" size={24} color="#1976D2" />
+              <Ionicons name="information-circle-outline" size={24} color="#D32F2F" />
             </TouchableOpacity>
           </View>
           <View style={styles.resultBox}>
@@ -116,8 +116,8 @@ export default function DebitMaxPEI() {
         </Card>
 
         <TouchableOpacity style={styles.detailsToggle} onPress={() => setShowDetails((v) => !v)}>
-          <Ionicons name={showDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#1976D2" />
-          <Body style={{ color: '#1976D2', fontWeight: 'bold', marginLeft: 4 }}>
+          <Ionicons name={showDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#D32F2F" />
+          <Body style={{ color: '#D32F2F', fontWeight: 'bold', marginLeft: 4 }}>
             {showDetails ? "Masquer les détails" : "Voir le détail du calcul"}
           </Body>
         </TouchableOpacity>
@@ -136,7 +136,7 @@ export default function DebitMaxPEI() {
         <Modal visible={infoVisible} transparent animationType="fade" onRequestClose={() => setInfoVisible(false)}>
           <View style={styles.modalOverlay}>
             <Card style={styles.modalContent}>
-              <Title style={{ color: '#1976D2', marginBottom: 10 }}>Débit disponible</Title>
+              <Title style={{ color: '#D32F2F', marginBottom: 10 }}>Débit disponible</Title>
               <Body style={{ textAlign: 'center', marginBottom: 18 }}>
                 Cette valeur correspond au débit supplémentaire que l’hydrant peut fournir, en plus du débit actuellement utilisé, dans les conditions de pression mesurées.
               </Body>

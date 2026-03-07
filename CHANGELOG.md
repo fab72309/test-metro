@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0-alpha (2026-03-07)
+
+### 🚒 Relais
+- **Alertes opérationnelles** : Les alertes sont désormais alignées sur le processus réel (phase 1, phase 2, phase 3) au lieu d’afficher des warnings théoriques isolés.
+- **Récapitulatif terrain** : Ajout d’une synthèse opérationnelle des moyens à engager avec consignes indicatives, nombre de tuyaux, pression requise et capacité affectée par tronçon.
+- **Cohérence hydraulique** : Harmonisation de la réserve aval entre la modale de placement et le contrôle de couverture des tronçons.
+
 ## v0.3.2-alpha (2025-11-22)
 
 ### 🎨 Standardisation UI & Mode Sombre
