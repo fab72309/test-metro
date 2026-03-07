@@ -246,4 +246,39 @@ describe('relay compute v2', () => {
 
     expect(result.warnings.some((warning) => warning.level === 'blocking')).toBe(true);
   });
+
+  it('déduit la pression source du besoin à fournir par les engins', () => {
+    const noSource = computeRelay(
+      makeScenario({
+        lineCount: 1,
+        flowPerLineLpm: 1500,
+        targetOutletBar: 6,
+        segments: [{ id: 'S1', lengthM: 1500, elevationM: 60 }],
+        source: {
+          ...baseSource,
+          pressureEffectiveBar: 0,
+        },
+      }),
+      DEFAULT_ENGINE_MODELS
+    );
+
+    const withSource = computeRelay(
+      makeScenario({
+        lineCount: 1,
+        flowPerLineLpm: 1500,
+        targetOutletBar: 6,
+        segments: [{ id: 'S1', lengthM: 1500, elevationM: 60 }],
+        source: {
+          ...baseSource,
+          pressureEffectiveBar: 5,
+        },
+      }),
+      DEFAULT_ENGINE_MODELS
+    );
+
+    expect(withSource.prefTotalBar).toBeCloseTo(noSource.prefTotalBar, 2);
+    expect(withSource.pressureSourceBar).toBe(5);
+    expect(withSource.pressureNeededFromPumpsBar).toBeCloseTo(noSource.prefTotalBar - 5, 2);
+    expect(withSource.pressureNeededFromPumpsBar).toBeLessThan(noSource.pressureNeededFromPumpsBar);
+  });
 });

@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, TextProps } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { Layout } from '@/constants/Layout';
+import { Typography as TypographyTokens } from '@/constants/Typography';
 
 export function Title({ style, ...rest }: TextProps) {
     return <ThemedText type="title" style={[styles.title, style]} {...rest} />;
@@ -11,7 +14,14 @@ export function Subtitle({ style, ...rest }: TextProps) {
 }
 
 export function Label({ style, ...rest }: TextProps) {
-    return <ThemedText type="defaultSemiBold" style={[styles.label, style]} {...rest} />;
+    const labelColor = useThemeColor({}, 'secondaryText');
+    return (
+        <ThemedText
+            type="defaultSemiBold"
+            style={[styles.label, { color: labelColor }, style]}
+            {...rest}
+        />
+    );
 }
 
 export function Body({ style, ...rest }: TextProps) {
@@ -19,24 +29,29 @@ export function Body({ style, ...rest }: TextProps) {
 }
 
 export function Caption({ style, ...rest }: TextProps) {
-    return <ThemedText style={[styles.caption, style]} {...rest} />;
+    const captionColor = useThemeColor({}, 'secondaryText');
+    return (
+        <ThemedText
+            style={[styles.caption, { color: captionColor }, style]}
+            {...rest}
+        />
+    );
 }
 
 const styles = StyleSheet.create({
     title: {
-        marginBottom: 8,
+        marginBottom: Layout.spacing.sm,
     },
     subtitle: {
-        marginBottom: 6,
+        marginBottom: Layout.spacing.xs,
     },
     label: {
-        marginBottom: 4,
+        marginBottom: Layout.spacing.xs,
     },
     body: {
-        marginBottom: 2,
+        marginBottom: 0,
     },
     caption: {
-        fontSize: 12,
-        opacity: 0.7,
+        ...TypographyTokens.caption,
     },
 });

@@ -161,7 +161,7 @@ export default function CalculEtablissement() {
           <View style={styles.modalOverlay}>
             <Card style={styles.modalContent}>
               <Title>Modifier le tronçon</Title>
-              {error ? <Caption style={{ color: 'red', marginBottom: 10 }}>{error}</Caption> : null}
+              {error ? <Caption style={{ color: '#1976D2', marginBottom: 10 }}>{error}</Caption> : null}
 
               <Input
                 label="Diamètre (mm)"

@@ -54,7 +54,7 @@ function GrandFeuxCalculator({ hideTitle = false }: { hideTitle?: boolean }, ref
         <Card style={styles.card}>
           {/* Titre */}
           {!hideTitle && (
-            <Title style={{ textAlign: 'center' }}>Dimensionnement des moyens hydrauliques</Title>
+            <Title style={{ textAlign: 'center' }}>Dimensionnement hydraulique</Title>
           )}
 
           {/* Tabs */}
@@ -145,5 +145,4 @@ const styles = StyleSheet.create({
   card: { padding: 16, marginTop: 10 },
   tabContainer: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginVertical: 12 },
 });
-
 

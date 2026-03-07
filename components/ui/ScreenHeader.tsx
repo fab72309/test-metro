@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Title } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
 import { useThemeContext } from '@/context/ThemeContext';
+import { Layout } from '@/constants/Layout';
 
 interface ScreenHeaderProps {
     title: string;
@@ -20,12 +21,12 @@ export function ScreenHeader({ title, icon, style }: ScreenHeaderProps) {
             {icon && (
                 <Ionicons
                     name={icon}
-                    size={32}
+                    size={Layout.sizes.iconLg}
                     color={palette.primary}
                     style={styles.icon}
                 />
             )}
-            <Title style={[styles.title, { color: palette.primary }]}>
+            <Title style={[styles.title, { color: palette.text }]}>
                 {title}
             </Title>
         </View>
@@ -36,15 +37,16 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 16,
-        marginTop: 8,
+        justifyContent: 'flex-start',
+        marginBottom: Layout.spacing.md,
+        marginTop: Layout.spacing.sm,
     },
     icon: {
-        marginRight: 8,
+        marginRight: Layout.spacing.sm,
     },
     title: {
         marginBottom: 0,
-        textAlign: 'center',
+        textAlign: 'left',
+        flexShrink: 1,
     },
 });

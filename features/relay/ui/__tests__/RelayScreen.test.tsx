@@ -138,4 +138,38 @@ describe('RelayScreen UI', () => {
 
     expect(mockUpdateScenario).toHaveBeenCalledWith({ workRatePercent: 80 });
   });
+
+  it('ouvre la popup de placement des moyens depuis la phase 3', () => {
+    const screen = render(<RelayScreen />);
+    fireEvent.press(screen.getAllByText('Placer un moyen')[0]);
+
+    expect(screen.getByText('Sélectionner un tronçon puis affecter les engins issus de la phase 2.')).toBeTruthy();
+  });
+
+  it('ne rend plus les blocs supprimés après les champs de la phase 3', () => {
+    const screen = render(<RelayScreen />);
+
+    expect(screen.queryByText('Placement des engins')).toBeNull();
+    expect(screen.queryByText('Placement des engins (drag & drop)')).toBeNull();
+    expect(screen.queryByText('Engin de référence')).toBeNull();
+    expect(screen.queryByText('Tableau opérationnel')).toBeNull();
+    expect(screen.queryByText(/Relais recommandé/)).toBeNull();
+  });
+
+  it('affiche la synthèse source et le besoin résiduel pour les engins', () => {
+    const screen = render(<RelayScreen />);
+
+    expect(screen.getByText('Alimentation source')).toBeTruthy();
+    expect(screen.getAllByText('Apport source pris en compte (bar)').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Besoin à fournir par les engins (bar)').length).toBeGreaterThan(0);
+    expect(screen.getByText('Pression de refoulement nécessaire (bar)')).toBeTruthy();
+  });
+
+  it('affiche le récapitulatif opérationnel et les alertes de processus', () => {
+    const screen = render(<RelayScreen />);
+
+    expect(screen.getByText('Récapitulatif opérationnel')).toBeTruthy();
+    expect(screen.getByText('Moyens à mettre en oeuvre')).toBeTruthy();
+    expect(screen.getByText('Alertes opérationnelles')).toBeTruthy();
+  });
 });

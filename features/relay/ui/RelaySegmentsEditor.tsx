@@ -6,6 +6,10 @@ import { Input } from '@/components/ui/Input';
 import { Body } from '@/components/ui/Typography';
 import { Layout } from '@/constants/Layout';
 import type { RelaySegmentInput } from '@/features/relay/engine/types';
+import type {
+  RelayAssignedMeanSummary,
+  RelaySegmentOperationalSummary,
+} from '@/features/relay/ui/relayOperational';
 import { parseNumber } from '@/features/relay/engine/validate';
 import { formatNumber } from '@/utils/format';
 
@@ -15,8 +19,9 @@ type RelaySegmentsEditorProps = {
   onUpdate: (id: string, patch: Partial<RelaySegmentInput>) => void;
   onRemove: (id: string) => void;
   onOpenPlacement: (segmentId: string) => void;
-  jBarPerHm: number;
-  assignedMeansBySegment: Record<string, Array<{ instanceId: string; label: string; appliedPressureBar: number; dMaxM: number }>>;
+  workRatePercent: number;
+  assignedMeansBySegment: Record<string, RelayAssignedMeanSummary[]>;
+  segmentOperationalById: Record<string, RelaySegmentOperationalSummary>;
 };
 
 export function RelaySegmentsEditor({
@@ -25,8 +30,9 @@ export function RelaySegmentsEditor({
   onUpdate,
   onRemove,
   onOpenPlacement,
-  jBarPerHm,
+  workRatePercent,
   assignedMeansBySegment,
+  segmentOperationalById,
 }: RelaySegmentsEditorProps) {
   const stepLength = (segmentId: string, current: number, delta: number) => {
     const next = Math.max(0, current + delta);
@@ -43,143 +49,145 @@ export function RelaySegmentsEditor({
         <Button title="+ Tronçon" size="sm" onPress={onAdd} />
       </View>
 
-      {segments.map((segment, index) => (
-        <Card key={segment.id} variant="filled" animated={false} style={styles.segmentCard}>
-          <View style={styles.segmentHeaderRow}>
-            <Body style={styles.segmentTitle}>Tronçon {index + 1}</Body>
-            <Button
-              title="Placer un moyen"
-              size="sm"
-              onPress={() => onOpenPlacement(segment.id)}
-              style={styles.placeMeansBtn}
-            />
-          </View>
+      {segments.map((segment, index) => {
+        const summary = segmentOperationalById[segment.id];
+        const assigned = summary?.assignedMeans ?? assignedMeansBySegment[segment.id] ?? [];
 
-          <View style={styles.assignedBlock}>
-            {(() => {
-              const assigned = assignedMeansBySegment[segment.id] ?? [];
-              if (assigned.length === 0) {
-                return <Body style={styles.assignedEmpty}>Aucun moyen affecté.</Body>;
-              }
-              return assigned.map((mean) => (
-                <Body key={`assigned-${segment.id}-${mean.instanceId}`} style={styles.assignedRow}>
-                  • {mean.label} - Pr dispo {mean.appliedPressureBar.toFixed(2)} bar - D max {Math.round(mean.dMaxM)} m
-                </Body>
-              ));
-            })()}
-          </View>
+        return (
+          <Card key={segment.id} variant="filled" animated={false} style={styles.segmentCard}>
+            <View style={styles.segmentHeaderRow}>
+              <Body style={styles.segmentTitle}>Tronçon {index + 1}</Body>
+              <Button
+                title="Placer un moyen"
+                size="sm"
+                onPress={() => onOpenPlacement(segment.id)}
+                style={styles.placeMeansBtn}
+              />
+            </View>
 
-          <View style={styles.fieldsStack}>
-            <View style={styles.inputsAndPressureRow}>
-              <View style={styles.fieldsColumn}>
-                <View style={styles.fieldRow}>
-                  <Input
-                    label="Longueur (m)"
-                    value={String(segment.lengthM)}
-                    onChangeText={(text) => {
-                      const parsed = parseNumber(text);
-                      if (parsed !== null) onUpdate(segment.id, { lengthM: parsed });
-                    }}
-                    keyboardType="decimal-pad"
-                    containerStyle={styles.fieldInput}
-                    helperText=" "
-                  />
-                  <View style={styles.stepperInline}>
-                    <Button
-                      title="+"
-                      size="sm"
-                      style={styles.stepperBtn}
-                      onPress={() => stepLength(segment.id, segment.lengthM, 10)}
+            <View style={styles.assignedBlock}>
+              {assigned.length === 0 ? (
+                <Body style={styles.assignedEmpty}>Aucun moyen affecté.</Body>
+              ) : (
+                assigned.map((mean) => (
+                  <Body key={`assigned-${segment.id}-${mean.instanceId}`} style={styles.assignedRow}>
+                    • {mean.label} - Consigne indicative @{formatNumber(workRatePercent)}%W{' '}
+                    {formatNumber(mean.appliedPressureBar)} bar - Débit nominal {formatNumber(mean.nominalFlowLpm)} L/min
+                    {'maxReachM' in mean ? ` - Portée théorique ${formatNumber(mean.maxReachM)} m` : ''}
+                  </Body>
+                ))
+              )}
+            </View>
+
+            <View style={styles.fieldsStack}>
+              <View style={styles.inputsAndPressureRow}>
+                <View style={styles.fieldsColumn}>
+                  <View style={styles.fieldRow}>
+                    <Input
+                      label="Longueur (m)"
+                      value={String(segment.lengthM)}
+                      onChangeText={(text) => {
+                        const parsed = parseNumber(text);
+                        if (parsed !== null) onUpdate(segment.id, { lengthM: parsed });
+                      }}
+                      keyboardType="decimal-pad"
+                      containerStyle={styles.fieldInput}
+                      helperText=" "
                     />
-                    <Button
-                      title="-"
-                      size="sm"
-                      variant="outline"
-                      style={styles.stepperBtn}
-                      onPress={() => stepLength(segment.id, segment.lengthM, -10)}
+                    <View style={styles.stepperInline}>
+                      <Button
+                        title="+"
+                        size="sm"
+                        style={styles.stepperBtn}
+                        onPress={() => stepLength(segment.id, segment.lengthM, 10)}
+                      />
+                      <Button
+                        title="-"
+                        size="sm"
+                        variant="outline"
+                        style={styles.stepperBtn}
+                        onPress={() => stepLength(segment.id, segment.lengthM, -10)}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.fieldRow}>
+                    <Input
+                      label="Dénivelé (m)"
+                      value={String(segment.elevationM)}
+                      onChangeText={(text) => {
+                        const parsed = parseNumber(text);
+                        if (parsed !== null) onUpdate(segment.id, { elevationM: parsed });
+                      }}
+                      keyboardType="decimal-pad"
+                      containerStyle={styles.fieldInput}
+                      helperText="Montée + / Descente -"
                     />
+                    <View style={styles.stepperInline}>
+                      <Button
+                        title="+"
+                        size="sm"
+                        style={styles.stepperBtn}
+                        onPress={() => stepElevation(segment.id, segment.elevationM, 1)}
+                      />
+                      <Button
+                        title="-"
+                        size="sm"
+                        variant="outline"
+                        style={styles.stepperBtn}
+                        onPress={() => stepElevation(segment.id, segment.elevationM, -1)}
+                      />
+                    </View>
                   </View>
                 </View>
 
-                <View style={styles.fieldRow}>
-                  <Input
-                    label="Dénivelé (m)"
-                    value={String(segment.elevationM)}
-                    onChangeText={(text) => {
-                      const parsed = parseNumber(text);
-                      if (parsed !== null) onUpdate(segment.id, { elevationM: parsed });
-                    }}
-                    keyboardType="decimal-pad"
-                    containerStyle={styles.fieldInput}
-                    helperText="Montée + / Descente -"
-                  />
-                  <View style={styles.stepperInline}>
-                    <Button
-                      title="+"
-                      size="sm"
-                      style={styles.stepperBtn}
-                      onPress={() => stepElevation(segment.id, segment.elevationM, 1)}
-                    />
-                    <Button
-                      title="-"
-                      size="sm"
-                      variant="outline"
-                      style={styles.stepperBtn}
-                      onPress={() => stepElevation(segment.id, segment.elevationM, -1)}
-                    />
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.pressureBlock}>
-                {(() => {
-                  const assigned = assignedMeansBySegment[segment.id] ?? [];
-                  if (assigned.length === 0) {
-                    return (
-                      <>
-                        <Body style={styles.pressureTitle}>Pression tronçon</Body>
-                        <Body style={styles.pressurePending}>Affecter un moyen</Body>
-                      </>
-                    );
-                  }
-                  const selected = assigned[0];
-                  const lineLossBar = Math.max(0, jBarPerHm) * (Math.max(0, segment.lengthM) / 100);
-                  const elevationBar = segment.elevationM / 10;
-                  const requiredPressureBar = lineLossBar + elevationBar;
-                  const isWithinCapacity = requiredPressureBar <= selected.appliedPressureBar + 0.001;
-
-                  return (
+                <View style={styles.pressureBlock}>
+                  {assigned.length === 0 || !summary ? (
                     <>
-                      <Body style={styles.pressureTitle}>Pression nécessaire tronçon</Body>
-                      <Body style={styles.pressureValue}>{formatNumber(requiredPressureBar)} bar</Body>
-                      <Body style={styles.pressureMeta}>{selected.label}</Body>
+                      <Body style={styles.pressureTitle}>Pression tronçon</Body>
+                      <Body style={styles.pressurePending}>Affecter un moyen</Body>
+                    </>
+                  ) : (
+                    <>
+                      <Body style={styles.pressureTitle}>Pression requise tronçon</Body>
+                      <Body style={styles.pressureValue}>{formatNumber(summary.requiredPressureBar)} bar</Body>
                       <Body style={styles.pressureMeta}>
-                        J {formatNumber(lineLossBar)} + Z {formatNumber(elevationBar)} = {formatNumber(requiredPressureBar)}
+                        J {formatNumber(summary.lineLossBar)} + Z {formatNumber(summary.elevationLossBar)} + aval{' '}
+                        {formatNumber(summary.downstreamTargetBar)} = {formatNumber(summary.requiredPressureBar)}
                       </Body>
-                      <Body style={styles.pressureMeta}>Capacité engin: {formatNumber(selected.appliedPressureBar)} bar</Body>
+                      <Body style={styles.pressureMeta}>
+                        Capacité affectée: {formatNumber(summary.availablePressureBar)} bar ({assigned.length} moyen(x))
+                      </Body>
+                      {!summary.assignedMeans.every((mean) => mean.flowCompatible) ? (
+                        <Body style={styles.pressureAlert}>
+                          Débit nominal d’au moins un engin inférieur au débit relais demandé.
+                        </Body>
+                      ) : null}
                       <View style={styles.capacityStatusRow}>
-                        <View style={[styles.capacityDot, isWithinCapacity ? styles.capacityDotOk : styles.capacityDotKo]} />
-                        <Body style={isWithinCapacity ? styles.capacityStatusOk : styles.capacityStatusKo}>
-                          {isWithinCapacity ? 'Compatible avec la capacité' : 'Supérieur à la capacité'}
+                        <View style={[styles.capacityDot, summary.isCovered ? styles.capacityDotOk : styles.capacityDotKo]} />
+                        <Body style={summary.isCovered ? styles.capacityStatusOk : styles.capacityStatusKo}>
+                          {summary.isCovered
+                            ? `Compatible (+${formatNumber(summary.deltaBar)} bar)`
+                            : `Insuffisant (${formatNumber(summary.deltaBar)} bar)`}
                         </Body>
                       </View>
                     </>
-                  );
-                })()}
+                  )}
+                </View>
               </View>
             </View>
-          </View>
 
-          <View style={styles.segmentActions}>
-            <Button
-              title="Retirer"
-              variant="outline"
-              size="sm"
-              onPress={() => onRemove(segment.id)}
-            />
-          </View>
-        </Card>
-      ))}
+            <View style={styles.segmentActions}>
+              <Button
+                title="Retirer"
+                variant="outline"
+                size="sm"
+                onPress={() => onRemove(segment.id)}
+              />
+            </View>
+          </Card>
+        );
+      })}
     </View>
   );
 }
@@ -226,7 +234,7 @@ const styles = StyleSheet.create({
   fieldRow: {
     flexDirection: 'row',
     gap: Layout.spacing.sm,
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
   },
   fieldInput: {
     width: '34%',
@@ -237,7 +245,7 @@ const styles = StyleSheet.create({
   stepperInline: {
     flexDirection: 'row',
     gap: Layout.spacing.xs,
-    marginBottom: Layout.spacing.lg,
+    marginTop: 22,
     alignItems: 'center',
   },
   stepperBtn: {
@@ -249,36 +257,53 @@ const styles = StyleSheet.create({
   },
   pressureBlock: {
     flex: 1,
-    minHeight: 132,
+    minHeight: 108,
     borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: 'rgba(120,120,120,0.2)',
-    padding: Layout.spacing.sm,
-    gap: 4,
+    padding: Layout.spacing.xs,
+    gap: 2,
   },
   pressureTitle: {
     fontWeight: '700',
+    fontSize: 14,
+    lineHeight: 18,
+    marginBottom: 0,
   },
   pressureValue: {
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: 16,
+    lineHeight: 20,
+    marginBottom: 0,
   },
   pressurePending: {
+    fontSize: 12,
+    lineHeight: 16,
     opacity: 0.75,
+    marginBottom: 0,
+  },
+  pressureAlert: {
+    fontSize: 11,
+    lineHeight: 14,
+    color: '#D32F2F',
+    fontWeight: '700',
+    marginBottom: 0,
   },
   pressureMeta: {
-    fontSize: 12,
+    fontSize: 11,
+    lineHeight: 14,
     opacity: 0.82,
+    marginBottom: 0,
   },
   capacityStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 2,
+    gap: 4,
+    marginTop: 1,
   },
   capacityDot: {
-    width: 10,
-    height: 10,
+    width: 8,
+    height: 8,
     borderRadius: 999,
   },
   capacityDotOk: {
@@ -290,10 +315,16 @@ const styles = StyleSheet.create({
   capacityStatusOk: {
     color: '#2E7D32',
     fontWeight: '700',
+    fontSize: 12,
+    lineHeight: 15,
+    marginBottom: 0,
   },
   capacityStatusKo: {
     color: '#D32F2F',
     fontWeight: '700',
+    fontSize: 12,
+    lineHeight: 15,
+    marginBottom: 0,
   },
   assignedBlock: {
     borderRadius: Layout.radius.md,

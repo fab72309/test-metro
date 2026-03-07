@@ -30,7 +30,7 @@ export default function HomeScreen() {
   const [resultat, setResultat] = useState<number | null>(null);
   const [canConserve, setCanConserve] = useState(false);
   const [showReleaseNotes, setShowReleaseNotes] = useState(false);
-  const currentRelease = RELEASE_NOTES[0]; // v0.3.2-alpha
+  const currentRelease = RELEASE_NOTES[0];
 
   // Calcul et affichage du résultat
   const handleCalcul = () => {
@@ -144,7 +144,7 @@ export default function HomeScreen() {
           )
         }
 
-        {/* Notes de version (v0.3.2-alpha) */}
+        {/* Notes de version */}
         <Card style={{ marginTop: 18, padding: 16 }}>
           <TouchableOpacity
             style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
@@ -178,7 +178,7 @@ export default function HomeScreen() {
         </Card>
       </ScrollView >
       <View style={{ padding: 10, alignItems: 'center' }}>
-        <Text style={{ color: palette.secondaryText, fontSize: 12 }}>v0.3.2-alpha</Text>
+        <Text style={{ color: palette.secondaryText, fontSize: 12 }}>{currentRelease.version}</Text>
       </View>
     </SafeAreaView >
   );

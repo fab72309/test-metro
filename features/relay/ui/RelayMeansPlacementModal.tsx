@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
 import { Body, Caption, Label, Title } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
 import { Layout } from '@/constants/Layout';
@@ -9,6 +10,9 @@ import { useThemeContext } from '@/context/ThemeContext';
 import type { RelaySegmentInput } from '@/features/relay/engine/types';
 import type { RelayDistributionEngine } from '@/features/relay/ui/RelayMeansDistributionBoard';
 import { formatNumber } from '@/utils/format';
+
+const COMPACT_MODAL_BREAKPOINT = 640;
+const DESKTOP_MODAL_MAX_WIDTH = 760;
 
 type RelayMeansPlacementModalProps = {
   visible: boolean;
@@ -19,6 +23,7 @@ type RelayMeansPlacementModalProps = {
   workRatePercent: number;
   jBarPerHm: number;
   totalLengthM: number;
+  targetOutletBar?: number;
   minInletBar?: number;
   assignments: Record<string, string[]>;
   onAssign: (segmentId: string, instanceId: string) => void;
@@ -34,6 +39,7 @@ export function RelayMeansPlacementModal({
   workRatePercent,
   jBarPerHm,
   totalLengthM,
+  targetOutletBar = 6,
   minInletBar = 1,
   assignments,
   onAssign,
@@ -41,7 +47,12 @@ export function RelayMeansPlacementModal({
 }: RelayMeansPlacementModalProps) {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const [activeSegmentId, setActiveSegmentId] = useState<string | null>(targetSegmentId);
+  const isCompact = windowWidth < COMPACT_MODAL_BREAKPOINT;
+  const modalPadding = isCompact ? Layout.spacing.md : Layout.spacing.lg;
+  const modalMaxHeight = Math.max(320, windowHeight - modalPadding * 2);
+  const scrollMaxHeight = Math.min(isCompact ? windowHeight * 0.46 : windowHeight * 0.5, 420);
 
   useEffect(() => {
     if (!visible) return;
@@ -78,6 +89,10 @@ export function RelayMeansPlacementModal({
     () => segments.findIndex((segment) => segment.id === activeId),
     [activeId, segments]
   );
+  const activeReserveBar = useMemo(() => {
+    if (activeSegmentIndex < 0) return minInletBar;
+    return activeSegmentIndex === segments.length - 1 ? targetOutletBar : minInletBar;
+  }, [activeSegmentIndex, minInletBar, segments.length, targetOutletBar]);
 
   const assignedUpstream = useMemo(() => {
     const used = new Set<string>();
@@ -110,7 +125,7 @@ export function RelayMeansPlacementModal({
 
   const describeCapacity = (engine: RelayDistributionEngine) => {
     const appliedRefoulementBar = (engine.nominalPressureBar * workRatePercent) / 100;
-    const transportBar = Math.max(0, appliedRefoulementBar - minInletBar);
+    const transportBar = Math.max(0, appliedRefoulementBar - activeReserveBar);
     const dMaxM = jBarPerHm > 0 ? (transportBar / jBarPerHm) * 100 : totalLengthM;
     return {
       appliedRefoulementBar,
@@ -120,12 +135,25 @@ export function RelayMeansPlacementModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <Card style={[styles.modalCard, { backgroundColor: palette.card }]}>
+      <View style={[styles.overlay, { padding: modalPadding }]}>
+        <Card
+          style={[
+            styles.modalCard,
+            {
+              backgroundColor: palette.card,
+              maxHeight: modalMaxHeight,
+              maxWidth: Math.min(DESKTOP_MODAL_MAX_WIDTH, Math.max(320, windowWidth - modalPadding * 2)),
+              padding: isCompact ? Layout.spacing.md : Layout.spacing.lg,
+            },
+          ]}
+        >
           <Title>Placer un moyen</Title>
           <Body>Sélectionner un tronçon puis affecter les engins issus de la phase 2.</Body>
           <Caption>
             Un moyen affecté en amont n’est plus affiché comme disponible sur les tronçons suivants.
+          </Caption>
+          <Caption>
+            Réserve aval appliquée sur ce tronçon: {formatNumber(activeReserveBar)} bar.
           </Caption>
 
           {segments.length === 0 ? (
@@ -133,8 +161,21 @@ export function RelayMeansPlacementModal({
           ) : (
             <>
               <Label>Tronçon cible: {activeSegmentLabel}</Label>
+              <View style={styles.segmentSelectorRow}>
+                {segments.map((segment, index) => (
+                  <Chip
+                    key={`segment-chip-${segment.id}`}
+                    label={`Tronçon ${index + 1}`}
+                    selected={segment.id === activeId}
+                    onPress={() => setActiveSegmentId(segment.id)}
+                  />
+                ))}
+              </View>
 
-              <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+              <ScrollView
+                style={[styles.scroll, { maxHeight: scrollMaxHeight }]}
+                contentContainerStyle={styles.scrollContent}
+              >
                 <View style={styles.block}>
                   <Label>Moyens affectés</Label>
                   {activeAssignedEngines.length === 0 ? (
@@ -143,7 +184,10 @@ export function RelayMeansPlacementModal({
                     activeAssignedEngines.map((engine) => {
                       const capacity = describeCapacity(engine);
                       return (
-                        <View key={`assigned-${engine.instanceId}`} style={styles.engineRow}>
+                        <View
+                          key={`assigned-${engine.instanceId}`}
+                          style={[styles.engineRow, isCompact && styles.engineRowCompact]}
+                        >
                           <View style={styles.engineMeta}>
                             <Body style={styles.engineTitle}>{engine.label}</Body>
                             <Caption>
@@ -157,6 +201,7 @@ export function RelayMeansPlacementModal({
                               size="sm"
                               variant="outline"
                               onPress={() => onRemove(activeId, engine.instanceId)}
+                              style={isCompact ? styles.rowActionCompact : undefined}
                             />
                           ) : null}
                         </View>
@@ -173,7 +218,10 @@ export function RelayMeansPlacementModal({
                     availableEngines.map((engine) => {
                       const capacity = describeCapacity(engine);
                       return (
-                        <View key={`available-${engine.instanceId}`} style={styles.engineRow}>
+                        <View
+                          key={`available-${engine.instanceId}`}
+                          style={[styles.engineRow, isCompact && styles.engineRowCompact]}
+                        >
                           <View style={styles.engineMeta}>
                             <Body style={styles.engineTitle}>{engine.label}</Body>
                             <Caption>
@@ -186,6 +234,7 @@ export function RelayMeansPlacementModal({
                               title="Affecter"
                               size="sm"
                               onPress={() => onAssign(activeId, engine.instanceId)}
+                              style={isCompact ? styles.rowActionCompact : undefined}
                             />
                           ) : null}
                         </View>
@@ -197,8 +246,13 @@ export function RelayMeansPlacementModal({
             </>
           )}
 
-          <View style={styles.actionsRow}>
-            <Button title="Fermer" variant="outline" onPress={onClose} />
+          <View style={[styles.actionsRow, isCompact && styles.actionsRowCompact]}>
+            <Button
+              title="Fermer"
+              variant="outline"
+              onPress={onClose}
+              style={isCompact ? styles.footerActionCompact : undefined}
+            />
           </View>
         </Card>
       </View>
@@ -210,15 +264,15 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'center',
-    padding: Layout.spacing.lg,
+    alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
   modalCard: {
     gap: Layout.spacing.sm,
-    maxHeight: '88%',
+    width: '100%',
   },
   scroll: {
-    maxHeight: 420,
+    width: '100%',
   },
   scrollContent: {
     gap: Layout.spacing.sm,
@@ -231,11 +285,20 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.sm,
     gap: Layout.spacing.xs,
   },
+  segmentSelectorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Layout.spacing.xs,
+  },
   engineRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Layout.spacing.sm,
+  },
+  engineRowCompact: {
+    alignItems: 'stretch',
+    flexDirection: 'column',
   },
   engineMeta: {
     flex: 1,
@@ -244,7 +307,16 @@ const styles = StyleSheet.create({
   engineTitle: {
     fontWeight: '700',
   },
+  rowActionCompact: {
+    width: '100%',
+  },
   actionsRow: {
     alignItems: 'flex-end',
+  },
+  actionsRowCompact: {
+    alignItems: 'stretch',
+  },
+  footerActionCompact: {
+    width: '100%',
   },
 });

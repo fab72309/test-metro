@@ -56,4 +56,26 @@ describe('RelayMeansPlacementModal', () => {
     fireEvent.press(screen.getByText('Affecter'));
     expect(onAssign).toHaveBeenCalledWith('S2', 'fpt__2');
   });
+
+  it('permet de changer le tronçon cible depuis la popup', () => {
+    const screen = render(
+      <RelayMeansPlacementModal
+        visible
+        onClose={jest.fn()}
+        targetSegmentId={null}
+        segments={segments}
+        engines={engines}
+        workRatePercent={75}
+        jBarPerHm={1.2}
+        totalLengthM={1500}
+        assignments={{ S1: ['fpt__1'] }}
+        onAssign={jest.fn()}
+        onRemove={jest.fn()}
+      />
+    );
+
+    expect(screen.getByText('Tronçon cible: Tronçon 1')).toBeTruthy();
+    fireEvent.press(screen.getByText('Tronçon 2'));
+    expect(screen.getByText('Tronçon cible: Tronçon 2')).toBeTruthy();
+  });
 });

@@ -6,6 +6,15 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: 'v0.4.0-alpha',
+        date: '07/03/2026',
+        changes: [
+            '🚒 Relais: alertes opérationnelles reconnectées au déroulé des phases',
+            '📋 Ajout d’un récapitulatif opérationnel des moyens, tuyaux et consignes',
+            '📱 Optimisation mobile de la modale de placement des moyens',
+        ],
+    },
+    {
         version: 'v0.3.2-alpha',
         date: '22/11/2025',
         changes: [

@@ -41,7 +41,7 @@ export const ThemeProviderCustom = ({ children }: { children: ReactNode }) => {
   if (isLoading) {
     return (
       <View style={{flex:1, justifyContent:'center', alignItems:'center', height:'100%', backgroundColor: theme === 'dark' ? '#181A20' : '#fff'}}>
-        <ActivityIndicator size="large" color="#D32F2F" />
+        <ActivityIndicator size="large" color="#1976D2" />
       </View>
     );
   }

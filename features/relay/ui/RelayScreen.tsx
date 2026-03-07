@@ -16,18 +16,24 @@ import type { RelayMissionDuration, RelaySupplyMode, RelayWarning } from '@/feat
 import { parseNumber, validateRelayScenario } from '@/features/relay/engine/validate';
 import { useEngineCatalogStore } from '@/features/relay/store/engineCatalogStore';
 import { useRelayStore } from '@/features/relay/store/relayStore';
-import { PumpDetailsModal } from '@/features/relay/ui/PumpDetailsModal';
 import { RelayAbaqueCard } from '@/features/relay/ui/RelayAbaqueCard';
-import { RelayDiagramModal } from '@/features/relay/ui/RelayDiagramModal';
-import {
-  RelayMeansDistributionBoard,
-  type RelayDistributionEngine,
-} from '@/features/relay/ui/RelayMeansDistributionBoard';
 import { RelayMeansPlacementModal } from '@/features/relay/ui/RelayMeansPlacementModal';
 import { RelaySegmentsEditor } from '@/features/relay/ui/RelaySegmentsEditor';
+import type { RelayDistributionEngine } from '@/features/relay/ui/RelayMeansDistributionBoard';
+import {
+  buildRelaySegmentOperationalSummaries,
+  RELAY_MIN_INLET_BAR,
+  type RelayAssignedMeanSummary,
+  type RelaySegmentOperationalSummary,
+} from '@/features/relay/ui/relayOperational';
 import { formatNumber } from '@/utils/format';
 
 const keyboardTypeDec = Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'decimal-pad';
+
+function truncateLabels(labels: string[], limit = 3) {
+  if (labels.length <= limit) return labels.join(', ');
+  return `${labels.slice(0, limit).join(', ')} +${labels.length - limit}`;
+}
 
 function WarningList({ title, warnings }: { title: string; warnings: RelayWarning[] }) {
   if (warnings.length === 0) return null;
@@ -84,15 +90,11 @@ function CollapsibleCalcDetails({
 export default function RelayScreen() {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
-  const [diagramVisible, setDiagramVisible] = useState(false);
-  const [pumpDetailsVisible, setPumpDetailsVisible] = useState(false);
   const [phase3PlacementVisible, setPhase3PlacementVisible] = useState(false);
   const [placementSegmentId, setPlacementSegmentId] = useState<string | null>(null);
   const [engineListExpanded, setEngineListExpanded] = useState(true);
   const [phase1CalcExpanded, setPhase1CalcExpanded] = useState(false);
   const [phase2CalcExpanded, setPhase2CalcExpanded] = useState(false);
-  const [phase3CalcExpanded, setPhase3CalcExpanded] = useState(false);
-  const [enginePlacementMeters, setEnginePlacementMeters] = useState<Record<string, number>>({});
   const [segmentEngineAssignments, setSegmentEngineAssignments] = useState<Record<string, string[]>>({});
   const [phase1CalculatedSnapshot, setPhase1CalculatedSnapshot] = useState<{
     key: string;
@@ -105,6 +107,8 @@ export default function RelayScreen() {
     zTotalBar: number;
     targetOutletBar: number;
     requiredRefoulementBar: number;
+    sourceContributionBar: number;
+    residualPressureNeedBar: number;
     totalLengthM: number;
     totalElevationM: number;
   } | null>(null);
@@ -116,12 +120,10 @@ export default function RelayScreen() {
     loading,
     updateScenario,
     updateSource,
-    setPumpOverrides,
     setSegments,
     addSegment,
     removeSegment,
     updateSegment,
-    resetScenario,
   } = useRelayStore();
 
   const { models: engineCatalog, loading: engineCatalogLoading } = useEngineCatalogStore();
@@ -192,6 +194,14 @@ export default function RelayScreen() {
     () => computation?.prefTotalBar ?? pressureTotalNoElevation,
     [computation?.prefTotalBar, pressureTotalNoElevation]
   );
+  const sourceContributionBar = useMemo(
+    () => computation?.pressureSourceBar ?? Math.max(0, scenario.source.pressureEffectiveBar),
+    [computation?.pressureSourceBar, scenario.source.pressureEffectiveBar]
+  );
+  const residualPressureNeedBar = useMemo(
+    () => computation?.pressureNeededFromPumpsBar ?? Math.max(0, requiredRefoulementBar - sourceContributionBar),
+    [computation?.pressureNeededFromPumpsBar, requiredRefoulementBar, sourceContributionBar]
+  );
   const missionWorkRateRange = useMemo(
     () => (scenario.missionDuration === 'h1_2' ? { min: 70, max: 80 } : { min: 50, max: 60 }),
     [scenario.missionDuration]
@@ -221,8 +231,8 @@ export default function RelayScreen() {
     [availableEngineModels, scenario.availableEngineCounts, scenario.workRatePercent]
   );
   const availablePressureDeltaBar = useMemo(
-    () => totalAvailablePressureBar - requiredRefoulementBar,
-    [requiredRefoulementBar, totalAvailablePressureBar]
+    () => totalAvailablePressureBar - residualPressureNeedBar,
+    [residualPressureNeedBar, totalAvailablePressureBar]
   );
   const isAvailablePressureSufficient = availablePressureDeltaBar >= -0.01;
   const workRateRatio = scenario.workRatePercent / 100;
@@ -264,10 +274,7 @@ export default function RelayScreen() {
     [computation?.jLossBarPerHm, computation?.lineLossBar, totalLengthM]
   );
   const assignedMeansBySegment = useMemo(() => {
-    const next: Record<
-      string,
-      Array<{ instanceId: string; label: string; appliedPressureBar: number; dMaxM: number }>
-    > = {};
+    const next: Record<string, RelayAssignedMeanSummary[]> = {};
     scenario.segments.forEach((segment) => {
       const assignedIds = segmentEngineAssignments[segment.id] ?? [];
       next[segment.id] = assignedIds
@@ -275,83 +282,56 @@ export default function RelayScreen() {
           const engine = selectedEngineById[instanceId];
           if (!engine) return null;
           const appliedPressureBar = engine.nominalPressureBar * workRateRatio;
-          const transportBar = Math.max(0, appliedPressureBar - 1);
-          const dMaxM = jBarPerHmForPlacement > 0 ? (transportBar / jBarPerHmForPlacement) * 100 : totalLengthM;
           return {
             instanceId,
             label: engine.label,
+            nominalFlowLpm: engine.nominalFlowLpm,
+            nominalPressureBar: engine.nominalPressureBar,
             appliedPressureBar,
-            dMaxM,
           };
         })
-        .filter(
-          (
-            item
-          ): item is { instanceId: string; label: string; appliedPressureBar: number; dMaxM: number } =>
-            Boolean(item)
-        );
+        .filter((item): item is RelayAssignedMeanSummary => Boolean(item));
     });
     return next;
-  }, [jBarPerHmForPlacement, scenario.segments, segmentEngineAssignments, selectedEngineById, totalLengthM, workRateRatio]);
-  const selectedEnginePlacements = useMemo<RelayDistributionEngine[]>(
+  }, [scenario.segments, segmentEngineAssignments, selectedEngineById, workRateRatio]);
+  const segmentOperationalSummaries = useMemo(
     () =>
-      selectedEngineInstances.map((engine) => ({
-        ...engine,
-        positionM: enginePlacementMeters[engine.instanceId] ?? 0,
-      })),
-    [enginePlacementMeters, selectedEngineInstances]
+      buildRelaySegmentOperationalSummaries({
+        segments: scenario.segments,
+        assignedMeansBySegment,
+        hoseLengthM: scenario.hoseLengthM,
+        jBarPerHm: jBarPerHmForPlacement,
+        targetOutletBar: scenario.targetOutletBar,
+        demandFlowLpm,
+        minInletBar: RELAY_MIN_INLET_BAR,
+      }),
+    [
+      assignedMeansBySegment,
+      demandFlowLpm,
+      jBarPerHmForPlacement,
+      scenario.hoseLengthM,
+      scenario.segments,
+      scenario.targetOutletBar,
+    ]
   );
-  const sortedSelectedEnginePlacements = useMemo(
-    () => [...selectedEnginePlacements].sort((a, b) => a.positionM - b.positionM),
-    [selectedEnginePlacements]
-  );
-
-  useEffect(() => {
-    setEnginePlacementMeters((prev) => {
-      const placementLengthM = Math.max(totalLengthM, scenario.hoseLengthM);
-      const jBarPerHm =
-        placementLengthM > 0 ? ((computation?.lineLossBar ?? 0) / placementLengthM) * 100 : 0;
-      const count = selectedEngineInstances.length;
-      const next: Record<string, number> = {};
-
-      selectedEngineInstances.forEach((engine, index) => {
-        const existing = prev[engine.instanceId];
-        if (Number.isFinite(existing)) {
-          next[engine.instanceId] = Math.max(0, Math.min(existing, placementLengthM));
-          return;
-        }
-
-        let suggestedM = 0;
-        if (index > 0) {
-          const previousEngine = selectedEngineInstances[index - 1];
-          const previousPosition = next[previousEngine.instanceId] ?? 0;
-          const previousRefoulementBar =
-            (previousEngine.nominalPressureBar * scenario.workRatePercent) / 100;
-          const transportBar = Math.max(0, previousRefoulementBar - 1);
-          const dMaxM = jBarPerHm > 0 ? (transportBar / jBarPerHm) * 100 : placementLengthM;
-          suggestedM = previousPosition + dMaxM;
-        }
-        const fallbackEvenM = count > 0 ? ((index + 1) / (count + 1)) * placementLengthM : 0;
-        const baseM = Number.isFinite(suggestedM) && suggestedM > 0 ? suggestedM : fallbackEvenM;
-        const snappedM = Math.round(baseM / scenario.hoseLengthM) * scenario.hoseLengthM;
-        next[engine.instanceId] = Math.max(0, Math.min(snappedM, placementLengthM));
-      });
-
-      const prevKeys = Object.keys(prev);
-      const nextKeys = Object.keys(next);
-      const unchanged =
-        prevKeys.length === nextKeys.length &&
-        nextKeys.every((key) => prev[key] === next[key]);
-
-      return unchanged ? prev : next;
+  const segmentOperationalById = useMemo(() => {
+    const next: Record<string, RelaySegmentOperationalSummary> = {};
+    segmentOperationalSummaries.forEach((summary) => {
+      next[summary.segmentId] = summary;
     });
-  }, [
-    computation?.lineLossBar,
-    scenario.hoseLengthM,
-    scenario.workRatePercent,
-    selectedEngineInstances,
-    totalLengthM,
-  ]);
+    return next;
+  }, [segmentOperationalSummaries]);
+  const assignedEngineIds = useMemo(() => {
+    const used = new Set<string>();
+    Object.values(segmentEngineAssignments).forEach((instanceIds) => {
+      instanceIds.forEach((instanceId) => used.add(instanceId));
+    });
+    return used;
+  }, [segmentEngineAssignments]);
+  const reserveEngineInstances = useMemo(
+    () => selectedEngineInstances.filter((engine) => !assignedEngineIds.has(engine.instanceId)),
+    [assignedEngineIds, selectedEngineInstances]
+  );
 
   useEffect(() => {
     setSegmentEngineAssignments((prev) => {
@@ -501,16 +481,6 @@ export default function RelayScreen() {
     updateScenario({ availableEngineCounts: nextMap });
   };
 
-  const updateEnginePlacement = (instanceId: string, positionM: number) => {
-    setEnginePlacementMeters((prev) => {
-      if (prev[instanceId] === positionM) return prev;
-      return {
-        ...prev,
-        [instanceId]: positionM,
-      };
-    });
-  };
-
   const assignEngineToSegment = (segmentId: string, instanceId: string) => {
     setSegmentEngineAssignments((prev) => {
       const next: Record<string, string[]> = {};
@@ -551,7 +521,7 @@ export default function RelayScreen() {
     });
   };
 
-  const openPlacementForSegment = (segmentId: string) => {
+  const openPlacementForSegment = (segmentId: string | null = null) => {
     setPlacementSegmentId(segmentId);
     setPhase3PlacementVisible(true);
   };
@@ -616,11 +586,11 @@ export default function RelayScreen() {
     aspiration: 'Aspiration',
   };
 
-  const derivedWarnings = computation?.warnings ?? [];
   const formWarnings = validation.warnings;
   const effectiveJTotalBar = computation?.lineLossBar ?? 0;
   const effectiveJhmBar = jBarPerHmForPlacement;
   const effectiveZTotalBar = computation?.elevationLossBar ?? totalElevationM / 10;
+  const relayNeeded = computation?.relayNeeded ?? residualPressureNeedBar > 0.01;
   const phase1HoseSummary = scenario.useCustomHoseMix
     ? `${customHoseCount40} x 40 m + ${customHoseCount20} x 20 m`
     : `${autoHoseCount} x ${scenario.hoseLengthM} m (arrondi sup.)`;
@@ -639,6 +609,8 @@ export default function RelayScreen() {
     jhmBar: roundTwo(effectiveJhmBar),
     zTotalBar: roundTwo(effectiveZTotalBar),
     requiredRefoulementBar: roundTwo(requiredRefoulementBar),
+    sourceContributionBar: roundTwo(sourceContributionBar),
+    residualPressureNeedBar: roundTwo(residualPressureNeedBar),
   });
   const phase1CalcIsCurrent = phase1CalculatedSnapshot?.key === phase1CalcKey;
   const phase1Display = phase1CalculatedSnapshot;
@@ -655,10 +627,140 @@ export default function RelayScreen() {
       zTotalBar: effectiveZTotalBar,
       targetOutletBar: scenario.targetOutletBar,
       requiredRefoulementBar,
+      sourceContributionBar,
+      residualPressureNeedBar,
       totalLengthM,
       totalElevationM,
     });
   };
+  const processWarnings = (() => {
+    const warnings: RelayWarning[] = [];
+    const pushWarning = (code: string, message: string, level: RelayWarning['level']) => {
+      if (warnings.some((warning) => warning.code === code && warning.message === message)) return;
+      warnings.push({ code, message, level });
+    };
+
+    if (!phase1Display) {
+      pushWarning(
+        'phase1_pending',
+        'Phase 1 non figée: appuyer sur "Calculer" pour valider le besoin hydraulique.',
+        'info'
+      );
+    } else if (!phase1CalcIsCurrent) {
+      pushWarning(
+        'phase1_stale',
+        'Les données ont changé depuis le dernier calcul de phase 1. Recalcul requis avant engagement.',
+        'warning'
+      );
+    }
+
+    if (
+      scenario.source.mode === 'pi_direct' &&
+      scenario.source.qAt1BarLpm !== null &&
+      scenario.source.qAt1BarLpm !== undefined &&
+      scenario.source.qAt1BarLpm > 0 &&
+      scenario.source.qAt1BarLpm < demandFlowLpm
+    ) {
+      pushWarning(
+        'pi_q1bar_low_process',
+        `Q PI à 1 bar (${formatNumber(scenario.source.qAt1BarLpm)} L/min) inférieur au débit relais demandé.`,
+        'warning'
+      );
+    }
+
+    if ((scenario.source.aspirationHeightM ?? 0) > 7) {
+      pushWarning(
+        'aspiration_height_high_process',
+        `Hauteur d’aspiration élevée (${formatNumber(scenario.source.aspirationHeightM ?? 0)} m).`,
+        'warning'
+      );
+    }
+
+    if (relayNeeded) {
+      if (totalAvailableEngineCount <= 0) {
+        pushWarning(
+          'phase2_no_engines',
+          'Aucun engin sélectionné en phase 2 pour couvrir le besoin résiduel.',
+          'blocking'
+        );
+      } else if (!isAvailablePressureSufficient) {
+        pushWarning(
+          'phase2_pressure_insufficient',
+          `Phase 2 insuffisante: ${formatNumber(totalAvailablePressureBar)} bar disponibles pour ${formatNumber(residualPressureNeedBar)} bar requis.`,
+          'blocking'
+        );
+      }
+    } else {
+      pushWarning(
+        'relay_not_required',
+        `L’apport source couvre le besoin hydraulique (${formatNumber(sourceContributionBar)} bar pris en compte).`,
+        'info'
+      );
+    }
+
+    if (remainingLengthM > 0.01) {
+      pushWarning(
+        'phase3_length_remaining',
+        `Répartition incomplète: ${formatNumber(remainingLengthM)} m restent à ventiler en tronçons.`,
+        'warning'
+      );
+    } else if (remainingLengthM < -0.01) {
+      pushWarning(
+        'phase3_length_excess',
+        `Longueur de tronçons supérieure de ${formatNumber(Math.abs(remainingLengthM))} m à la longueur à traiter.`,
+        'warning'
+      );
+    }
+
+    const unassignedSegments = segmentOperationalSummaries
+      .filter((summary) => summary.assignedMeans.length === 0)
+      .map((summary) => summary.label);
+
+    if (relayNeeded && unassignedSegments.length > 0) {
+      pushWarning(
+        'phase3_unassigned_segments',
+        `Moyens non affectés sur: ${truncateLabels(unassignedSegments)}.`,
+        'warning'
+      );
+    }
+
+    const overloadedSegments = segmentOperationalSummaries.filter(
+      (summary) => summary.assignedMeans.length > 0 && !summary.isCovered
+    );
+
+    if (overloadedSegments.length > 0) {
+      if (overloadedSegments.length === 1) {
+        const summary = overloadedSegments[0];
+        pushWarning(
+          'phase3_segment_underpowered',
+          `${summary.label}: ${formatNumber(summary.availablePressureBar)} bar affectés pour ${formatNumber(summary.requiredPressureBar)} bar requis.`,
+          'blocking'
+        );
+      } else {
+        pushWarning(
+          'phase3_segments_underpowered',
+          `${overloadedSegments.length} tronçons insuffisamment couverts: ${truncateLabels(
+            overloadedSegments.map((summary) => summary.label)
+          )}.`,
+          'blocking'
+        );
+      }
+    }
+
+    const assignedFlowIncompatibles = segmentOperationalSummaries.flatMap((summary) =>
+      summary.assignedMeans.filter((mean) => !mean.flowCompatible).map((mean) => mean.label)
+    );
+
+    if (assignedFlowIncompatibles.length > 0) {
+      pushWarning(
+        'phase3_flow_incompatible',
+        `Débit nominal insuffisant pour: ${truncateLabels(assignedFlowIncompatibles)}. Débit relais demandé: ${formatNumber(demandFlowLpm)} L/min.`,
+        'blocking'
+      );
+    }
+
+    return warnings;
+  })();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
@@ -666,7 +768,7 @@ export default function RelayScreen() {
         <ScreenHeader title="Relais" icon="swap-horizontal" />
 
         <Card style={styles.section}>
-          <Title>Phase 1 - Débit total / Pression de refoulement nécessaire</Title>
+          <Title>Phase 1 - Besoin hydraulique</Title>
           <View style={styles.stepperRow}>
             <Input
               label="Nombre de lignes à établir"
@@ -917,6 +1019,152 @@ export default function RelayScreen() {
             />
           </View>
 
+          <View style={styles.sourceSection}>
+            <Label>Alimentation source</Label>
+            <Caption>L’apport source est déduit du besoin brut calculé en phase 1.</Caption>
+
+            <View style={styles.chipRow}>
+              {(Object.keys(sourceModeLabels) as RelaySupplyMode[]).map((mode) => (
+                <Chip
+                  key={mode}
+                  label={sourceModeLabels[mode]}
+                  selected={scenario.source.mode === mode}
+                  onPress={() => updateSource({ mode })}
+                />
+              ))}
+            </View>
+
+            <Input
+              label="Pression source effective (bar)"
+              value={getDraftValue('source.pressureEffectiveBar', String(scenario.source.pressureEffectiveBar))}
+              keyboardType={keyboardTypeDec}
+              onChangeText={(text) =>
+                handleRequiredDraftInput('source.pressureEffectiveBar', text, (num) => updateSource({ pressureEffectiveBar: num }), {
+                  min: 0,
+                })
+              }
+              onBlur={() =>
+                commitRequiredDraft('source.pressureEffectiveBar', (num) => updateSource({ pressureEffectiveBar: num }), {
+                  min: 0,
+                })
+              }
+              error={validation.errors['source.pressureEffectiveBar']}
+            />
+
+            {scenario.source.mode === 'pi_direct' && (
+              <View style={styles.inputRow}>
+                <Input
+                  label="Qmax PI (L/min)"
+                  value={getDraftValue('source.qMaxPiLpm', String(scenario.source.qMaxPiLpm ?? ''))}
+                  keyboardType={keyboardTypeDec}
+                  onChangeText={(text) =>
+                    handleOptionalDraftInput('source.qMaxPiLpm', text, (num) => updateSource({ qMaxPiLpm: num }), {
+                      min: 0,
+                    })
+                  }
+                  onBlur={() =>
+                    commitOptionalDraft('source.qMaxPiLpm', (num) => updateSource({ qMaxPiLpm: num }), {
+                      min: 0,
+                    })
+                  }
+                  error={validation.errors['source.qMaxPiLpm']}
+                  containerStyle={styles.inputCol}
+                />
+                <Input
+                  label="Q PI à 1 bar (L/min)"
+                  value={getDraftValue('source.qAt1BarLpm', String(scenario.source.qAt1BarLpm ?? ''))}
+                  keyboardType={keyboardTypeDec}
+                  onChangeText={(text) =>
+                    handleOptionalDraftInput('source.qAt1BarLpm', text, (num) => updateSource({ qAt1BarLpm: num }), {
+                      min: 0,
+                    })
+                  }
+                  onBlur={() =>
+                    commitOptionalDraft('source.qAt1BarLpm', (num) => updateSource({ qAt1BarLpm: num }), {
+                      min: 0,
+                    })
+                  }
+                  error={validation.errors['source.qAt1BarLpm']}
+                  containerStyle={styles.inputCol}
+                />
+              </View>
+            )}
+
+            {scenario.source.mode === 'pi_with_engine' && (
+              <Input
+                label="Pstatique PI (bar)"
+                value={getDraftValue('source.pStaticBar', String(scenario.source.pStaticBar ?? ''))}
+                keyboardType={keyboardTypeDec}
+                onChangeText={(text) =>
+                  handleOptionalDraftInput('source.pStaticBar', text, (num) => updateSource({ pStaticBar: num }), {
+                    min: 0,
+                  })
+                }
+                onBlur={() =>
+                  commitOptionalDraft('source.pStaticBar', (num) => updateSource({ pStaticBar: num }), {
+                    min: 0,
+                  })
+                }
+                error={validation.errors['source.pStaticBar']}
+              />
+            )}
+
+            {scenario.source.mode === 'aspiration' && (
+              <>
+                <Input
+                  label="Hauteur aspiration (m)"
+                  value={getDraftValue(
+                    'source.aspirationHeightM',
+                    String(scenario.source.aspirationHeightM ?? '')
+                  )}
+                  keyboardType={keyboardTypeDec}
+                  onChangeText={(text) =>
+                    handleOptionalDraftInput(
+                      'source.aspirationHeightM',
+                      text,
+                      (num) => updateSource({ aspirationHeightM: num }),
+                      { min: 0 }
+                    )
+                  }
+                  onBlur={() =>
+                    commitOptionalDraft('source.aspirationHeightM', (num) => updateSource({ aspirationHeightM: num }), {
+                      min: 0,
+                    })
+                  }
+                  error={validation.errors['source.aspirationHeightM']}
+                />
+                <View style={styles.inputRow}>
+                  <Input
+                    label="Volume réserve (m3)"
+                    value={getDraftValue('source.reserveVolumeM3', String(scenario.source.reserveVolumeM3 ?? ''))}
+                    keyboardType={keyboardTypeDec}
+                    onChangeText={(text) =>
+                      handleOptionalDraftInput(
+                        'source.reserveVolumeM3',
+                        text,
+                        (num) => updateSource({ reserveVolumeM3: num }),
+                        { min: 0 }
+                      )
+                    }
+                    onBlur={() =>
+                      commitOptionalDraft('source.reserveVolumeM3', (num) => updateSource({ reserveVolumeM3: num }), {
+                        min: 0,
+                      })
+                    }
+                    containerStyle={styles.inputCol}
+                  />
+                  <Input
+                    label="Réserve (texte)"
+                    value={scenario.source.reserveLabel ?? ''}
+                    onChangeText={(text) => updateSource({ reserveLabel: text })}
+                    containerStyle={styles.inputCol}
+                  />
+                </View>
+              </>
+            )}
+
+          </View>
+
           <Caption>
             Débit total auto: {formatNumber(demandFlowLpm)} L/min ({scenario.lineCount} ligne(s) x{' '}
             {formatNumber(scenario.flowPerLineLpm)} L/min)
@@ -933,7 +1181,7 @@ export default function RelayScreen() {
             />
             <Input
               label="Pression de refoulement nécessaire (bar)"
-              value={phase1Display ? formatNumber(phase1Display.requiredRefoulementBar) : ''}
+              value={phase1Display ? formatNumber(phase1Display.residualPressureNeedBar) : ''}
               editable={false}
               autoFilled
               labelMinHeight={42}
@@ -941,6 +1189,14 @@ export default function RelayScreen() {
               style={phase1CalcIsCurrent ? styles.phase1CalculatedResultText : undefined}
             />
           </View>
+          <Input
+            label="Apport source pris en compte (bar)"
+            value={phase1Display ? formatNumber(phase1Display.sourceContributionBar) : ''}
+            editable={false}
+            autoFilled
+            labelMinHeight={42}
+            containerStyle={styles.inputCol}
+          />
           <Caption style={phase1Display && phase1CalcIsCurrent ? styles.calcDetailsOk : undefined}>
             {phase1Display ? (phase1CalcIsCurrent ? 'Calcul validé' : 'Recalcul requis') : 'Appuyer sur Calculer'}
           </Caption>
@@ -982,10 +1238,15 @@ export default function RelayScreen() {
                 <Caption>
                   Z total = {formatNumber(phase1Display.totalElevationM)} / 10 = {formatNumber(phase1Display.zTotalBar)} bar
                 </Caption>
-                <Caption style={styles.calcDetailsFinal}>
-                  Pression de refoulement nécessaire = P point à alimenter + J total + Z total ={' '}
+                <Caption>
+                  Besoin brut = P point à alimenter + J total + Z total ={' '}
                   {formatNumber(phase1Display.targetOutletBar)} + {formatNumber(phase1Display.jTotalBar)} +{' '}
                   {formatNumber(phase1Display.zTotalBar)} = {formatNumber(phase1Display.requiredRefoulementBar)} bar
+                </Caption>
+                <Caption>Apport source pris en compte = {formatNumber(phase1Display.sourceContributionBar)} bar</Caption>
+                <Caption style={styles.calcDetailsFinal}>
+                  Pression de refoulement nécessaire = {formatNumber(phase1Display.requiredRefoulementBar)} -{' '}
+                  {formatNumber(phase1Display.sourceContributionBar)} = {formatNumber(phase1Display.residualPressureNeedBar)} bar
                 </Caption>
               </>
             )}
@@ -997,6 +1258,10 @@ export default function RelayScreen() {
           <Caption>
             Sélectionne les engins réellement disponibles, puis applique un profil mission et un %W
             doctrinal pour calculer la pression totale disponible.
+          </Caption>
+          <Caption>
+            Besoin brut: {formatNumber(requiredRefoulementBar)} bar | Apport source: {formatNumber(sourceContributionBar)} bar |
+            Besoin engins: {formatNumber(residualPressureNeedBar)} bar
           </Caption>
           <Label>Durée mission</Label>
           <View style={styles.chipRow}>
@@ -1097,8 +1362,8 @@ export default function RelayScreen() {
               containerStyle={styles.inputCol}
             />
             <Input
-              label="Pression de refoulement nécessaire (bar)"
-              value={formatNumber(requiredRefoulementBar)}
+              label="Besoin à fournir par les engins (bar)"
+              value={formatNumber(residualPressureNeedBar)}
               editable={false}
               autoFilled
               containerStyle={styles.inputCol}
@@ -1145,8 +1410,8 @@ export default function RelayScreen() {
               })
             )}
             <Caption style={styles.calcDetailsFinal}>
-              Pression totale disponible = {formatNumber(totalAvailablePressureBar)} bar | Besoin ={' '}
-              {formatNumber(requiredRefoulementBar)} bar | Écart = {availablePressureDeltaBar >= 0 ? '+' : ''}
+              Pression totale disponible = {formatNumber(totalAvailablePressureBar)} bar | Besoin résiduel ={' '}
+              {formatNumber(residualPressureNeedBar)} bar | Écart = {availablePressureDeltaBar >= 0 ? '+' : ''}
               {formatNumber(availablePressureDeltaBar)} bar
             </Caption>
           </CollapsibleCalcDetails>
@@ -1154,14 +1419,23 @@ export default function RelayScreen() {
 
         <Card style={styles.section}>
           <Title>Phase 3 - Répartition des moyens</Title>
+          <View style={styles.phase3ActionsRow}>
+            <Button
+              title="Placer un moyen"
+              size="sm"
+              onPress={() => openPlacementForSegment()}
+              disabled={scenario.segments.length === 0}
+            />
+          </View>
           <RelaySegmentsEditor
             segments={scenario.segments}
             onAdd={addSegment}
             onRemove={removeSegment}
             onUpdate={updateSegment}
             onOpenPlacement={openPlacementForSegment}
-            jBarPerHm={effectiveJhmBar}
+            workRatePercent={scenario.workRatePercent}
             assignedMeansBySegment={assignedMeansBySegment}
+            segmentOperationalById={segmentOperationalById}
           />
 
           <View style={styles.phase3LengthProgress}>
@@ -1178,305 +1452,99 @@ export default function RelayScreen() {
             </Caption>
           </View>
 
-          <View style={styles.chipRow}>
-            {(Object.keys(sourceModeLabels) as RelaySupplyMode[]).map((mode) => (
-              <Chip
-                key={mode}
-                label={sourceModeLabels[mode]}
-                selected={scenario.source.mode === mode}
-                onPress={() => updateSource({ mode })}
-              />
-            ))}
-          </View>
-
-          <Input
-            label="Pression source effective (bar)"
-            value={getDraftValue('source.pressureEffectiveBar', String(scenario.source.pressureEffectiveBar))}
-            keyboardType={keyboardTypeDec}
-            onChangeText={(text) =>
-              handleRequiredDraftInput('source.pressureEffectiveBar', text, (num) => updateSource({ pressureEffectiveBar: num }), {
-                min: 0,
-              })
-            }
-            onBlur={() =>
-              commitRequiredDraft('source.pressureEffectiveBar', (num) => updateSource({ pressureEffectiveBar: num }), {
-                min: 0,
-              })
-            }
-            error={validation.errors['source.pressureEffectiveBar']}
-          />
-
-          {scenario.source.mode === 'pi_direct' && (
-            <View style={styles.inputRow}>
-              <Input
-                label="Qmax PI (L/min)"
-                value={getDraftValue('source.qMaxPiLpm', String(scenario.source.qMaxPiLpm ?? ''))}
-                keyboardType={keyboardTypeDec}
-                onChangeText={(text) =>
-                  handleOptionalDraftInput('source.qMaxPiLpm', text, (num) => updateSource({ qMaxPiLpm: num }), {
-                    min: 0,
-                  })
-                }
-                onBlur={() =>
-                  commitOptionalDraft('source.qMaxPiLpm', (num) => updateSource({ qMaxPiLpm: num }), {
-                    min: 0,
-                  })
-                }
-                error={validation.errors['source.qMaxPiLpm']}
-                containerStyle={styles.inputCol}
-              />
-              <Input
-                label="Q PI à 1 bar (L/min)"
-                value={getDraftValue('source.qAt1BarLpm', String(scenario.source.qAt1BarLpm ?? ''))}
-                keyboardType={keyboardTypeDec}
-                onChangeText={(text) =>
-                  handleOptionalDraftInput('source.qAt1BarLpm', text, (num) => updateSource({ qAt1BarLpm: num }), {
-                    min: 0,
-                  })
-                }
-                onBlur={() =>
-                  commitOptionalDraft('source.qAt1BarLpm', (num) => updateSource({ qAt1BarLpm: num }), {
-                    min: 0,
-                  })
-                }
-                error={validation.errors['source.qAt1BarLpm']}
-                containerStyle={styles.inputCol}
-              />
-            </View>
-          )}
-
-          {scenario.source.mode === 'pi_with_engine' && (
-            <Input
-              label="Pstatique PI (bar)"
-              value={getDraftValue('source.pStaticBar', String(scenario.source.pStaticBar ?? ''))}
-              keyboardType={keyboardTypeDec}
-              onChangeText={(text) =>
-                handleOptionalDraftInput('source.pStaticBar', text, (num) => updateSource({ pStaticBar: num }), {
-                  min: 0,
-                })
-              }
-              onBlur={() =>
-                commitOptionalDraft('source.pStaticBar', (num) => updateSource({ pStaticBar: num }), {
-                  min: 0,
-                })
-              }
-              error={validation.errors['source.pStaticBar']}
-            />
-          )}
-
-          {scenario.source.mode === 'aspiration' && (
-            <>
-              <Input
-                label="Hauteur aspiration (m)"
-                value={getDraftValue(
-                  'source.aspirationHeightM',
-                  String(scenario.source.aspirationHeightM ?? '')
-                )}
-                keyboardType={keyboardTypeDec}
-                onChangeText={(text) =>
-                  handleOptionalDraftInput(
-                    'source.aspirationHeightM',
-                    text,
-                    (num) => updateSource({ aspirationHeightM: num }),
-                    { min: 0 }
-                  )
-                }
-                onBlur={() =>
-                  commitOptionalDraft('source.aspirationHeightM', (num) => updateSource({ aspirationHeightM: num }), {
-                    min: 0,
-                  })
-                }
-                error={validation.errors['source.aspirationHeightM']}
-              />
-              <View style={styles.inputRow}>
-                <Input
-                  label="Volume réserve (m3)"
-                  value={getDraftValue('source.reserveVolumeM3', String(scenario.source.reserveVolumeM3 ?? ''))}
-                  keyboardType={keyboardTypeDec}
-                  onChangeText={(text) =>
-                    handleOptionalDraftInput(
-                      'source.reserveVolumeM3',
-                      text,
-                      (num) => updateSource({ reserveVolumeM3: num }),
-                      { min: 0 }
-                    )
-                  }
-                  onBlur={() =>
-                    commitOptionalDraft('source.reserveVolumeM3', (num) => updateSource({ reserveVolumeM3: num }), {
-                      min: 0,
-                    })
-                  }
-                  containerStyle={styles.inputCol}
-                />
-                <Input
-                  label="Réserve (texte)"
-                  value={scenario.source.reserveLabel ?? ''}
-                  onChangeText={(text) => updateSource({ reserveLabel: text })}
-                  containerStyle={styles.inputCol}
-                />
-              </View>
-            </>
-          )}
-
-          <RelayMeansDistributionBoard
-            totalLengthM={totalLengthM}
-            hoseLengthM={scenario.hoseLengthM}
-            workRatePercent={scenario.workRatePercent}
-            flowPerLineLpm={scenario.flowPerLineLpm}
-            jLossTotalBar={computation?.lineLossBar ?? 0}
-            engines={selectedEnginePlacements}
-            onChangePositionM={updateEnginePlacement}
-          />
-
-          <CollapsibleCalcDetails
-            title="détail du calcul (phase 3)"
-            expanded={phase3CalcExpanded}
-            onToggle={() => setPhase3CalcExpanded((prev) => !prev)}
-          >
-            <Caption>
-              Base: J/hm = {formatNumber(effectiveJhmBar)} bar/hm | P mini entrée engin suivant = 1 bar
-            </Caption>
-            {sortedSelectedEnginePlacements.length === 0 ? (
-              <Caption>Aucun engin à répartir.</Caption>
-            ) : (
-              sortedSelectedEnginePlacements.map((engine, index) => {
-                const pRefApplied = engine.nominalPressureBar * workRateRatio;
-                const pTransport = Math.max(0, pRefApplied - 1);
-                const dMaxM = effectiveJhmBar > 0 ? (pTransport / effectiveJhmBar) * 100 : totalLengthM;
-                const next = sortedSelectedEnginePlacements[index + 1];
-                const gapM = next ? next.positionM - engine.positionM : null;
-                return (
-                  <View key={`phase3-detail-${engine.instanceId}`} style={styles.calcDetailRow}>
-                    <Caption>
-                      {engine.label}: Pr = {formatNumber(engine.nominalPressureBar)} x {formatNumber(workRateRatio)} ={' '}
-                      {formatNumber(pRefApplied)} bar
-                    </Caption>
-                    <Caption>
-                      P transport = {formatNumber(pRefApplied)} - 1 = {formatNumber(pTransport)} bar
-                    </Caption>
-                    <Caption>
-                      D max = ({formatNumber(pTransport)} / {formatNumber(effectiveJhmBar)}) x 100 = {formatNumber(dMaxM)} m
-                    </Caption>
-                    {gapM !== null ? (
-                      <Caption style={gapM <= dMaxM + 0.001 ? styles.calcDetailsOk : styles.calcDetailsKo}>
-                        Écart vers suivant = {formatNumber(gapM)} m ({gapM <= dMaxM + 0.001 ? 'OK' : 'dépassement'})
-                      </Caption>
-                    ) : null}
-                  </View>
-                );
-              })
-            )}
-          </CollapsibleCalcDetails>
         </Card>
 
         <Card style={styles.section}>
-          <Label>Engin de référence</Label>
-          <View style={styles.chipRow}>
-            {engineCatalog
-              .filter((model) => model.enabled)
-              .map((model) => (
-                <Chip
-                  key={model.id}
-                  label={model.label}
-                  selected={scenario.selectedEngineModelId === model.id}
-                  onPress={() => updateScenario({ selectedEngineModelId: model.id })}
-                />
-              ))}
+          <Title>Récapitulatif opérationnel</Title>
+          <Caption>
+            Consigne indicative = pression disponible au %W retenu sur chaque engin engagé.
+          </Caption>
+
+          <View style={styles.operationalOverview}>
+            <View style={styles.operationalOverviewItem}>
+              <Label>Débit relais</Label>
+              <Body style={styles.operationalMetricValue}>{formatNumber(demandFlowLpm)} L/min</Body>
+            </View>
+            <View style={styles.operationalOverviewItem}>
+              <Label>Longueur / tuyaux</Label>
+              <Body style={styles.operationalMetricValue}>{formatNumber(totalLengthM)} m</Body>
+              <Caption>{phase1HoseSummary}</Caption>
+            </View>
+            <View style={styles.operationalOverviewItem}>
+              <Label>Source / cible</Label>
+              <Body style={styles.operationalMetricValue}>
+                {formatNumber(sourceContributionBar)} bar / {formatNumber(scenario.targetOutletBar)} bar
+              </Body>
+            </View>
+            <View style={styles.operationalOverviewItem}>
+              <Label>Engagés / réserve</Label>
+              <Body style={styles.operationalMetricValue}>
+                {selectedEngineInstances.length - reserveEngineInstances.length} / {reserveEngineInstances.length}
+              </Body>
+            </View>
           </View>
 
-          <Input
-            label="Marge de consigne (bar)"
-            value={getDraftValue('pressureMarginBar', String(scenario.pressureMarginBar))}
-            keyboardType={keyboardTypeDec}
-            onChangeText={(text) =>
-              handleRequiredDraftInput('pressureMarginBar', text, (num) => updateScenario({ pressureMarginBar: num }), {
-                min: 0,
-              })
-            }
-            onBlur={() =>
-              commitRequiredDraft('pressureMarginBar', (num) => updateScenario({ pressureMarginBar: num }), {
-                min: 0,
-              })
-            }
-            error={validation.errors.pressureMarginBar}
-          />
+          <View style={styles.operationalBlock}>
+            <Label>Moyens à mettre en oeuvre</Label>
+            {segmentOperationalSummaries.map((summary) => (
+              <View key={`operational-${summary.segmentId}`} style={styles.operationalSegmentCard}>
+                <View style={styles.operationalSegmentHeader}>
+                  <Body style={styles.operationalSegmentTitle}>{summary.label}</Body>
+                  <Caption style={summary.isCovered ? styles.calcDetailsOk : styles.calcDetailsKo}>
+                    {summary.assignedMeans.length === 0
+                      ? 'Affectation requise'
+                      : summary.isCovered
+                        ? 'Couvert'
+                        : 'Insuffisant'}
+                  </Caption>
+                </View>
+                <Caption>
+                  {formatNumber(summary.lengthM)} m | {summary.hoseCount} tuyaux de {scenario.hoseLengthM} m |
+                  dénivelé {formatNumber(summary.elevationM)} m
+                </Caption>
+                <Caption>
+                  Besoin tronçon = J {formatNumber(summary.lineLossBar)} + Z {formatNumber(summary.elevationLossBar)} +{' '}
+                  {summary.isLastSegment ? 'cible' : 'aval'} {formatNumber(summary.downstreamTargetBar)} ={' '}
+                  {formatNumber(summary.requiredPressureBar)} bar
+                </Caption>
+                {summary.assignedMeans.length === 0 ? (
+                  <Caption>Aucun moyen affecté.</Caption>
+                ) : (
+                  summary.assignedMeans.map((mean) => (
+                    <Caption key={`operational-mean-${summary.segmentId}-${mean.instanceId}`}>
+                      • {mean.label}: consigne indicative {formatNumber(mean.appliedPressureBar)} bar, débit nominal{' '}
+                      {formatNumber(mean.nominalFlowLpm)} L/min, portée théorique {formatNumber(mean.maxReachM)} m
+                    </Caption>
+                  ))
+                )}
+                {summary.assignedMeans.length > 0 ? (
+                  <Caption style={summary.isCovered ? styles.calcDetailsOk : styles.calcDetailsKo}>
+                    Capacité affectée {formatNumber(summary.availablePressureBar)} bar | Écart{' '}
+                    {summary.deltaBar >= 0 ? '+' : ''}
+                    {formatNumber(summary.deltaBar)} bar
+                  </Caption>
+                ) : null}
+              </View>
+            ))}
+          </View>
 
-          <Button title="Réinitialiser scénario" variant="outline" onPress={resetScenario} />
+          <View style={styles.operationalBlock}>
+            <Label>Engins en réserve</Label>
+            {reserveEngineInstances.length === 0 ? (
+              <Caption>Aucun engin en réserve.</Caption>
+            ) : (
+              reserveEngineInstances.map((engine) => (
+                <Caption key={`reserve-${engine.instanceId}`}>
+                  • {engine.label} - {formatNumber(engine.nominalFlowLpm)} L/min - consigne indicative{' '}
+                  {formatNumber(engine.nominalPressureBar * workRateRatio)} bar
+                </Caption>
+              ))
+            )}
+          </View>
         </Card>
 
         {computation && (
           <>
-            <View style={styles.resultGrid}>
-              <Card variant="filled" animated={false} style={styles.resultCard}>
-                <Caption>Perte de charge totale</Caption>
-                <Title>{formatNumber(computation.lineLossBar)} bar</Title>
-              </Card>
-              <Card variant="filled" animated={false} style={styles.resultCard}>
-                <Caption>Perte due à la déclivité</Caption>
-                <Title>{formatNumber(computation.elevationLossBar)} bar</Title>
-              </Card>
-              <Card variant="filled" animated={false} style={styles.resultCard}>
-                <Caption>Pression totale requise</Caption>
-                <Title>{formatNumber(computation.prefTotalBar)} bar</Title>
-              </Card>
-              <Card variant="filled" animated={false} style={styles.resultCard}>
-                <Caption>Pression à la sortie</Caption>
-                <Title>{formatNumber(computation.outputPressureBar)} bar</Title>
-              </Card>
-              <Card variant="filled" animated={false} style={styles.resultCard}>
-                <Caption>Débit à la sortie</Caption>
-                <Title>{formatNumber(computation.outputFlowLpm)} L/min</Title>
-              </Card>
-              <Card variant="filled" animated={false} style={styles.resultCard}>
-                <Caption>Nombre de pompes</Caption>
-                <Title>{computation.pumpCount}</Title>
-              </Card>
-            </View>
-
-            <Card style={[styles.recommendationCard, { backgroundColor: '#C62828' }]}> 
-              <Title style={{ color: '#fff' }}>
-                {computation.relayNeeded
-                  ? `Relais recommandé : ${computation.pumpCount} pompe(s) ${computation.pumpModel.label}`
-                  : 'Relais non nécessaire (source suffisante)'}
-              </Title>
-              <Body style={{ color: '#fff' }}>
-                Espacement conseillé : {formatNumber(computation.recommendedSpacingM)} m
-              </Body>
-              <Body style={{ color: '#fff' }}>
-                Longueur totale : {formatNumber(totalLengthM)} m (
-                {scenario.useCustomHoseMix
-                  ? `${customHoseTotalCount} tuyaux personnalisés`
-                  : `${Math.ceil(totalLengthM / scenario.hoseLengthM)} tuyaux de ${scenario.hoseLengthM} m`}
-                )
-              </Body>
-
-              <View style={styles.recommendationActions}>
-                <Button title="Voir schéma" variant="secondary" onPress={() => setDiagramVisible(true)} />
-                <Button
-                  title="Voir / Modifier détails des pompes"
-                  variant="secondary"
-                  onPress={() => setPumpDetailsVisible(true)}
-                />
-              </View>
-            </Card>
-
-            <Card style={styles.section}>
-              <Title>Tableau opérationnel</Title>
-              {computation.pumps.map((pump) => (
-                <View key={pump.index} style={styles.tableRow}>
-                  <Body style={styles.tableCol}>P{pump.index}</Body>
-                  <Body style={styles.tableCol}>{formatNumber(pump.positionM)} m</Body>
-                  <Body style={styles.tableCol}>{pump.positionHoses} tuyaux</Body>
-                  <Body style={styles.tableCol}>{formatNumber(pump.setpointBar)} bar</Body>
-                  <Body style={styles.tableCol}>{formatNumber(pump.flowLpm)} L/min</Body>
-                </View>
-              ))}
-              <Caption>Colonnes: Pompe | Position | Tuyaux | Consigne | Débit</Caption>
-              <Caption>
-                %W: {formatNumber(computation.workRate * 100)}% - Jmoy: {formatNumber(computation.jmoyBarPerHm)} bar/hm
-              </Caption>
-            </Card>
-
             <RelayAbaqueCard
               visible={scenario.method === 'abaque'}
               abaque={computation.abaque}
@@ -1490,7 +1558,7 @@ export default function RelayScreen() {
         )}
 
         <WarningList title="Contrôles de saisie" warnings={formWarnings} />
-        <WarningList title="Alertes de calcul" warnings={derivedWarnings} />
+        <WarningList title="Alertes opérationnelles" warnings={processWarnings} />
       </ScrollView>
 
       <RelayMeansPlacementModal
@@ -1505,29 +1573,11 @@ export default function RelayScreen() {
         workRatePercent={scenario.workRatePercent}
         jBarPerHm={effectiveJhmBar}
         totalLengthM={Math.max(totalLengthM, scenario.hoseLengthM)}
+        targetOutletBar={scenario.targetOutletBar}
         assignments={segmentEngineAssignments}
         onAssign={assignEngineToSegment}
         onRemove={removeEngineFromSegment}
       />
-
-      {computation && (
-        <>
-          <RelayDiagramModal
-            visible={diagramVisible}
-            onClose={() => setDiagramVisible(false)}
-            schema={computation.schema}
-            totalLengthM={totalLengthM}
-            hoseLengthM={scenario.hoseLengthM}
-          />
-          <PumpDetailsModal
-            visible={pumpDetailsVisible}
-            onClose={() => setPumpDetailsVisible(false)}
-            pumps={computation.pumps}
-            pumpModel={computation.pumpModel}
-            onSave={setPumpOverrides}
-          />
-        </>
-      )}
     </SafeAreaView>
   );
 }
@@ -1642,12 +1692,64 @@ const styles = StyleSheet.create({
     padding: Layout.spacing.sm,
     gap: 2,
   },
+  operationalOverview: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Layout.spacing.sm,
+  },
+  operationalOverviewItem: {
+    flexGrow: 1,
+    flexBasis: 150,
+    borderRadius: Layout.radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(120,120,120,0.22)',
+    padding: Layout.spacing.sm,
+    gap: 2,
+  },
+  operationalMetricValue: {
+    fontWeight: '700',
+  },
+  operationalBlock: {
+    borderRadius: Layout.radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(120,120,120,0.22)',
+    padding: Layout.spacing.sm,
+    gap: Layout.spacing.xs,
+  },
+  operationalSegmentCard: {
+    borderRadius: Layout.radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(120,120,120,0.16)',
+    padding: Layout.spacing.sm,
+    gap: 4,
+    backgroundColor: 'rgba(15,20,26,0.04)',
+  },
+  operationalSegmentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Layout.spacing.sm,
+    flexWrap: 'wrap',
+  },
+  operationalSegmentTitle: {
+    fontWeight: '700',
+  },
+  sourceSection: {
+    marginTop: Layout.spacing.sm,
+    paddingTop: Layout.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(120,120,120,0.18)',
+    gap: Layout.spacing.sm,
+  },
   phase3LengthProgress: {
     borderRadius: Layout.radius.md,
     borderWidth: 1,
     borderColor: 'rgba(120,120,120,0.22)',
     padding: Layout.spacing.sm,
     gap: 2,
+  },
+  phase3ActionsRow: {
+    alignItems: 'flex-start',
   },
   capacityReportLabel: {
     marginTop: 2,
@@ -1690,10 +1792,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 2,
   },
-  calcDetailRow: {
-    gap: 2,
-    marginBottom: 4,
-  },
   calcDetailsOk: {
     color: '#2E7D32',
     fontWeight: '700',
@@ -1708,34 +1806,5 @@ const styles = StyleSheet.create({
   },
   phase1CalcButton: {
     marginTop: 4,
-  },
-  resultGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Layout.spacing.sm,
-  },
-  resultCard: {
-    width: '48%',
-    gap: Layout.spacing.xs,
-    marginVertical: 0,
-  },
-  recommendationCard: {
-    gap: Layout.spacing.sm,
-    marginVertical: 0,
-  },
-  recommendationActions: {
-    gap: Layout.spacing.sm,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(120,120,120,0.25)',
-    paddingVertical: Layout.spacing.xs,
-    gap: Layout.spacing.xs,
-  },
-  tableCol: {
-    flex: 1,
-    fontSize: 13,
   },
 });

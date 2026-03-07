@@ -15,34 +15,35 @@ export const Colors = {
     // Textes
     text: '#1A1D23',           // Noir profond (meilleur contraste que #11181C)
     secondaryText: '#5E656E',  // Gris moyen (meilleur lisibilité)
-    title: '#C62828',          // Rouge pompier légèrement assombri
+    title: '#1565C0',          // Bleu principal légèrement assombri
 
     // Boutons
-    button: '#D32F2F',         // Rouge pompier original
+    button: '#1976D2',         // Bleu principal
     buttonText: '#FFFFFF',
 
     // Bordures et séparateurs
     border: '#E1E4E8',         // Gris plus visible
 
     // États
-    error: '#C62828',          // Rouge cohérent avec title
+    error: '#1565C0',          // Bleu cohérent avec title
     success: '#2E7D32',        // Vert pour feedback positif
     warning: '#F57C00',        // Orange pour avertissements
 
     // Icônes
     icon: '#5E656E',
     tabIconDefault: '#8A9099',
-    tabIconSelected: '#D32F2F',
+    tabIconSelected: '#1976D2',
+    link: '#D32F2F',
 
     // Inputs
     inputBackground: '#F8F9FA', // Gris très clair pour inputs
     inputBorder: '#D1D5DB',     // Bordure input au repos
-    inputBorderFocus: '#D32F2F', // Bordure input en focus
+    inputBorderFocus: '#1976D2', // Bordure input en focus
 
     // Couleurs principales
-    primary: '#D32F2F',        // Rouge pompier
-    primaryLight: '#EF5350',   // Rouge clair pour hover
-    primaryDark: '#B71C1C',    // Rouge foncé pour pressed
+    primary: '#1976D2',        // Bleu principal
+    primaryLight: '#42A5F5',   // Bleu clair pour hover
+    primaryDark: '#0D47A1',    // Bleu foncé pour pressed
     accent: '#FFB300',         // Jaune doré (moins agressif que #FFD600)
 
     // Headers & surfaces
@@ -61,34 +62,35 @@ export const Colors = {
     // Textes (contrastes WCAG AA optimisés)
     text: '#E8EAED',           // Blanc cassé (meilleur que #ECEDEE)
     secondaryText: '#9AA0A6',  // Gris clair optimisé
-    title: '#FF6B6B',          // Rouge corail lumineux
+    title: '#64B5F6',          // Bleu lumineux
 
     // Boutons
-    button: '#EF5350',         // Rouge plus clair pour dark mode
+    button: '#64B5F6',         // Bleu plus clair pour dark mode
     buttonText: '#FFFFFF',
 
     // Bordures et séparateurs
     border: '#2D3139',         // Bordure subtile mais visible
 
     // États
-    error: '#FF6B6B',
+    error: '#64B5F6',
     success: '#66BB6A',        // Vert lumineux
     warning: '#FFA726',        // Orange lumineux
 
     // Icônes
     icon: '#9AA0A6',
     tabIconDefault: '#72787F',
-    tabIconSelected: '#FF6B6B',
+    tabIconSelected: '#64B5F6',
+    link: '#FF6B6B',
 
     // Inputs
     inputBackground: '#16181E', // Noir plus profond pour inputs
     inputBorder: '#2D3139',
-    inputBorderFocus: '#FF6B6B',
+    inputBorderFocus: '#64B5F6',
 
     // Couleurs principales
-    primary: '#FF6B6B',        // Rouge corail pour dark
-    primaryLight: '#FF8A80',   // Rouge très clair
-    primaryDark: '#EF5350',    // Rouge moyen
+    primary: '#64B5F6',        // Bleu clair pour dark
+    primaryLight: '#90CAF9',   // Bleu très clair
+    primaryDark: '#42A5F5',    // Bleu moyen
     accent: '#FFD54F',         // Jaune doux
 
     // Headers & surfaces

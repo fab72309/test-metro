@@ -232,7 +232,7 @@ function FHLIApproach() {
           <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>4 000L/min</Label>
           <Input
             containerStyle={{ marginBottom: 0 }}
-            style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
+            style={{ color: '#D32F2F', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon4000 === 'undefined' ? '0' : nbCanon4000}
             onChangeText={(t) => setNbCanon4000(t.length > 1 && t.startsWith('0') ? t.substring(1) : t)}
             keyboardType="numeric"
@@ -244,7 +244,7 @@ function FHLIApproach() {
           <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>2 000L/min</Label>
           <Input
             containerStyle={{ marginBottom: 0 }}
-            style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
+            style={{ color: '#D32F2F', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon2000 === 'undefined' ? '0' : nbCanon2000}
             onChangeText={(t) => setNbCanon2000(t.length > 1 && t.startsWith('0') ? t.substring(1) : t)}
             keyboardType="numeric"
@@ -256,7 +256,7 @@ function FHLIApproach() {
           <Label style={{ textAlign: 'center', fontSize: 12, marginBottom: 4 }}>1 000L/min</Label>
           <Input
             containerStyle={{ marginBottom: 0 }}
-            style={{ color: '#1976D2', fontWeight: 'bold', textAlign: 'center' }}
+            style={{ color: '#D32F2F', fontWeight: 'bold', textAlign: 'center' }}
             value={typeof nbCanon1000 === 'undefined' ? '0' : nbCanon1000}
             onChangeText={(t) => setNbCanon1000(t.length > 1 && t.startsWith('0') ? t.substring(1) : t)}
             keyboardType="numeric"
@@ -289,8 +289,8 @@ function FHLIApproach() {
           {/* Eau */}
           <Card variant="filled" style={{ backgroundColor: '#E1F5FE', borderColor: '#81D4FA' }}>
             <TouchableOpacity style={styles.row} onPress={() => setShowWDetails(v => !v)}>
-              <Title style={{ fontSize: 18, color: '#0277BD', marginBottom: 0 }}>Besoins en eau</Title>
-              <Ionicons name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#0277BD" />
+              <Title style={{ fontSize: 18, color: '#B71C1C', marginBottom: 0 }}>Besoins en eau</Title>
+              <Ionicons name={showWDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color="#B71C1C" />
             </TouchableOpacity>
 
             {!showWDetails && (
@@ -320,7 +320,7 @@ function FHLIApproach() {
                 </View>
 
                 <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: '#B3E5FC', paddingTop: 8 }}>
-                  <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#01579B' }}>Volume total eau : {formatNumber(waterTotalVolume)} L</Body>
+                  <Body style={{ fontSize: 16, fontWeight: 'bold', color: '#B71C1C' }}>Volume total eau : {formatNumber(waterTotalVolume)} L</Body>
                 </View>
               </View>
             )}
@@ -389,4 +389,3 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   resultValue: { color: '#000', fontSize: 14, marginBottom: 4 },
 });
-

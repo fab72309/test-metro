@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as Haptics from 'expo-haptics';
 import { triggerHaptic } from '@/utils/haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { Layout } from '@/constants/Layout';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -63,7 +64,7 @@ export function Button({
         if (disabled) return colors.border;
         switch (variant) {
             case 'primary': return colors.primary;
-            case 'secondary': return colors.card;
+            case 'secondary': return colors.surfaceVariant;
             case 'outline': return 'transparent';
             case 'ghost': return 'transparent';
             default: return colors.primary;
@@ -90,17 +91,17 @@ export function Button({
 
     const getPadding = () => {
         switch (size) {
-            case 'sm': return { paddingVertical: 6, paddingHorizontal: 12 };
-            case 'lg': return { paddingVertical: 14, paddingHorizontal: 24 };
-            default: return { paddingVertical: 10, paddingHorizontal: 16 };
+            case 'sm': return { paddingVertical: Layout.spacing.xs, paddingHorizontal: Layout.spacing.sm };
+            case 'lg': return { paddingVertical: Layout.spacing.md, paddingHorizontal: Layout.spacing.lg };
+            default: return { paddingVertical: Layout.spacing.sm, paddingHorizontal: Layout.spacing.md };
         }
     };
 
     const getFontSize = () => {
         switch (size) {
-            case 'sm': return 14;
-            case 'lg': return 18;
-            default: return 16;
+            case 'sm': return 15;
+            case 'lg': return 19;
+            default: return 17;
         }
     };
 
@@ -157,7 +158,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 12,
+        borderRadius: Layout.radius.md,
+        minHeight: Layout.sizes.controlHeight,
     },
     text: {
         fontWeight: '600',

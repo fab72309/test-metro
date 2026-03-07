@@ -3,6 +3,7 @@ import { StyleSheet, ViewProps, Platform } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import { Layout } from '@/constants/Layout';
 
 interface CardProps extends ViewProps {
     variant?: 'elevated' | 'outlined' | 'filled';
@@ -36,7 +37,7 @@ export function Card({ variant = 'elevated', animated = true, style, children, .
     });
 
     const getBackgroundColor = () => {
-        if (variant === 'filled') return colors.inputBackground;
+        if (variant === 'filled') return colors.surfaceVariant;
         return colors.card;
     };
 
@@ -109,8 +110,8 @@ export function Card({ variant = 'elevated', animated = true, style, children, .
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 16,
-        padding: 16,
-        marginVertical: 8,
+        borderRadius: Layout.radius.lg,
+        padding: Layout.spacing.lg,
+        marginVertical: Layout.spacing.sm,
     },
 });
