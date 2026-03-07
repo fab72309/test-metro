@@ -9,10 +9,8 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { Body, Caption, Title } from '@/components/ui/Typography';
 import { ExternalLink } from '@/components/ExternalLink';
 import { Colors } from '@/constants/Colors';
+import { PUBLIC_APP_CONFIG } from '@/constants/PublicAppConfig';
 import { useThemeContext } from '@/context/ThemeContext';
-
-const REPOSITORY_URL = 'https://github.com/fab72309/test-metro';
-const ISSUES_URL = 'https://github.com/fab72309/test-metro/issues';
 
 export default function SupportScreen() {
   const { theme } = useThemeContext();
@@ -37,18 +35,40 @@ export default function SupportScreen() {
 
           <Card animated={false}>
             <Title>Obtenir de l'aide</Title>
+            {PUBLIC_APP_CONFIG.supportEmailUrl ? (
+              <View style={styles.linkRow}>
+                <Ionicons name="mail-outline" size={18} color={palette.primary} />
+                <ExternalLink href={PUBLIC_APP_CONFIG.supportEmailUrl}>
+                  <Body style={[styles.linkText, { color: palette.primary }]}>
+                    {PUBLIC_APP_CONFIG.supportEmail}
+                  </Body>
+                </ExternalLink>
+              </View>
+            ) : null}
             <View style={styles.linkRow}>
               <Ionicons name="logo-github" size={18} color={palette.primary} />
-              <ExternalLink href={ISSUES_URL}>
-                <Body style={[styles.linkText, { color: palette.primary }]}>Ouvrir une demande sur GitHub Issues</Body>
+              <ExternalLink href={PUBLIC_APP_CONFIG.issuesUrl}>
+                <Body style={[styles.linkText, { color: palette.primary }]}>
+                  Ouvrir une demande sur GitHub Issues
+                </Body>
               </ExternalLink>
             </View>
             <View style={styles.linkRow}>
               <Ionicons name="link-outline" size={18} color={palette.primary} />
-              <ExternalLink href={REPOSITORY_URL}>
+              <ExternalLink href={PUBLIC_APP_CONFIG.repositoryUrl}>
                 <Body style={[styles.linkText, { color: palette.primary }]}>Consulter le dépôt du projet</Body>
               </ExternalLink>
             </View>
+            {PUBLIC_APP_CONFIG.supportPageUrl ? (
+              <View style={styles.linkRow}>
+                <Ionicons name="globe-outline" size={18} color={palette.primary} />
+                <ExternalLink href={PUBLIC_APP_CONFIG.supportPageUrl}>
+                  <Body style={[styles.linkText, { color: palette.primary }]}>
+                    URL publique de support
+                  </Body>
+                </ExternalLink>
+              </View>
+            ) : null}
           </Card>
 
           <Card animated={false} variant="outlined">

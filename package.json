@@ -10,6 +10,8 @@
     "web": "expo start --web",
     "build:web": "expo build:web",
     "export:web": "expo export --platform web --output-dir web-build",
+    "test:ci": "jest --runInBand --watchAll=false",
+    "release:check": "npm run lint && npm run test:ci && npm run export:web",
     "test": "jest --watchAll",
     "lint": "expo lint"
   },

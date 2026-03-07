@@ -45,6 +45,23 @@ See `CHANGELOG.md` for full details.
    npm run lint
    ```
 
+## Release setup
+
+Copie `.env.example` vers `.env.local` avant d'exporter le site public, puis renseigne:
+
+```bash
+EXPO_PUBLIC_SITE_URL=https://ton-site.netlify.app
+EXPO_PUBLIC_SUPPORT_EMAIL=ton-email-support@domaine.fr
+```
+
+Commandes utiles pour la release:
+
+```bash
+npm run test:ci
+npm run export:web
+npm run release:check
+```
+
 ## 📁 Project Structure
 
 ```
@@ -84,4 +101,5 @@ See `CHANGELOG.md` for full details.
 
 - Support public: route `/support` après export web
 - Politique de confidentialité: route `/privacy-policy` après export web
+- Variables publiques optionnelles: `.env.local` avec `EXPO_PUBLIC_SITE_URL` et `EXPO_PUBLIC_SUPPORT_EMAIL`
 - Guide de préparation: `RELEASE_TESTFLIGHT_APPSTORE.md`

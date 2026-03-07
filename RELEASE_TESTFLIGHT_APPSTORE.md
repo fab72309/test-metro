@@ -25,6 +25,13 @@
 
 Le projet exporte deja ces routes avec `npx expo export --platform web --output-dir web-build`.
 
+Avant le deploy web, copie `.env.example` vers `.env.local` et remplace au minimum:
+
+```bash
+EXPO_PUBLIC_SITE_URL=https://<votre-site-public>
+EXPO_PUBLIC_SUPPORT_EMAIL=<votre-email-support-public>
+```
+
 ## Ce que tu dois encore faire toi-meme
 
 ### Obligatoire avant envoi Apple
@@ -52,6 +59,9 @@ Le plus simple ici est Netlify, car le projet a deja [netlify.toml](/Users/fabie
 2. Lors de la creation du site:
    - Build command: `npx expo export --platform web --output-dir web-build`
    - Publish directory: `web-build`
+   - Variables d'environnement:
+     - `EXPO_PUBLIC_SITE_URL=https://<ton-site>.netlify.app`
+     - `EXPO_PUBLIC_SUPPORT_EMAIL=<ton-email-support-public>`
 3. Lance le deploy.
 4. Verifie ensuite:
    - `https://<ton-site>.netlify.app/support`
@@ -64,11 +74,17 @@ Depuis la racine du repo:
 
 ```bash
 npm run lint
-npx jest --runInBand --watchAll=false
-npx expo export --platform web --output-dir web-build
+npm run test:ci
+npm run export:web
 ```
 
 Ces commandes ont deja ete verifiees localement sur cette branche.
+
+Tu peux aussi tout verifier d'un coup avec:
+
+```bash
+npm run release:check
+```
 
 ### 3. Configurer Xcode pour l'archive
 

@@ -9,9 +9,8 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { Body, Caption, Title } from '@/components/ui/Typography';
 import { ExternalLink } from '@/components/ExternalLink';
 import { Colors } from '@/constants/Colors';
+import { PUBLIC_APP_CONFIG } from '@/constants/PublicAppConfig';
 import { useThemeContext } from '@/context/ThemeContext';
-
-const ISSUES_URL = 'https://github.com/fab72309/test-metro/issues';
 
 export default function PrivacyPolicyScreen() {
   const { theme } = useThemeContext();
@@ -53,14 +52,34 @@ export default function PrivacyPolicyScreen() {
 
           <Card animated={false} variant="outlined">
             <Title>Nous contacter</Title>
+            {PUBLIC_APP_CONFIG.supportEmailUrl ? (
+              <View style={[styles.linkRow, styles.topSpacing]}>
+                <Ionicons name="mail-outline" size={18} color={palette.primary} />
+                <ExternalLink href={PUBLIC_APP_CONFIG.supportEmailUrl}>
+                  <Body style={[styles.linkText, { color: palette.primary }]}>
+                    {PUBLIC_APP_CONFIG.supportEmail}
+                  </Body>
+                </ExternalLink>
+              </View>
+            ) : null}
             <View style={styles.linkRow}>
               <Ionicons name="logo-github" size={18} color={palette.primary} />
-              <ExternalLink href={ISSUES_URL}>
+              <ExternalLink href={PUBLIC_APP_CONFIG.issuesUrl}>
                 <Body style={[styles.linkText, { color: palette.primary }]}>
                   Contacter l'éditeur via GitHub Issues
                 </Body>
               </ExternalLink>
             </View>
+            {PUBLIC_APP_CONFIG.privacyPolicyPageUrl ? (
+              <View style={styles.linkRow}>
+                <Ionicons name="shield-checkmark-outline" size={18} color={palette.primary} />
+                <ExternalLink href={PUBLIC_APP_CONFIG.privacyPolicyPageUrl}>
+                  <Body style={[styles.linkText, { color: palette.primary }]}>
+                    URL publique de cette politique
+                  </Body>
+                </ExternalLink>
+              </View>
+            ) : null}
           </Card>
 
           <Caption style={[styles.updatedAt, { color: palette.secondaryText }]}>
@@ -84,6 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    marginTop: 12,
   },
   linkText: {
     marginBottom: 0,

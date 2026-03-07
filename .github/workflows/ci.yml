@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ work ]
+    branches: [ main, work ]
   pull_request:
 
 jobs:
@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm install
+      - run: npm ci
       - run: npm run lint
-      - run: npm test -- --runInBand
+      - run: npm run test:ci
+      - run: npm run export:web
