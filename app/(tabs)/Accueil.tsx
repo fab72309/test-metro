@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { useThemeContext } from '../../context/ThemeContext';
 import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { RELEASE_NOTES } from '../../constants/ReleaseNotes';
 
 export default function Accueil() {
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -15,6 +16,7 @@ export default function Accueil() {
   const { theme } = useThemeContext();
   const navigation = useNavigation();
   const palette = Colors[theme];
+  const currentRelease = RELEASE_NOTES[0];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
@@ -84,7 +86,7 @@ export default function Accueil() {
             size="lg"
           />
         </View>
-        <Caption style={[styles.versionText, { color: palette.text }]}>v0.4.1-alpha</Caption>
+        <Caption style={[styles.versionText, { color: palette.text }]}>{currentRelease.version}</Caption>
 
         {/* Menu rétractable */}
         <Modal
@@ -144,10 +146,10 @@ export default function Accueil() {
               </View>
               <Title style={[styles.modalTitle, { color: palette.text }]}>Avertissement</Title>
               <Body style={[styles.modalText, { color: palette.text }]}>
-                L'application Hydraulique Opérationnelle est conçue à des fins pédagogiques et de formation.{"\n"}
-                Elle ne doit en aucun cas être utilisée dans un contexte opérationnel réel.{"\n\n"}
-                Les résultats fournis sont basés sur des formules standards et ne remplacent ni l’analyse de terrain, ni l’expertise des intervenants.{"\n"}
-                Le créateur de l'application décline toute responsabilité en cas d'usage inapproprié, notamment en situation d'urgence ou lors d'une opération de secours.
+                Hydraulique Opérationnelle est une application de formation et d'aide au calcul.{"\n"}
+                Elle n'est pas conçue pour piloter une décision opérationnelle critique en intervention réelle.{"\n\n"}
+                Les résultats affichés sont fournis à titre indicatif et doivent toujours être confrontés aux procédures, aux consignes locales et à l'analyse de terrain.{"\n"}
+                L'éditeur décline toute responsabilité en cas d'usage hors de ce cadre pédagogique.
               </Body>
               <Button
                 title="J'ai compris !"

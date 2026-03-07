@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
-import { pertesDeChargeTable as pertesDeChargeTableDefault, Debit, Diametre } from '../../constants/pertesDeChargeTable';
+import { Debit, Diametre } from '../../constants/pertesDeChargeTable';
 import { usePertesDeChargeTable } from '../../context/PertesDeChargeTableContext';
 import { calculerPerteDeCharge } from '../../constants/calculPerteDeCharge';
 
@@ -17,7 +17,7 @@ import { Title, Body } from '@/components/ui/Typography';
 import { Card } from '@/components/ui/Card';
 
 export default function HomeScreen() {
-  const { table: pertesDeChargeTable } = usePertesDeChargeTable();
+  usePertesDeChargeTable();
   const { segments, addSegment, removeSegment, clearSegments } = useMemoSegments();
   const navigation = useNavigation();
   const { theme } = useThemeContext();

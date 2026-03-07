@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   DEFAULT_RELAY_DEFAULTS_V2,
   DEFAULT_RELAY_SCENARIO_V2,
@@ -27,11 +27,11 @@ type LegacyScenario = {
     pumpModelId?: string;
     maxPumps?: number;
   };
-  overrides?: Array<{
+  overrides?: {
     index: number;
     flowLpm?: number;
     setpointBar?: number;
-  }>;
+  }[];
 };
 
 function normalizeSelectedEngineModelId(rawId: unknown): string {
@@ -301,22 +301,22 @@ export function RelayProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const persistScenario = (updater: (prev: RelayScenarioV2) => RelayScenarioV2) => {
+  const persistScenario = useCallback((updater: (prev: RelayScenarioV2) => RelayScenarioV2) => {
     setScenario((prev) => {
       const next = updater(prev);
       AsyncStorage.setItem(SCENARIO_KEY, JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
-  const updateScenario = (patch: Partial<RelayScenarioV2>) => {
+  const updateScenario = useCallback((patch: Partial<RelayScenarioV2>) => {
     persistScenario((prev) => ({
       ...prev,
       ...patch,
     }));
-  };
+  }, [persistScenario]);
 
-  const updateSource = (patch: Partial<RelaySourceInputs>) => {
+  const updateSource = useCallback((patch: Partial<RelaySourceInputs>) => {
     persistScenario((prev) => ({
       ...prev,
       source: {
@@ -324,16 +324,16 @@ export function RelayProvider({ children }: { children: ReactNode }) {
         ...patch,
       },
     }));
-  };
+  }, [persistScenario]);
 
-  const setSegments = (segments: RelaySegmentInput[]) => {
+  const setSegments = useCallback((segments: RelaySegmentInput[]) => {
     persistScenario((prev) => ({
       ...prev,
       segments,
     }));
-  };
+  }, [persistScenario]);
 
-  const addSegment = () => {
+  const addSegment = useCallback(() => {
     persistScenario((prev) => {
       const nextIndex = prev.segments.length + 1;
       return {
@@ -348,9 +348,9 @@ export function RelayProvider({ children }: { children: ReactNode }) {
         ],
       };
     });
-  };
+  }, [persistScenario]);
 
-  const removeSegment = (id: string) => {
+  const removeSegment = useCallback((id: string) => {
     persistScenario((prev) => {
       if (prev.segments.length <= 1) return prev;
       return {
@@ -358,9 +358,9 @@ export function RelayProvider({ children }: { children: ReactNode }) {
         segments: prev.segments.filter((segment) => segment.id !== id),
       };
     });
-  };
+  }, [persistScenario]);
 
-  const updateSegment = (id: string, patch: Partial<RelaySegmentInput>) => {
+  const updateSegment = useCallback((id: string, patch: Partial<RelaySegmentInput>) => {
     persistScenario((prev) => ({
       ...prev,
       segments: prev.segments.map((segment) =>
@@ -372,28 +372,28 @@ export function RelayProvider({ children }: { children: ReactNode }) {
           : segment
       ),
     }));
-  };
+  }, [persistScenario]);
 
-  const setPumpOverrides = (pumpOverrides: RelayPumpOverrideV2[]) => {
+  const setPumpOverrides = useCallback((pumpOverrides: RelayPumpOverrideV2[]) => {
     persistScenario((prev) => ({
       ...prev,
       pumpOverrides,
     }));
-  };
+  }, [persistScenario]);
 
-  const updateDefaultSettings = (patch: Partial<RelayDefaultsV2>) => {
+  const updateDefaultSettings = useCallback((patch: Partial<RelayDefaultsV2>) => {
     setDefaults((prev) => {
       const next = normalizeDefaults({ ...prev, ...patch });
       AsyncStorage.setItem(DEFAULTS_KEY, JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
-  const resetScenario = () => {
+  const resetScenario = useCallback(() => {
     const next = buildScenarioFromDefaults(defaults);
     setScenario(next);
     AsyncStorage.setItem(SCENARIO_KEY, JSON.stringify(next));
-  };
+  }, [defaults]);
 
   const value = useMemo(
     () => ({
@@ -410,7 +410,20 @@ export function RelayProvider({ children }: { children: ReactNode }) {
       updateDefaultSettings,
       resetScenario,
     }),
-    [scenario, defaults, loading]
+    [
+      addSegment,
+      defaults,
+      loading,
+      removeSegment,
+      resetScenario,
+      scenario,
+      setPumpOverrides,
+      setSegments,
+      updateDefaultSettings,
+      updateScenario,
+      updateSegment,
+      updateSource,
+    ]
   );
 
   return <RelayContext.Provider value={value}>{children}</RelayContext.Provider>;

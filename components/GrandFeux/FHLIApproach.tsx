@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Chip } from '@/components/ui/Chip';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Title, Subtitle, Label, Body, Caption } from '@/components/ui/Typography';
+import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
 import { formatNumber } from '@/utils/format';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -43,7 +43,6 @@ function FHLIApproach() {
   const [showEmDetails, setShowEmDetails] = useState(false);
   const [showWDetails, setShowWDetails] = useState(false);
   const [showEmFullDetails, setShowEmFullDetails] = useState(false);
-  const [showWFullDetails, setShowWFullDetails] = useState(false);
 
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];

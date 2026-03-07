@@ -86,7 +86,7 @@ jest.mock('@/features/relay/store/engineCatalogStore', () => ({
 
 jest.mock('@/components/ui/ScreenHeader', () => ({
   ScreenHeader: ({ title }: { title: string }) => {
-    const { Text } = require('react-native');
+    const { Text } = jest.requireActual('react-native');
     return <Text>{title}</Text>;
   },
 }));

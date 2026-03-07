@@ -27,7 +27,7 @@ export function Card({ variant = 'elevated', animated = true, style, children, .
                 easing: Easing.out(Easing.quad),
             });
         }
-    }, []);
+    }, [animated, opacity, translateY]);
 
     const animatedStyle = useAnimatedStyle(() => {
         return {

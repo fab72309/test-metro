@@ -5,7 +5,6 @@ import {
     StyleSheet,
     ActivityIndicator,
     ViewStyle,
-    TextStyle,
     PressableProps,
     StyleProp,
 } from 'react-native';

@@ -83,7 +83,10 @@ export function RelayMeansPlacementModal({
     return next;
   }, [engines]);
 
-  const activeAssignments = activeId ? assignments[activeId] ?? [] : [];
+  const activeAssignments = useMemo(
+    () => (activeId ? assignments[activeId] ?? [] : []),
+    [activeId, assignments]
+  );
 
   const activeSegmentIndex = useMemo(
     () => segments.findIndex((segment) => segment.id === activeId),

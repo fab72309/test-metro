@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { useThemeContext } from '../../context/ThemeContext';
 import { Colors } from '../../constants/Colors';
 
@@ -16,12 +15,10 @@ import { formatNumber } from '@/utils/format';
 export default function DebitMaxPEI() {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
-  const navigation = useNavigation();
 
   const [pressionStatique, setPressionStatique] = useState('');
   const [pressionResiduelle, setPressionResiduelle] = useState('');
   const [debitRefoulement, setDebitRefoulement] = useState('');
-  const [resultat, setResultat] = useState('-');
   const [resultatArrondi, setResultatArrondi] = useState('-');
   const [resultatM3h, setResultatM3h] = useState('-');
   const [showDetails, setShowDetails] = useState(false);
@@ -42,7 +39,6 @@ export default function DebitMaxPEI() {
     if (
       isNaN(ps) || isNaN(pr) || isNaN(qUtil) || ps <= pr || ps <= 0 || qUtil <= 0
     ) {
-      setResultat('-');
       setResultatArrondi('-');
       setResultatM3h('-');
       setDetails({ ps: '', pr: '', pUtil: '', qUtil: '', qMax: '', qDispo: '' });
@@ -53,7 +49,6 @@ export default function DebitMaxPEI() {
     const qDispo = qMax - qUtil;
     const qDispoArrondi = Math.round(qDispo);
     const qDispoM3h = (qDispoArrondi * 0.06).toFixed(2);
-    setResultat(qDispo.toFixed(2));
     setResultatArrondi(qDispoArrondi.toString());
     setResultatM3h(qDispoM3h);
     setDetails({

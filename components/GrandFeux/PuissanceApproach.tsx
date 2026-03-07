@@ -5,7 +5,7 @@ import PropagationButtons from '../GrandFeuxCalculator_buttons_propagation';
 import { Input } from '@/components/ui/Input';
 import { Chip } from '@/components/ui/Chip';
 import { Card } from '@/components/ui/Card';
-import { Title, Subtitle, Label, Body, Caption } from '@/components/ui/Typography';
+import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Colors } from '@/constants/Colors';
 import { formatNumber } from '@/utils/format';
 import { useColorScheme } from '@/hooks/useColorScheme';

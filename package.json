@@ -1,7 +1,7 @@
 {
   "name": "test-metro",
   "main": "expo-router/entry",
-  "version": "0.4.1-alpha",
+  "version": "1.0.0",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -14,7 +14,10 @@
     "lint": "expo lint"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "~14.0.4",

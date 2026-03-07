@@ -1,13 +1,20 @@
 # Changelog
 
-## v0.4.1-alpha (2026-03-07)
+## v1.0.0 (2026-03-07)
+
+### Publication iOS
+- Préparation d'une première release iPhone pour TestFlight et App Store.
+- Clarification du positionnement pédagogique et du cadre d'usage dans l'application.
+- Ajout des pages publiques de support et de confidentialité pour l'export web.
+
+## v0.4.1 (2026-03-07)
 
 ### 🚒 Relais
 - **Alertes opérationnelles** : Les alertes sont désormais alignées sur le processus réel (phase 1, phase 2, phase 3) au lieu d’afficher des warnings théoriques isolés.
 - **Récapitulatif terrain** : Ajout d’une synthèse opérationnelle des moyens à engager avec consignes indicatives, nombre de tuyaux, pression requise et capacité affectée par tronçon.
 - **Cohérence hydraulique** : Harmonisation de la réserve aval entre la modale de placement et le contrôle de couverture des tronçons.
 
-## v0.3.2-alpha (2025-11-22)
+## v0.3.2 (2025-11-22)
 
 ### 🎨 Standardisation UI & Mode Sombre
 - **Boutons Uniformisés** : Remplacement de tous les boutons personnalisés par le composant `Button` standardisé (rouge primaire, outline, ghost).
@@ -21,7 +28,7 @@
 - **Débit Max PEI** : Correction de l'écran blanc causé par un export manquant.
 - **Navigation** : Amélioration de la cohérence visuelle des en-têtes.
 
-## v0.3.1-alpha (2025-11-22)
+## v0.3.1 (2025-11-22)
 
 ### 🔢 Formatage Uniforme des Nombres
 - **Nouvelle Fonction Utilitaire** : Création de `utils/format.ts` avec la fonction `formatNumber`
@@ -46,7 +53,7 @@
 ### 🐛 Corrections
 - **FHLI** : Correction de l'affichage des champs "Nombre de canons" qui étaient mal alignés sur certaines résolutions.
 
-## v0.3.0-alpha (2025-11-22)
+## v0.3.0 (2025-11-22)
 
 ### 🎨 Refonte Complète UI/UX
 - **Design System** : Création d'un système de composants réutilisables
@@ -100,35 +107,35 @@
 - Amélioration Input pour supporter icônes gauche/droite
 - Fix icône Ionicons dans `DebitMaxPEI` (opacity → water)
 
-## v0.2.0-alpha (2025-11-22)
+## v0.2.0 (2025-11-22)
 - **Refactoring Majeur** : Réécriture complète de la logique de `GrandFeuxCalculator` avec l'extraction du hook `useGrandFeuxCalculation`.
 - **Tests Unitaires** : Ajout de tests pour valider les calculs hydrauliques (offensive et propagation).
 - **Nettoyage de Code** : Suppression de fichiers dupliqués et correction de nombreux avertissements de linting (variables inutilisées, dépendances de hooks).
 - **Amélioration UI/UX** : Correction de bugs d'affichage et meilleure gestion des états dans les composants enfants.
 - **Configuration** : Mise à jour de la configuration ESLint et nettoyage du projet.
 
-## v0.1.4-alpha (2025-07-15)
+## v0.1.4 (2025-07-15)
 - Suppression d'un fichier en doublon dans `components/GrandFeux`.
 - Nettoyage des logs de debug dans `CalculPertesDeCharge`.
 - Ajout de tests Jest pour `calculerPerteDeCharge`.
 - Mise en place d'une CI GitHub Actions exécutant lint et tests.
 - Typage explicite du ref de `GrandsFeuxCalculator`.
 
-## v0.1.3-alpha (2025-05-11)
+## v0.1.3 (2025-05-11)
 - Correction : la pression à la lance est maintenant modifiable et persistante sur l’écran « Calcul établissement ».
 - Amélioration UX : possibilité de saisir une longueur de tuyau personnalisée sur l’écran « Pertes de charge » (champ visible sous les boutons, valeur affichée en rouge après le label).
 - Affichage de la version en bas de l’accueil mis à jour.
 - Diverses améliorations visuelles et correctifs mineurs.
 
-## v0.1.2-alpha (2025-05-04)
+## v0.1.2 (2025-05-04)
 - Amélioration des calculs FHLI
 - Améliorations visuelles mineures
 
-## v0.1.1-alpha
+## v0.1.1
 - Possibilité de modifier les valeurs par défaut dans les paramètres pour les fonctions « Pertes de charge » et « Calcul établissement ».
 - Ajout de menus dépliants pour afficher les résultats pour FHLI.
 
-## v0.1.0-alpha
+## v0.1.0
 - Ajout de la version sur l’écran d’accueil.
 - Ajout du disclaimer.
 - Remise en fonctionnement du bouton « Pertes de charge » de l’écran d’accueil qui ne fonctionnait plus.

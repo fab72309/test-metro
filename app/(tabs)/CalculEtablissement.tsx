@@ -28,7 +28,7 @@ export default function CalculEtablissement() {
     if (customPressions && customPressions.length > 1) {
       setPressionLance(customPressions[1]);
     }
-  }, []);
+  }, [customPressions, setPressionLance]);
 
   // Calculs
   const perteDeCharge = segments.reduce((acc, t) => acc + t.perte, 0);

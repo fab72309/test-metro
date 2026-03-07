@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, useMemo } from 'react';
+import React, { useImperativeHandle } from 'react';
 import { View, StyleSheet, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useGrandFeuxCalculation } from '@/hooks/useGrandFeuxCalculation';
 import { Card } from '@/components/ui/Card';
@@ -145,4 +145,3 @@ const styles = StyleSheet.create({
   card: { padding: 16, marginTop: 10 },
   tabContainer: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', marginVertical: 12 },
 });
-

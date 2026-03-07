@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_ENGINE_MODELS, type RelayEngineModelV2 } from '@/features/relay/engine/types';
 
 const STORAGE_KEY = 'relay.v2.engineCatalog';
@@ -120,22 +120,22 @@ export function EngineCatalogProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const persist = (updater: (prev: RelayEngineModelV2[]) => RelayEngineModelV2[]) => {
+  const persist = useCallback((updater: (prev: RelayEngineModelV2[]) => RelayEngineModelV2[]) => {
     setModelsState((prev) => {
       const next = updater(prev);
       AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       return next;
     });
-  };
+  }, []);
 
-  const addModel = (model: Omit<RelayEngineModelV2, 'id'>) => {
+  const addModel = useCallback((model: Omit<RelayEngineModelV2, 'id'>) => {
     persist((prev) => {
       const id = `${Date.now()}-${Math.round(Math.random() * 10000)}`;
       return [...prev, { ...model, id }];
     });
-  };
+  }, [persist]);
 
-  const updateModel = (id: string, patch: Partial<RelayEngineModelV2>) => {
+  const updateModel = useCallback((id: string, patch: Partial<RelayEngineModelV2>) => {
     persist((prev) => {
       const next = prev.map((model) => (model.id === id ? { ...model, ...patch } : model));
       if (!next.some((model) => model.enabled) && next.length > 0) {
@@ -143,9 +143,9 @@ export function EngineCatalogProvider({ children }: { children: ReactNode }) {
       }
       return next;
     });
-  };
+  }, [persist]);
 
-  const removeModel = (id: string) => {
+  const removeModel = useCallback((id: string) => {
     persist((prev) => {
       if (prev.length <= 1) return prev;
       const next = prev.filter((model) => model.id !== id);
@@ -154,18 +154,18 @@ export function EngineCatalogProvider({ children }: { children: ReactNode }) {
       }
       return next;
     });
-  };
+  }, [persist]);
 
-  const setModels = (nextModels: RelayEngineModelV2[]) => {
+  const setModels = useCallback((nextModels: RelayEngineModelV2[]) => {
     const normalized = normalizeModels(nextModels);
     setModelsState(normalized);
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-  };
+  }, []);
 
-  const resetModels = () => {
+  const resetModels = useCallback(() => {
     setModelsState(DEFAULT_ENGINE_MODELS);
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_ENGINE_MODELS));
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -177,7 +177,7 @@ export function EngineCatalogProvider({ children }: { children: ReactNode }) {
       setModels,
       resetModels,
     }),
-    [models, loading]
+    [addModel, loading, models, removeModel, resetModels, setModels, updateModel]
   );
 
   return <EngineCatalogContext.Provider value={value}>{children}</EngineCatalogContext.Provider>;

@@ -82,6 +82,25 @@ export default function Parametres() {
         </Card>
 
         <Card style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="help-circle-outline" size={20} color={palette.title} />
+            <Title style={{ marginBottom: 0, marginLeft: 8 }}>Support et confidentialité</Title>
+          </View>
+          <Body>Retrouvez les pages publiques destinées à la publication web et App Store.</Body>
+          <Button
+            title="Support"
+            onPress={() => router.push('/support')}
+            style={{ marginTop: 12 }}
+          />
+          <Button
+            title="Politique de confidentialité"
+            variant="outline"
+            onPress={() => router.push('/privacy-policy')}
+            style={{ marginTop: 12 }}
+          />
+        </Card>
+
+        <Card style={styles.section}>
           <TouchableOpacity style={styles.sectionHeader} onPress={() => setExpandedSections(prev => ({ ...prev, releaseNotes: !prev.releaseNotes }))}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="newspaper" size={20} color={palette.title} />

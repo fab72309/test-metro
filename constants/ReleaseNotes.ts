@@ -6,16 +6,16 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
     {
-        version: 'v0.4.1-alpha',
+        version: 'v1.0.0',
         date: '07/03/2026',
         changes: [
-            '🚒 Relais: alertes opérationnelles reconnectées au déroulé des phases',
-            '📋 Ajout d’un récapitulatif opérationnel des moyens, tuyaux et consignes',
-            '📱 Optimisation mobile de la modale de placement des moyens',
+            'Application préparée pour une première diffusion iPhone via TestFlight.',
+            'Positionnement pédagogique clarifié pour l’aide au calcul et la formation.',
+            'Ajout des pages publiques de support et de confidentialité pour la publication.',
         ],
     },
     {
-        version: 'v0.3.2-alpha',
+        version: 'v0.3.2',
         date: '22/11/2025',
         changes: [
             '🎨 Standardisation des boutons et du mode sombre',
@@ -24,7 +24,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
         ],
     },
     {
-        version: 'v0.3.1-alpha',
+        version: 'v0.3.1',
         date: '22/11/2025',
         changes: [
             '🔢 Formatage uniforme des nombres (1 000, 300, 12,5)',
@@ -33,7 +33,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
         ],
     },
     {
-        version: 'v0.3.0-alpha',
+        version: 'v0.3.0',
         date: '22/11/2025',
         changes: [
             '🎨 Refonte complète UI/UX (Design System)',
@@ -43,7 +43,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
         ],
     },
     {
-        version: 'v0.2.0-alpha',
+        version: 'v0.2.0',
         date: '22/11/2025',
         changes: [
             '🔧 Refactoring majeur du calculateur Grand Feux',
