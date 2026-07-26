@@ -44,6 +44,9 @@ ni la doctrine et les caractéristiques des matériels du service.
 - Une corruption du stockage local pouvait bloquer le chargement des valeurs
   personnalisées. Le fournisseur rétablit maintenant des valeurs sûres.
 - Les libellés de l’onglet mobile ont été raccourcis pour éviter leur troncature.
+- Les routes historiques sensibles à la casse ont été normalisées afin que les
+  accès directs et les rechargements fonctionnent après la normalisation des URL
+  par Netlify.
 
 ## Qualité, sécurité et maintenance
 

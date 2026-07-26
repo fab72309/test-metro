@@ -9,7 +9,7 @@ import { useRelayStore } from '@/features/relay/store/relayStore';
 import { useEngineCatalogStore } from '@/features/relay/store/engineCatalogStore';
 import type { RelayMissionDuration } from '@/features/relay/engine/types';
 
-export default function ValeursPerso() {
+export default function ValeursPersonnalisees() {
   const { colors, dark } = useTheme();
   const navigation = useNavigation();
   const { table: values, setTable: setValues, loading, customPressions, setCustomPressions, resetCustomPressions } = usePertesDeChargeTable();

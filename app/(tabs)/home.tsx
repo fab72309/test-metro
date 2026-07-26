@@ -9,6 +9,7 @@ import { useThemeContext } from '../../context/ThemeContext';
 import { Colors } from '../../constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { RELEASE_NOTES } from '../../constants/ReleaseNotes';
+import { router } from 'expo-router';
 
 export default function Accueil() {
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -57,31 +58,31 @@ export default function Accueil() {
         <View style={styles.buttonsContainer}>
           <Button
             title="Pertes de charges"
-            onPress={() => navigation.navigate('CalculPertesDeCharge' as never)}
+            onPress={() => navigation.navigate('calcul-pertes-de-charge' as never)}
             style={styles.button}
             size="lg"
           />
           <Button
-            title="Etablissement"
-            onPress={() => navigation.navigate('CalculEtablissement' as never)}
+            title="Établissement"
+            onPress={() => navigation.navigate('calcul-etablissement' as never)}
             style={styles.button}
             size="lg"
           />
           <Button
             title="Relais"
-            onPress={() => navigation.navigate('Relais' as never)}
+            onPress={() => navigation.navigate('pompage-relais' as never)}
             style={styles.button}
             size="lg"
           />
           <Button
             title="Capacité du PEI"
-            onPress={() => navigation.navigate('DebitMaxPEI' as never)}
+            onPress={() => navigation.navigate('capacite-pei' as never)}
             style={styles.button}
             size="lg"
           />
           <Button
             title="Liquides inflammables"
-            onPress={() => navigation.navigate('GrandsFeux' as never)}
+            onPress={() => navigation.navigate('liquides-inflammables' as never)}
             style={styles.button}
             size="lg"
           />
@@ -106,7 +107,7 @@ export default function Accueil() {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
-                  navigation.navigate('Parametres' as never);
+                  navigation.navigate('reglages' as never);
                 }}
               >
                 <Ionicons name="settings-outline" size={18} color={palette.text} style={styles.menuItemIcon} />
@@ -116,7 +117,7 @@ export default function Accueil() {
                 style={styles.menuItem}
                 onPress={() => {
                   setMenuVisible(false);
-                  navigation.navigate('ValeursPerso' as never);
+                  router.push('/valeurs-perso' as never);
                 }}
               >
                 <Ionicons name="options-outline" size={18} color={palette.text} style={styles.menuItemIcon} />

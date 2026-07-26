@@ -58,7 +58,7 @@ export default function Parametres() {
           />
           <Button
             title="Valeurs personnalisées"
-            onPress={() => router.push('/ValeursPerso')}
+            onPress={() => router.push('/valeurs-perso' as never)}
             style={{ marginTop: 12 }}
           />
         </Card>

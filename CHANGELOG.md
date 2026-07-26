@@ -14,6 +14,7 @@
 - Récupération sûre après corruption des valeurs personnalisées persistées.
 - Suppression des routes, composants et réglages inachevés hérités d’anciennes versions.
 - Suppression du faux sélecteur de langue et clarification des libellés de navigation.
+- Normalisation des routes web en minuscules et ajout de redirections depuis les anciennes URL pour garantir les accès directs sur Netlify.
 
 ### Qualité et publication
 - Ajout de tests unitaires PEI et mousse et renforcement des tests relais.

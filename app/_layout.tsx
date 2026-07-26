@@ -65,7 +65,7 @@ function InnerRootLayout() {
                 <View style={[styles.frame, isWeb && { width: frameWidth }]}>
                   <Stack>
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="ValeursPerso" options={{ title: 'Valeurs personnalisées' }} />
+                    <Stack.Screen name="valeurs-perso" options={{ title: 'Valeurs personnalisées' }} />
                     <Stack.Screen name="doctrine" options={{ title: 'Doctrine et limites' }} />
                     <Stack.Screen name="support" options={{ title: 'Support' }} />
                     <Stack.Screen name="privacy-policy" options={{ title: 'Politique de confidentialité' }} />

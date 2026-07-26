@@ -133,7 +133,7 @@ export default function CalculPertesDeCharge() {
           hasVisibleResults && isCompact && styles.scrollContentWithDockCompact,
         ]}
       >
-        <ScreenHeader title="Pertes de charges" icon="flame" />
+        <ScreenHeader title="Pertes de charge" icon="flame" />
 
         <Card variant="outlined" style={styles.section}>
           <Label style={{ color: palette.warning }}>Tableau à adapter au matériel</Label>
@@ -238,7 +238,7 @@ export default function CalculPertesDeCharge() {
               ))}
               <View style={styles.actionButtons}>
                 <Button title="Réinitialiser" onPress={handleReset} variant="ghost" />
-                <Button title="Calcul établissement" onPress={() => navigation.navigate('CalculEtablissement' as never)} />
+                <Button title="Calcul établissement" onPress={() => navigation.navigate('calcul-etablissement' as never)} />
               </View>
             </Card>
           )

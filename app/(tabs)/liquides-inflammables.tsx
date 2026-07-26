@@ -5,7 +5,7 @@ import { useThemeContext } from '../../context/ThemeContext';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { Colors } from '@/constants/Colors';
 
-export default function GrandsFeux() {
+export default function LiquidesInflammables() {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
 
