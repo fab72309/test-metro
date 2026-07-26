@@ -3,6 +3,46 @@
   publish = "web-build"
 
 [[redirects]]
+  from = "/Accueil"
+  to = "/home"
+  status = 301
+
+[[redirects]]
+  from = "/CalculPertesDeCharge"
+  to = "/calcul-pertes-de-charge"
+  status = 301
+
+[[redirects]]
+  from = "/CalculEtablissement"
+  to = "/calcul-etablissement"
+  status = 301
+
+[[redirects]]
+  from = "/DebitMaxPEI"
+  to = "/capacite-pei"
+  status = 301
+
+[[redirects]]
+  from = "/Relais"
+  to = "/pompage-relais"
+  status = 301
+
+[[redirects]]
+  from = "/GrandsFeux"
+  to = "/liquides-inflammables"
+  status = 301
+
+[[redirects]]
+  from = "/Parametres"
+  to = "/reglages"
+  status = 301
+
+[[redirects]]
+  from = "/ValeursPerso"
+  to = "/valeurs-perso"
+  status = 301
+
+[[redirects]]
   from = "/accueil"
   to = "/home"
   status = 301
