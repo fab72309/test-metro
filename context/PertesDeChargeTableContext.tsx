@@ -27,6 +27,14 @@ interface PertesDeChargeTableContextProps {
 
 const PertesDeChargeTableContext = createContext<PertesDeChargeTableContextProps | undefined>(undefined);
 
+function isFiniteNumberArray(value: unknown): value is number[] {
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((entry) => typeof entry === 'number' && Number.isFinite(entry))
+  );
+}
+
 export const usePertesDeChargeTable = () => {
   const ctx = useContext(PertesDeChargeTableContext);
   if (!ctx) throw new Error('usePertesDeChargeTable must be used within a PertesDeChargeTableProvider');
@@ -42,24 +50,45 @@ export const PertesDeChargeTableProvider = ({ children }: { children: ReactNode 
   // Charger depuis AsyncStorage au montage
   useEffect(() => {
     (async () => {
-      const saved = await AsyncStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setTableState(JSON.parse(saved));
-      } else {
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTable));
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') {
+            setTableState(parsed as PertesDeChargeTableType);
+          } else {
+            throw new Error('Table de pertes de charge invalide');
+          }
+        } else {
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTable));
+          setTableState(defaultTable);
+        }
+
+        const pl = await AsyncStorage.getItem(PRESSION_LANCE_KEY);
+        const parsedPressure = pl ? Number(pl) : PRESSION_LANCE_DEFAULT;
+        setPressionLanceState(
+          Number.isFinite(parsedPressure) && parsedPressure >= 0
+            ? parsedPressure
+            : PRESSION_LANCE_DEFAULT
+        );
+
+        const cp = await AsyncStorage.getItem(PRESSIONS_KEY);
+        const parsedPressures = cp ? JSON.parse(cp) : DEFAULT_PRESSIONS;
+        if (isFiniteNumberArray(parsedPressures)) {
+          setCustomPressionsState(parsedPressures);
+        } else {
+          throw new Error('Pressions rapides invalides');
+        }
+      } catch {
         setTableState(defaultTable);
-      }
-      // Charger pression lance personnalisée
-      const pl = await AsyncStorage.getItem(PRESSION_LANCE_KEY);
-      if (pl) setPressionLanceState(Number(pl));
-      // Charger tableau de pressions rapides personnalisées
-      const cp = await AsyncStorage.getItem(PRESSIONS_KEY);
-      if (cp) setCustomPressionsState(JSON.parse(cp));
-      else {
-        await AsyncStorage.setItem(PRESSIONS_KEY, JSON.stringify(DEFAULT_PRESSIONS));
+        setPressionLanceState(PRESSION_LANCE_DEFAULT);
         setCustomPressionsState(DEFAULT_PRESSIONS);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultTable));
+        await AsyncStorage.setItem(PRESSION_LANCE_KEY, PRESSION_LANCE_DEFAULT.toString());
+        await AsyncStorage.setItem(PRESSIONS_KEY, JSON.stringify(DEFAULT_PRESSIONS));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     })();
   }, []);
 
@@ -83,8 +112,9 @@ export const PertesDeChargeTableProvider = ({ children }: { children: ReactNode 
 
   // Ajout : setCustomPressions pour update groupé
   const setCustomPressions = (arr: number[]) => {
+    if (!isFiniteNumberArray(arr)) return;
     setCustomPressionsState(arr);
-    AsyncStorage.setItem(PRESSIONS_KEY, JSON.stringify(arr));
+    void AsyncStorage.setItem(PRESSIONS_KEY, JSON.stringify(arr));
   };
 
   const resetCustomPressions = () => {

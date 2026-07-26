@@ -18,6 +18,7 @@ import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { formatNumber } from '@/utils/format';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { router } from 'expo-router';
 
 type VisibleResultItem = {
   id: string;
@@ -133,6 +134,21 @@ export default function CalculPertesDeCharge() {
         ]}
       >
         <ScreenHeader title="Pertes de charges" icon="flame" />
+
+        <Card variant="outlined" style={styles.section}>
+          <Label style={{ color: palette.warning }}>Tableau à adapter au matériel</Label>
+          <Body>
+            Le calcul applique la valeur du tableau à la longueur établie. Les
+            valeurs initiales sont pédagogiques : vérifiez-les avec la doctrine
+            locale et les caractéristiques de vos tuyaux avant emploi.
+          </Body>
+          <Button
+            title="Voir les références et limites"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.push('/doctrine' as never)}
+          />
+        </Card>
 
         <Card style={styles.section}>
           <Label>Diamètre du tuyau (mm)</Label>

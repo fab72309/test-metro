@@ -24,9 +24,14 @@ export default function TabLayout() {
           tabBarInactiveTintColor: '#6B7280',
           tabBarShowLabel: true,
           tabBarLabelStyle: {
-            fontSize: 11,
+            fontSize: 9,
             fontWeight: '600',
             marginBottom: 2,
+            width: '100%',
+            textAlign: 'center',
+          },
+          tabBarItemStyle: {
+            minWidth: 0,
           },
           tabBarStyle: {
             height: 64,
@@ -51,7 +56,7 @@ export default function TabLayout() {
           name="CalculPertesDeCharge"
           component={CalculPertesDeCharge}
           options={{
-            title: 'Pertes de charges',
+            title: 'Pertes',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="water-pump" size={size ?? 26} color={color} />
             ),
@@ -61,7 +66,7 @@ export default function TabLayout() {
           name="CalculEtablissement"
           component={CalculEtablissement}
           options={{
-            title: 'Établissement',
+            title: 'Étab.',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="construct" size={size ?? 26} color={color} />
             ),
@@ -71,7 +76,7 @@ export default function TabLayout() {
           name="DebitMaxPEI"
           component={DebitMaxPEI}
           options={{
-            title: 'Débit max PEI',
+            title: 'PEI',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="speedometer" size={size ?? 26} color={color} />
             ),
@@ -91,7 +96,7 @@ export default function TabLayout() {
           name="GrandsFeux"
           component={GrandsFeux}
           options={{
-            title: 'Grands feux',
+            title: 'Mousse',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="fire" size={size ?? 26} color={color} />
             ),

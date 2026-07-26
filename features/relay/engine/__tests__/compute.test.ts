@@ -63,8 +63,8 @@ describe('relay compute v2', () => {
     expect(result.lineLossBar).toBeCloseTo(52.8, 1);
     expect(result.elevationLossBar).toBeCloseTo(0, 2);
     expect(result.prefTotalBar).toBeCloseTo(59.8, 1);
-    expect(result.pumpCount).toBe(4);
-    expect(result.workRate).toBeCloseTo(0.9967, 3);
+    expect(result.pumpCount).toBe(6);
+    expect(result.workRate).toBeCloseTo(0.6644, 3);
   });
 
   it('calcule correctement avec déclivité (+60m) sur table par défaut', () => {
@@ -82,8 +82,8 @@ describe('relay compute v2', () => {
     expect(result.lineLossBar).toBeCloseTo(7.6, 1);
     expect(result.elevationLossBar).toBeCloseTo(6, 1);
     expect(result.prefTotalBar).toBeCloseTo(13.6, 1);
-    expect(result.pumpCount).toBe(1);
-    expect(result.workRate).toBeCloseTo(0.9067, 2);
+    expect(result.pumpCount).toBe(2);
+    expect(result.workRate).toBeCloseTo(0.4533, 2);
   });
 
   it('monotonicité: débit up => pertes up', () => {
@@ -228,8 +228,39 @@ describe('relay compute v2', () => {
       DEFAULT_ENGINE_MODELS
     );
 
-    expect(result.pumps[0].recommendedBar).toBe(14);
+    expect(result.pumps[0].recommendedBar).toBe(7);
     expect(Number.isInteger(result.pumps[0].positionHoses)).toBe(true);
+  });
+
+  it('dimensionne le nombre de pompes avec le %W sélectionné', () => {
+    const atSeventyFive = computeRelay(
+      makeScenario({
+        workRatePercent: 75,
+        targetOutletBar: 7,
+        segments: [{ id: 'S1', lengthM: 3500, elevationM: 0 }],
+        flowPerLineLpm: 2000,
+      }),
+      DEFAULT_ENGINE_MODELS
+    );
+    const atFiftyFive = computeRelay(
+      makeScenario({
+        workRatePercent: 55,
+        targetOutletBar: 7,
+        segments: [{ id: 'S1', lengthM: 3500, elevationM: 0 }],
+        flowPerLineLpm: 2000,
+      }),
+      DEFAULT_ENGINE_MODELS
+    );
+
+    expect(atFiftyFive.pumpCount).toBeGreaterThan(atSeventyFive.pumpCount);
+    expect(atSeventyFive.workRate).toBeLessThanOrEqual(0.75);
+    expect(atFiftyFive.workRate).toBeLessThanOrEqual(0.55);
+  });
+
+  it('refuse un catalogue d’engins vide', () => {
+    expect(() => computeRelay(makeScenario({}), [])).toThrow(
+      'Aucun modèle d’engin-pompe disponible.'
+    );
   });
 
   it('détecte un dépassement de capacité bloquant', () => {

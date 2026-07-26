@@ -2,7 +2,7 @@
   "expo": {
     "name": "Hydraulique Opérationnelle",
     "slug": "test-metro",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -10,9 +10,11 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fabienlopes.testmetro"
+      "bundleIdentifier": "com.fabienlopes.testmetro",
+      "buildNumber": "4"
     },
     "android": {
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"

@@ -27,6 +27,7 @@ import {
   type RelaySegmentOperationalSummary,
 } from '@/features/relay/ui/relayOperational';
 import { formatNumber } from '@/utils/format';
+import { router } from 'expo-router';
 
 const keyboardTypeDec = Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'decimal-pad';
 
@@ -768,6 +769,22 @@ export default function RelayScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ScreenHeader title="Relais" icon="swap-horizontal" />
+
+        <Card variant="outlined" style={styles.section}>
+          <Label style={{ color: palette.warning }}>Référence source à confirmer</Label>
+          <Body>
+            Ce module est une aide pédagogique. Le document interne cité par
+            l’ancienne version n’est pas fourni dans le dépôt ; les résultats et
+            les pourcentages de travail doivent être validés selon la doctrine et
+            les engins de votre service.
+          </Body>
+          <Button
+            title="Voir les limites du calcul"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.push('/doctrine' as never)}
+          />
+        </Card>
 
         <Card style={styles.section}>
           <Title style={isCompactLayout ? styles.sectionTitleCompact : undefined}>Phase 1 - Besoin hydraulique</Title>

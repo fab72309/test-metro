@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, Modal, Switch, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +13,9 @@ import { Chip } from '@/components/ui/Chip';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { formatNumber } from '@/utils/format';
+import { calculerPerteDeCharge } from '@/constants/calculPerteDeCharge';
+import type { Debit, Diametre } from '@/constants/pertesDeChargeTable';
+import { router } from 'expo-router';
 
 const deniveaux = [-30, -20, -10, 0, 10, 20, 30];
 
@@ -21,14 +24,8 @@ export default function CalculEtablissement() {
   const palette = Colors[theme];
   const { segments, updateSegment, removeSegment } = useMemoSegments();
   const [denivele, setDenivele] = useState(0);
-  const { pressionLance, customPressions, setPressionLance } = usePertesDeChargeTable();
+  const { pressionLance, customPressions, setPressionLance, table } = usePertesDeChargeTable();
   const [pressionActive, setPressionActive] = useState(true);
-
-  useEffect(() => {
-    if (customPressions && customPressions.length > 1) {
-      setPressionLance(customPressions[1]);
-    }
-  }, [customPressions, setPressionLance]);
 
   // Calculs
   const perteDeCharge = segments.reduce((acc, t) => acc + t.perte, 0);
@@ -66,8 +63,21 @@ export default function CalculEtablissement() {
       setError('Valeur incorrecte');
       return;
     }
+    const recalculated = calculerPerteDeCharge(
+      edit.longueur,
+      edit.debit as Debit,
+      edit.diametre as Diametre,
+      table
+    );
+    if (recalculated.perteDeCharge === null) {
+      setError(recalculated.message ?? 'Configuration non disponible');
+      return;
+    }
     if (editIdx !== null) {
-      updateSegment(segments[editIdx].id, edit);
+      updateSegment(segments[editIdx].id, {
+        ...edit,
+        perte: recalculated.perteDeCharge,
+      });
     }
     setModalVisible(false);
   };
@@ -76,6 +86,24 @@ export default function CalculEtablissement() {
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ScreenHeader title="Calcul établissement" icon="calculator" />
+
+        <Card variant="outlined" style={styles.section}>
+          <Label style={{ color: palette.primary }}>Principe de calcul</Label>
+          <Body>
+            Pression cible = pertes régulières des tronçons + dénivelé (1 bar
+            pour 10 m) + pression nécessaire à l’organe hydraulique.
+          </Body>
+          <Caption>
+            Les pertes singulières et les prescriptions propres au matériel ne
+            sont pas ajoutées automatiquement.
+          </Caption>
+          <Button
+            title="Voir les références et limites"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.push('/doctrine' as never)}
+          />
+        </Card>
 
         {/* Tronçons mémorisés */}
         <Card style={styles.section}>

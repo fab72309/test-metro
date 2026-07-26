@@ -4,14 +4,14 @@
 
 - Nom public: `Hydraulique Opérationnelle`
 - Bundle ID: `com.fabienlopes.testmetro`
-- Version initiale: `1.0.0`
-- Build initial: `1`
+- Version courante: `1.1.0`
+- Build courant: `4`
 - Device scope: `iPhone only`
 - Positionnement: application de formation et d'aide au calcul
 
 ## Ce que Codex a deja prepare
 
-- Nom public et version release `1.0.0`
+- Nom public et version release `1.1.0`
 - Limitation iPhone only
 - Pages publiques `support` et `privacy-policy`
 - Suppression de l'ecran template Expo non pertinent
@@ -74,6 +74,7 @@ Depuis la racine du repo:
 
 ```bash
 npm run lint
+npm run typecheck
 npm run test:ci
 npm run export:web
 ```
@@ -96,8 +97,8 @@ npm run release:check
    - Verifie le `Bundle Identifier`: `com.fabienlopes.testmetro`
 4. Onglet `General`:
    - Display Name: `Hydraulique Opérationnelle`
-   - Version: `1.0.0`
-   - Build: `1` si c'est la premiere upload, sinon incremente
+   - Version: `1.1.0`
+   - Build: `4` ou une valeur supérieure si ce build a déjà été utilisé
    - Devices: `iPhone`
 5. Menu `Product > Scheme > Edit Scheme`:
    - Verifie que `Build configuration` pour `Archive` est `Release`
