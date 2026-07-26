@@ -1,145 +1,137 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useThemeContext } from '../../context/ThemeContext';
-import { Colors } from '../../constants/Colors';
+import { router } from 'expo-router';
 
-import { Card } from '@/components/ui/Card';
-import { Title, Label, Body, Caption } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { Body, Caption, Label, Title } from '@/components/ui/Typography';
+import { Colors } from '@/constants/Colors';
+import {
+  evaluatePeiCapacity,
+  type PeiCapacityResult,
+} from '@/constants/calculPei';
+import { useThemeContext } from '@/context/ThemeContext';
 import { formatNumber } from '@/utils/format';
+
+function parseFrenchNumber(value: string) {
+  return Number(value.trim().replace(',', '.'));
+}
 
 export default function DebitMaxPEI() {
   const { theme } = useThemeContext();
   const palette = Colors[theme];
+  const [measuredFlow, setMeasuredFlow] = useState('');
+  const [requiredFlow, setRequiredFlow] = useState('');
+  const [result, setResult] = useState<PeiCapacityResult | null>(null);
+  const [error, setError] = useState('');
 
-  const [pressionStatique, setPressionStatique] = useState('');
-  const [pressionResiduelle, setPressionResiduelle] = useState('');
-  const [debitRefoulement, setDebitRefoulement] = useState('');
-  const [resultatArrondi, setResultatArrondi] = useState('-');
-  const [resultatM3h, setResultatM3h] = useState('-');
-  const [showDetails, setShowDetails] = useState(false);
-  const [details, setDetails] = useState({
-    ps: '',
-    pr: '',
-    pUtil: '',
-    qUtil: '',
-    qMax: '',
-    qDispo: '',
-  });
-  const [infoVisible, setInfoVisible] = useState(false);
-
-  function handleCalcul() {
-    const ps = parseFloat(pressionStatique.replace(',', '.'));
-    const pr = parseFloat(pressionResiduelle.replace(',', '.'));
-    const qUtil = parseFloat(debitRefoulement.replace(',', '.'));
-    if (
-      isNaN(ps) || isNaN(pr) || isNaN(qUtil) || ps <= pr || ps <= 0 || qUtil <= 0
-    ) {
-      setResultatArrondi('-');
-      setResultatM3h('-');
-      setDetails({ ps: '', pr: '', pUtil: '', qUtil: '', qMax: '', qDispo: '' });
-      return;
+  const handleCalculate = () => {
+    try {
+      const next = evaluatePeiCapacity(
+        parseFrenchNumber(measuredFlow),
+        parseFrenchNumber(requiredFlow)
+      );
+      setResult(next);
+      setError('');
+    } catch (caught) {
+      setResult(null);
+      setError(caught instanceof Error ? caught.message : 'Valeurs invalides.');
     }
-    const pUtil = ps - pr;
-    const qMax = qUtil * Math.sqrt(ps / pUtil);
-    const qDispo = qMax - qUtil;
-    const qDispoArrondi = Math.round(qDispo);
-    const qDispoM3h = (qDispoArrondi * 0.06).toFixed(2);
-    setResultatArrondi(qDispoArrondi.toString());
-    setResultatM3h(qDispoM3h);
-    setDetails({
-      ps: ps.toString(),
-      pr: pr.toString(),
-      pUtil: pUtil.toFixed(2),
-      qUtil: qUtil.toString(),
-      qMax: qMax.toFixed(2),
-      qDispo: qDispo.toFixed(2),
-    });
-  }
+  };
+
+  const statusColor =
+    result?.status === 'sufficient' ? palette.success : palette.error;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <ScreenHeader title="Débit max du PEI" icon="water" />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <ScreenHeader title="Capacité du PEI" icon="water" />
+
+        <Card variant="outlined" style={styles.doctrineCard}>
+          <View style={styles.inline}>
+            <Ionicons name="shield-checkmark-outline" size={22} color={palette.primary} />
+            <Label style={{ color: palette.primary, marginBottom: 0 }}>
+              Méthode conforme au RDDECI des Yvelines
+            </Label>
+          </View>
+          <Body>
+            La capacité est appréciée à partir du débit réellement mesuré sous une
+            pression dynamique de 1 bar. L’application n’extrapole plus un débit
+            maximal théorique depuis les pressions statique et résiduelle.
+          </Body>
+          <Button
+            title="Consulter les références"
+            variant="ghost"
+            size="sm"
+            onPress={() => router.push('/doctrine' as never)}
+          />
+        </Card>
 
         <Card style={styles.card}>
           <Input
-            label="Pression statique (bar)"
-            placeholder="ex: 6.0"
-            value={pressionStatique}
-            onChangeText={setPressionStatique}
+            label="Débit mesuré à 1 bar (L/min)"
+            helperText="Valeur issue du contrôle ou de la fiche du PEI."
+            placeholder="Ex. 1200"
+            value={measuredFlow}
+            onChangeText={setMeasuredFlow}
             keyboardType="numeric"
             leftIcon={<Ionicons name="speedometer" size={20} color={palette.primary} />}
           />
           <Input
-            label="Pression résiduelle (bar)"
-            placeholder="ex: 2.5"
-            value={pressionResiduelle}
-            onChangeText={setPressionResiduelle}
+            label="Débit nécessaire pour l’opération (L/min)"
+            helperText="Besoin opérationnel déterminé par le dimensionnement retenu."
+            placeholder="Ex. 1000"
+            value={requiredFlow}
+            onChangeText={setRequiredFlow}
             keyboardType="numeric"
             leftIcon={<Ionicons name="water" size={20} color={palette.link} />}
-            containerStyle={{ marginTop: 12 }}
           />
-          <Input
-            label="Débit de refoulement (L/min)"
-            placeholder="ex: 500"
-            value={debitRefoulement}
-            onChangeText={setDebitRefoulement}
-            keyboardType="numeric"
-            leftIcon={<Ionicons name="swap-vertical" size={20} color={palette.primary} />}
-            containerStyle={{ marginTop: 12 }}
-          />
-
-          <Button title="Calculer" onPress={handleCalcul} style={{ marginTop: 24 }} />
+          {error ? <Caption style={{ color: palette.error }}>{error}</Caption> : null}
+          <Button title="Évaluer la capacité" onPress={handleCalculate} />
         </Card>
 
-        <Card variant="filled" style={styles.card}>
-          <View style={styles.resultHeader}>
-            <Label style={{ color: palette.primary }}>Débit disponible :</Label>
-            <TouchableOpacity onPress={() => setInfoVisible(true)}>
-              <Ionicons name="information-circle-outline" size={24} color={palette.link} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.resultBox}>
-            <Title>{formatNumber(resultatArrondi)} L/min</Title>
-            <Caption>({formatNumber(resultatM3h)} m³/h)</Caption>
-          </View>
-        </Card>
-
-        <TouchableOpacity style={styles.detailsToggle} onPress={() => setShowDetails((v) => !v)}>
-          <Ionicons name={showDetails ? "chevron-up-outline" : "chevron-down-outline"} size={20} color={palette.link} />
-          <Body style={{ color: palette.link, fontWeight: 'bold', marginLeft: 4 }}>
-            {showDetails ? "Masquer les détails" : "Voir le détail du calcul"}
-          </Body>
-        </TouchableOpacity>
-
-        {showDetails && (
-          <Card style={styles.detailsBox}>
-            <View style={styles.detailRow}><Label>Pression statique :</Label><Body>{formatNumber(details.ps)} bar</Body></View>
-            <View style={styles.detailRow}><Label>Pression résiduelle :</Label><Body>{formatNumber(details.pr)} bar</Body></View>
-            <View style={styles.detailRow}><Label>Pression utilisée :</Label><Body>{formatNumber(details.pUtil)} bar</Body></View>
-            <View style={styles.detailRow}><Label>Débit utilisé :</Label><Body>{formatNumber(details.qUtil)} L/min</Body></View>
-            <View style={styles.detailRow}><Label>Q max :</Label><Body>{formatNumber(details.qMax)} L/min</Body></View>
-            <View style={styles.detailRow}><Label>Débit disponible :</Label><Body>{formatNumber(details.qDispo)} L/min</Body></View>
+        {result ? (
+          <Card variant="filled" style={[styles.card, { borderLeftColor: statusColor }]}>
+            <Title style={{ color: statusColor }}>
+              {result.status === 'sufficient' ? 'Capacité suffisante' : 'Capacité insuffisante'}
+            </Title>
+            <View style={styles.resultRow}>
+              <Body>Débit mesuré :</Body>
+              <Label>{formatNumber(result.measuredAtOneBarLpm)} L/min</Label>
+            </View>
+            <View style={styles.resultRow}>
+              <Body>Besoin retenu :</Body>
+              <Label>{formatNumber(result.requiredFlowLpm)} L/min</Label>
+            </View>
+            <View style={styles.resultRow}>
+              <Body>{result.marginLpm >= 0 ? 'Marge :' : 'Déficit :'}</Body>
+              <Label style={{ color: statusColor }}>
+                {formatNumber(Math.abs(result.marginLpm))} L/min
+              </Label>
+            </View>
+            <View style={styles.resultRow}>
+              <Body>Couverture du besoin :</Body>
+              <Label>{formatNumber(result.coveragePercent)} %</Label>
+            </View>
+            <Caption>
+              Mesure : {formatNumber(result.measuredAtOneBarM3h)} m³/h · Besoin :{' '}
+              {formatNumber(result.requiredFlowM3h)} m³/h
+            </Caption>
           </Card>
-        )}
+        ) : null}
 
-        <Modal visible={infoVisible} transparent animationType="fade" onRequestClose={() => setInfoVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <Card style={styles.modalContent}>
-              <Title style={{ color: palette.link, marginBottom: 10 }}>Débit disponible</Title>
-              <Body style={{ textAlign: 'center', marginBottom: 18 }}>
-                Cette valeur correspond au débit supplémentaire que l’hydrant peut fournir, en plus du débit actuellement utilisé, dans les conditions de pression mesurées.
-              </Body>
-              <Button title="Fermer" onPress={() => setInfoVisible(false)} />
-            </Card>
-          </View>
-        </Modal>
-
+        <Caption>
+          Aide au dimensionnement uniquement : les données du PEI, les prescriptions
+          du règlement départemental et la reconnaissance opérationnelle restent
+          prioritaires.
+        </Caption>
       </ScrollView>
     </SafeAreaView>
   );
@@ -148,13 +140,14 @@ export default function DebitMaxPEI() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 32 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  card: { marginBottom: 16 },
-  resultHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  resultBox: { alignItems: 'center' },
-  detailsToggle: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  detailsBox: { gap: 4 },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-  modalContent: { alignItems: 'center' },
+  card: { marginBottom: 16, borderLeftWidth: 4 },
+  doctrineCard: { marginBottom: 16, gap: 10 },
+  inline: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  resultRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 5,
+  },
 });

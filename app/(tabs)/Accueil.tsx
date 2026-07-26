@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Modal, Platform, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/Button';
@@ -74,13 +74,13 @@ export default function Accueil() {
             size="lg"
           />
           <Button
-            title="Débit max du PEI"
+            title="Capacité du PEI"
             onPress={() => navigation.navigate('DebitMaxPEI' as never)}
             style={styles.button}
             size="lg"
           />
           <Button
-            title="Grands feux"
+            title="Liquides inflammables"
             onPress={() => navigation.navigate('GrandsFeux' as never)}
             style={styles.button}
             size="lg"
@@ -227,10 +227,16 @@ const styles = StyleSheet.create({
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 1 },
+      },
+      android: { elevation: 2 },
+      web: { boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)' },
+    }),
   },
   menuIconCircle: {
     backgroundColor: '#e0e0e0',
@@ -239,10 +245,16 @@ const styles = StyleSheet.create({
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 1 },
+      },
+      android: { elevation: 2 },
+      web: { boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)' },
+    }),
   },
   infoIconText: {
     color: '#1976D2',

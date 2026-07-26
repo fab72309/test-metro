@@ -4,14 +4,15 @@ Application mobile et web d'aide au calcul hydraulique pour la formation et la p
 
 ## Version
 
-Current release: **v1.0.0**  
+Current release: **v1.1.0**
 See `CHANGELOG.md` for full details.
 
-## Highlights v1.0.0
+## Highlights v1.1.0
 
-- Préparation de la première release iPhone pour TestFlight et App Store.
-- Positionnement pédagogique explicite pour la formation et l'aide au calcul.
-- Pages publiques de support et de confidentialité prêtes pour un hébergement statique.
+- Capacité des PEI évaluée à partir du débit mesuré à 1 bar.
+- Dimensionnement mousse fondé sur les taux minimaux officiels applicables.
+- Traçabilité des sources, limites et niveaux de vérification dans l’application.
+- Correction des calculs d’établissement et de relais, suppression du code hérité.
 
 ## Get started
 
@@ -36,13 +37,19 @@ See `CHANGELOG.md` for full details.
 3. **Run tests**
 
    ```bash
-   npm test
+   npm run test:ci
    ```
 
 4. **Lint code**
 
    ```bash
    npm run lint
+   ```
+
+5. **Verify types**
+
+   ```bash
+   npm run typecheck
    ```
 
 ## Release setup
@@ -79,7 +86,9 @@ npm run release:check
 
 ## 🎯 Features
 
-- ✅ **Calculs Hydrauliques** : Pertes de charge, grands feux, débit max PEI
+- ✅ **Calculs hydrauliques** : pertes de charge, établissement, capacité PEI et relais
+- ✅ **Liquides inflammables** : besoins en solution moussante dans le périmètre ICPE documenté
+- ✅ **Traçabilité** : sources officielles et limites accessibles depuis l’application
 - ✅ **Mode Sombre** : OLED-optimisé avec synchronisation cross-platform
 - ✅ **Animations** : Micro-animations fluides (haptics + spring)
 - ✅ **Responsive** : Fonctionne sur mobile et web
@@ -89,10 +98,10 @@ npm run release:check
 
 ## Module Relais (pompage en relais)
 
-- **Méthodes** : `math` (fiche p.10), `approximation`, `abaque guidé`.
+- **Méthodes** : calcul détaillé, approximation, abaque guidé.
 - **Entrées V2** : tronçons longueur/dénivelé, débit, pression cible, diamètre 70/110, mode source (PI direct / PI+engin / aspiration), catalogue engins.
 - **Pertes de charge** : interpolation par loi `Q²` sur `pertesDeChargeTable`, puis calcul des pertes régulières + dénivelé.
-- **Doctrine intégrée** : `%W` recommandé selon durée mission (1-2h: 70-80%, 4-6h: 50-60%), arrondi pression demi/unité supérieure, tuyaux arrondis inférieur.
+- **Limite** : la référence historique du module n’est pas fournie dans le dépôt. Les résultats et les plages de `%W` doivent être validés selon la doctrine locale.
 - **Sorties** : nombre de pompes, tableau opérationnel par engin (position m+tuyaux, consigne, débit), alertes bloquantes/non bloquantes, schéma linéaire, abaque.
 - **Personnalisation** : catalogue engins persistant (CRUD) dans `Valeurs personnalisées`, presets initiaux `2000/15`, `1000/15`, `2000/10`.
 - **Persistance** : `relay.v2.scenario`, `relay.v2.defaults`, `relay.v2.engineCatalog` avec migration automatique depuis `relay.scenario`.

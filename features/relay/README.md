@@ -1,9 +1,12 @@
 # Module Relais V2
 
 ## Référentiel
-- Document source: *Méthodes de calcul des relais (GFNRBC / ER-MK, 06/09/2014)*.
+- Référence historique citée par l’ancienne version: *Méthodes de calcul des relais (GFNRBC / ER-MK, 06/09/2014)*.
+- Le document n’est pas fourni dans le dépôt et n’a pas pu être vérifié pendant
+  l’audit du 26 juillet 2026. Le module ne doit donc pas être présenté comme un
+  calcul doctrinal national validé.
 - Méthodes couvertes:
-  - Méthode mathématique (feuille p.10).
+  - Méthode mathématique détaillée.
   - Méthode par approximation.
   - Vue abaque guidée.
 

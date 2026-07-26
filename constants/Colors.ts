@@ -25,7 +25,7 @@ export const Colors = {
     border: '#E1E4E8',         // Gris plus visible
 
     // États
-    error: '#1565C0',          // Bleu cohérent avec title
+    error: '#C62828',          // Rouge accessible pour les erreurs
     success: '#2E7D32',        // Vert pour feedback positif
     warning: '#F57C00',        // Orange pour avertissements
 
@@ -72,7 +72,7 @@ export const Colors = {
     border: '#343C49',         // Bordure subtile mais visible
 
     // États
-    error: '#64B5F6',
+    error: '#EF9A9A',
     success: '#66BB6A',        // Vert lumineux
     warning: '#FFA726',        // Orange lumineux
 

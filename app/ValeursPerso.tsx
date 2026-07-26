@@ -19,10 +19,6 @@ export default function ValeursPerso() {
     pertesDeCharge: false,
     calculEtablissement: false,
     relais: false,
-    grandsFeuxAttaqueOffensive: false,
-    grandsFeuxLuttePropagation: false,
-    grandsFeuxSurface: false,
-    grandsFeuxFHLI: false,
   });
   const [defaultTarget, setDefaultTarget] = useState(String(defaults.targetOutletBar));
   const [defaultDuration, setDefaultDuration] = useState<RelayMissionDuration>(defaults.missionDuration);
@@ -47,10 +43,6 @@ export default function ValeursPerso() {
         pertesDeCharge: false,
         calculEtablissement: false,
         relais: false,
-        grandsFeuxAttaqueOffensive: false,
-        grandsFeuxLuttePropagation: false,
-        grandsFeuxSurface: false,
-        grandsFeuxFHLI: false,
       });
     }, [])
   );
@@ -168,7 +160,8 @@ export default function ValeursPerso() {
       keyboardShouldPersistTaps="always"
     >
       <Text style={themedStyles.headerText}>
-        Personnalisez les valeurs utilisées dans des différents calculs de l'application en fonction de votre doctrine, équipements etc.. :
+        Personnalisez les valeurs utilisées par les calculs en fonction de votre
+        doctrine locale et de vos équipements.
       </Text>
       {/* Section Pertes de charge */}
       <TouchableOpacity style={themedStyles.sectionHeader} onPress={() => toggleSection('pertesDeCharge')}>
@@ -283,17 +276,14 @@ export default function ValeursPerso() {
             <Button
               title="Valider"
               onPress={() => {
-                const arr = editCustomPressions.map((text, idx) => {
+                const nums = editCustomPressions.map((text, idx) => {
                   const num = parseFloat(text.replace(',', '.'));
-                  if (!isNaN(num)) {
-                    return text;
-                  } else {
-                    return customPressions[idx].toString();
-                  }
+                  return Number.isFinite(num) && num >= 0
+                    ? num
+                    : customPressions[idx];
                 });
-                const nums = editCustomPressions.map(text => parseFloat(text.replace(',', '.')));
                 setCustomPressions(nums);
-                setEditCustomPressions(arr);
+                setEditCustomPressions(nums.map(String));
               }}
             />
           </View>
@@ -441,30 +431,6 @@ export default function ValeursPerso() {
           </View>
         </View>
       )}
-      {/* Section Grands feux / Attaque offensive */}
-      <TouchableOpacity style={themedStyles.sectionHeader} onPress={() => toggleSection('grandsFeuxAttaqueOffensive')}>
-        <Text style={themedStyles.sectionTitle}>Grands feux / Attaque offensive :</Text>
-        <Ionicons name={expandedSections.grandsFeuxAttaqueOffensive ? 'chevron-up' : 'chevron-down'} color='#1976D2' size={20} />
-      </TouchableOpacity>
-      {expandedSections.grandsFeuxAttaqueOffensive && <View style={{ padding: 16 }}><Text style={{ color: colors.text }}>À implémenter…</Text></View>}
-      {/* Section Grands feux / Lutte propagation */}
-      <TouchableOpacity style={themedStyles.sectionHeader} onPress={() => toggleSection('grandsFeuxLuttePropagation')}>
-        <Text style={themedStyles.sectionTitle}>Grands feux / Lutte propagation :</Text>
-        <Ionicons name={expandedSections.grandsFeuxLuttePropagation ? 'chevron-up' : 'chevron-down'} color='#1976D2' size={20} />
-      </TouchableOpacity>
-      {expandedSections.grandsFeuxLuttePropagation && <View style={{ padding: 16 }}><Text style={{ color: colors.text }}>À implémenter…</Text></View>}
-      {/* Section Grands feux / Surface */}
-      <TouchableOpacity style={themedStyles.sectionHeader} onPress={() => toggleSection('grandsFeuxSurface')}>
-        <Text style={themedStyles.sectionTitle}>Grands feux / Surface :</Text>
-        <Ionicons name={expandedSections.grandsFeuxSurface ? 'chevron-up' : 'chevron-down'} color='#1976D2' size={20} />
-      </TouchableOpacity>
-      {expandedSections.grandsFeuxSurface && <View style={{ padding: 16 }}><Text style={{ color: colors.text }}>À implémenter…</Text></View>}
-      {/* Section Grands feux / FHLI */}
-      <TouchableOpacity style={themedStyles.sectionHeader} onPress={() => toggleSection('grandsFeuxFHLI')}>
-        <Text style={themedStyles.sectionTitle}>Grands feux / FHLI :</Text>
-        <Ionicons name={expandedSections.grandsFeuxFHLI ? 'chevron-up' : 'chevron-down'} color='#1976D2' size={20} />
-      </TouchableOpacity>
-      {expandedSections.grandsFeuxFHLI && <View style={{ padding: 16 }}><Text style={{ color: colors.text }}>À implémenter…</Text></View>}
       <Button
         title="Réinitialiser les valeurs par défaut"
         variant="secondary"

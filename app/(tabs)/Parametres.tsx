@@ -15,7 +15,6 @@ import { RELEASE_NOTES } from '../../constants/ReleaseNotes';
 export default function Parametres() {
   const { theme, setTheme } = useThemeContext();
   const palette = Colors[theme];
-  const [isFrench, setIsFrench] = useState(true);
   const [expandedSections, setExpandedSections] = useState({
     releaseNotes: false,
   });
@@ -24,33 +23,6 @@ export default function Parametres() {
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <ScreenHeader title="Paramètres" icon="settings" />
-
-        <Card style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="language" size={20} color={palette.title} />
-            <Title style={{ marginBottom: 0, marginLeft: 8 }}>Langue</Title>
-          </View>
-          <View style={styles.rowBetween}>
-            <Body>Français</Body>
-            <Switch
-              value={isFrench}
-              onValueChange={setIsFrench}
-              trackColor={{ false: palette.border, true: palette.primaryLight }}
-              thumbColor={theme === 'dark' ? palette.card : '#FFFFFF'}
-              ios_backgroundColor={palette.border}
-            />
-          </View>
-          <View style={styles.rowBetween}>
-            <Body>English</Body>
-            <Switch
-              value={!isFrench}
-              onValueChange={(v) => setIsFrench(!v)}
-              trackColor={{ false: palette.border, true: palette.primaryLight }}
-              thumbColor={theme === 'dark' ? palette.card : '#FFFFFF'}
-              ios_backgroundColor={palette.border}
-            />
-          </View>
-        </Card>
 
         <Card style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -74,6 +46,16 @@ export default function Parametres() {
             <Ionicons name="calculator" size={20} color={palette.title} />
             <Title style={{ marginBottom: 0, marginLeft: 8 }}>Calculs</Title>
           </View>
+          <Body>
+            Consultez le périmètre validé, les limites connues et les sources
+            doctrinales françaises utilisées.
+          </Body>
+          <Button
+            title="Doctrine et limites"
+            variant="outline"
+            onPress={() => router.push('/doctrine' as never)}
+            style={{ marginTop: 12 }}
+          />
           <Button
             title="Valeurs personnalisées"
             onPress={() => router.push('/ValeursPerso')}

@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.1.0 (2026-07-26)
+
+### Doctrine et fiabilité
+- Remplacement de l’extrapolation du « débit maximal PEI » par une comparaison au débit réellement mesuré à 1 bar, conformément au RDDECI des Yvelines.
+- Remplacement des anciens taux mousse par les taux minimaux 4/4/5/8 L/min/m² de l’annexe VI ICPE ; temporisation calculée à demi-taux.
+- Retrait des calculateurs « puissance » et « surface » dont les coefficients n’étaient pas rattachés à une source doctrinale vérifiable.
+- Ajout d’une page « Doctrine et limites » et d’un audit doctrinal détaillé.
+
+### Corrections
+- Recalcul de la perte de charge lors de la modification d’un tronçon mémorisé.
+- Prise en compte effective du pourcentage de travail choisi dans le dimensionnement des relais.
+- Récupération sûre après corruption des valeurs personnalisées persistées.
+- Suppression des routes, composants et réglages inachevés hérités d’anciennes versions.
+- Suppression du faux sélecteur de langue et clarification des libellés de navigation.
+
+### Qualité et publication
+- Ajout de tests unitaires PEI et mousse et renforcement des tests relais.
+- Ajout du contrôle TypeScript à la CI et à la vérification de release.
+- Harmonisation du versionnage web, Expo et iOS en 1.1.0 (build 4).
+- Nettoyage des dépendances et remplacement de la commande web obsolète.
+
 ## v1.0.0 (2026-03-07)
 
 ### Publication iOS

@@ -107,6 +107,9 @@ function getEnabledEngineModel(
 ): RelayEngineModelV2 {
   const enabled = engineCatalog.filter((model) => model.enabled);
   const fallback = enabled[0] ?? engineCatalog[0];
+  if (!fallback) {
+    throw new Error('Aucun modèle d’engin-pompe disponible.');
+  }
   return enabled.find((model) => model.id === selectedId) ?? fallback;
 }
 
@@ -130,25 +133,38 @@ function computeRecommendedPumpCount(
     });
   }
 
-  if (scenario.method === 'approximation') {
-    const count = Math.max(1, Math.ceil(totalLengthM / DEFAULT_APPROX_SPACING_M));
-    const workRate = pressureNeededFromPumpsBar / (count * model.nominalPressureBar);
-    return { count, workRate };
-  }
-
   const maxPumps = Math.max(1, Math.round(scenario.maxPumps));
+  const selectedWorkRate = Math.min(
+    1,
+    Math.max(EPSILON, scenario.workRatePercent / 100)
+  );
+  const pressureBasedCount = Math.max(
+    1,
+    Math.ceil(
+      pressureNeededFromPumpsBar /
+        (model.nominalPressureBar * selectedWorkRate)
+    )
+  );
+  const approximationCount =
+    scenario.method === 'approximation'
+      ? Math.max(1, Math.ceil(totalLengthM / DEFAULT_APPROX_SPACING_M))
+      : 1;
+  const requiredCount = Math.max(pressureBasedCount, approximationCount);
 
-  for (let count = 1; count <= maxPumps; count += 1) {
-    const workRate = pressureNeededFromPumpsBar / (count * model.nominalPressureBar);
-    if (workRate <= 1 + EPSILON) {
-      return { count, workRate };
-    }
+  if (requiredCount <= maxPumps) {
+    return {
+      count: requiredCount,
+      workRate:
+        pressureNeededFromPumpsBar /
+        (requiredCount * model.nominalPressureBar),
+    };
   }
 
-  const maxedWorkRate = pressureNeededFromPumpsBar / (maxPumps * model.nominalPressureBar);
+  const maxedWorkRate =
+    pressureNeededFromPumpsBar / (maxPumps * model.nominalPressureBar);
   pushWarning(warnings, {
     code: 'max_pumps_reached',
-    message: `Le maximum de ${maxPumps} pompes ne suffit pas pour respecter le %W recommandé.`,
+    message: `Le maximum de ${maxPumps} pompes ne suffit pas pour respecter le %W sélectionné.`,
     level: 'blocking',
   });
 

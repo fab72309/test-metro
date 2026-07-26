@@ -1,5 +1,7 @@
 // src/constants/pertesDeChargeTable.ts
-// Tableau des pertes de charge (en bar) pour chaque type de tuyau et débit
+// Tableau pédagogique initial des pertes de charge (en bar).
+// Sa provenance numérique n'est pas incluse dans le dépôt. L'utilisateur doit
+// l'aligner sur la doctrine locale et les caractéristiques de son matériel.
 // Format : [typeTuyau][débit] = perte de charge en bar (ou null si non dispo)
 
 export type TypeTuyau = '45x20' | '70x20' | '70x40' | '110x20' | '110x40';

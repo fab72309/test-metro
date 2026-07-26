@@ -6,6 +6,17 @@ export interface ReleaseNote {
 
 export const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: 'v1.1.0',
+        date: '26/07/2026',
+        changes: [
+            'Calcul de capacité PEI fondé sur le débit mesuré à 1 bar.',
+            'Dimensionnement mousse aligné sur les taux minimaux de l’annexe VI ICPE.',
+            'Correction du recalcul des tronçons et du pourcentage de travail des relais.',
+            'Ajout d’une page Doctrine et limites avec les sources officielles.',
+            'Suppression des écrans hérités et des calculateurs sans fondement vérifiable.',
+        ],
+    },
+    {
         version: 'v1.0.0',
         date: '07/03/2026',
         changes: [

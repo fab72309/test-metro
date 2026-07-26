@@ -11,7 +11,7 @@ type RelayMethodTabsProps = {
 };
 
 const methodLabel: Record<RelayMethod, string> = {
-  math: 'Feuille p.10',
+  math: 'Calcul détaillé',
   approximation: 'Approximation',
   abaque: 'Abaque guidé',
 };
@@ -31,7 +31,8 @@ export function RelayMethodTabs({ value, onChange }: RelayMethodTabsProps) {
         ))}
       </View>
       <Caption>
-        `Feuille p.10` = calcul complet doctrine. `Abaque` ajoute un pilotage graphique avec réglage de l’espacement.
+        Le calcul détaillé explicite les pertes et le dénivelé. L’abaque ajoute
+        un réglage graphique de l’espacement.
       </Caption>
     </View>
   );
