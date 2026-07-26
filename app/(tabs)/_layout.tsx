@@ -4,13 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { MemoSegmentsProvider } from '../../context/MemoSegmentsContext';
 
-import Accueil from './Accueil';
-import Parametres from './Parametres';
-import GrandsFeux from './GrandsFeux';
-import DebitMaxPEI from './DebitMaxPEI';
-import Relais from './Relais';
-import CalculEtablissement from './CalculEtablissement';
-import CalculPertesDeCharge from './CalculPertesDeCharge';
+import Accueil from './home';
+import Parametres from './reglages';
+import GrandsFeux from './liquides-inflammables';
+import DebitMaxPEI from './capacite-pei';
+import Relais from './pompage-relais';
+import CalculEtablissement from './calcul-etablissement';
+import CalculPertesDeCharge from './calcul-pertes-de-charge';
 
 const Tabs = createBottomTabNavigator();
 
@@ -18,7 +18,7 @@ export default function TabLayout() {
   return (
     <MemoSegmentsProvider>
       <Tabs.Navigator
-        initialRouteName="Accueil"
+        initialRouteName="home"
         screenOptions={{
           tabBarActiveTintColor: '#1976D2',
           tabBarInactiveTintColor: '#6B7280',
@@ -42,7 +42,7 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="Accueil"
+          name="home"
           component={Accueil}
           options={{
             title: 'Accueil',
@@ -53,7 +53,7 @@ export default function TabLayout() {
           initialParams={{ initial: true }}
         />
         <Tabs.Screen
-          name="CalculPertesDeCharge"
+          name="calcul-pertes-de-charge"
           component={CalculPertesDeCharge}
           options={{
             title: 'Pertes',
@@ -63,7 +63,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="CalculEtablissement"
+          name="calcul-etablissement"
           component={CalculEtablissement}
           options={{
             title: 'Étab.',
@@ -73,7 +73,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="DebitMaxPEI"
+          name="capacite-pei"
           component={DebitMaxPEI}
           options={{
             title: 'PEI',
@@ -83,7 +83,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="Relais"
+          name="pompage-relais"
           component={Relais}
           options={{
             title: 'Relais',
@@ -93,7 +93,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="GrandsFeux"
+          name="liquides-inflammables"
           component={GrandsFeux}
           options={{
             title: 'Mousse',
@@ -103,7 +103,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="Parametres"
+          name="reglages"
           component={Parametres}
           options={{
             title: 'Paramètres',

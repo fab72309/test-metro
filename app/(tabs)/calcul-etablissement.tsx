@@ -85,7 +85,7 @@ export default function CalculEtablissement() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <ScreenHeader title="Calcul établissement" icon="calculator" />
+        <ScreenHeader title="Pression d’établissement" icon="calculator" />
 
         <Card variant="outlined" style={styles.section}>
           <Label style={{ color: palette.primary }}>Principe de calcul</Label>

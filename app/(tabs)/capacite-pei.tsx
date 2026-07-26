@@ -128,7 +128,7 @@ export default function DebitMaxPEI() {
         ) : null}
 
         <Caption>
-          Aide au dimensionnement uniquement : les données du PEI, les prescriptions
+          Aide au dimensionnement : les données du PEI, les prescriptions
           du règlement départemental et la reconnaissance opérationnelle restent
           prioritaires.
         </Caption>
